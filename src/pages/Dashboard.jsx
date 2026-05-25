@@ -14,23 +14,17 @@ import { db, auth } from "../firebase";
 
 export default function Dashboard() {
 
-  /* CUSTOM HABITS */
-
   const [habitsList, setHabitsList] =
     useState([]);
 
   const [newHabit, setNewHabit] =
     useState("");
 
-  /* HABIT DATA */
-
   const [habits, setHabits] =
     useState({});
 
   const today =
     new Date().toISOString().split("T")[0];
-
-  /* LOAD FROM FIREBASE */
 
   useEffect(() => {
 
@@ -104,8 +98,6 @@ export default function Dashboard() {
 
   }, []);
 
-  /* SAVE TO FIREBASE */
-
   const saveHabitsToFirebase =
     async (
       updatedHabits,
@@ -140,8 +132,6 @@ export default function Dashboard() {
       }
     };
 
-  /* ADD NEW HABIT */
-
   const addHabit = () => {
 
     if (
@@ -168,8 +158,6 @@ export default function Dashboard() {
     setNewHabit("");
   };
 
-  /* DELETE HABIT */
-
   const deleteHabit = async (
     habitToDelete
   ) => {
@@ -190,8 +178,6 @@ export default function Dashboard() {
       updatedHabitsList
     );
   };
-
-  /* EDIT HABIT */
 
   const editHabit = async (
     oldHabit
@@ -258,8 +244,6 @@ export default function Dashboard() {
     );
   };
 
-  /* TOGGLE HABIT */
-
   const toggleHabit = async (
     habit
   ) => {
@@ -285,15 +269,11 @@ export default function Dashboard() {
     );
   };
 
-  /* COMPLETED TODAY */
-
   const completedToday =
     habitsList.filter(
       (habit) =>
         habits[today]?.[habit]
     ).length;
-
-  /* STREAK CALCULATOR */
 
   const calculateStreak = (
     habit
@@ -331,44 +311,44 @@ export default function Dashboard() {
 
   return (
 
-    <div>
+    <div className="min-h-screen">
 
-      {/* TOP DASHBOARD CARDS */}
+      {/* TOP CARDS */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-        <div className="bg-slate-800 p-8 rounded-3xl shadow-lg hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
 
-          <h2 className="text-2xl mb-3 font-semibold">
+          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
             Completed Today
           </h2>
 
-          <p className="text-5xl font-bold">
+          <p className="text-5xl font-bold text-cyan-400">
             {completedToday}/
             {habitsList.length}
           </p>
 
         </div>
 
-        <div className="bg-slate-800 p-8 rounded-3xl shadow-lg hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
 
-          <h2 className="text-2xl mb-3 font-semibold">
+          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
             Current Date
           </h2>
 
-          <p className="text-4xl font-bold">
+          <p className="text-4xl font-bold text-blue-400">
             {today}
           </p>
 
         </div>
 
-        <div className="bg-slate-800 p-8 rounded-3xl shadow-lg hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
 
-          <h2 className="text-2xl mb-3 font-semibold">
+          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
             Total Habits
           </h2>
 
-          <p className="text-5xl font-bold">
+          <p className="text-5xl font-bold text-green-400">
             {habitsList.length}
           </p>
 
@@ -376,15 +356,15 @@ export default function Dashboard() {
 
       </div>
 
-      {/* HABITS TITLE */}
+      {/* TITLE */}
 
-      <h1 className="text-3xl font-bold mb-6">
+      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
         Today's Habits
       </h1>
 
       {/* ADD HABIT */}
 
-      <div className="flex gap-4 mb-8">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-5 rounded-3xl flex gap-4 mb-10 shadow-2xl">
 
         <input
           type="text"
@@ -399,20 +379,20 @@ export default function Dashboard() {
             )
           }
 
-          className="bg-slate-800 p-4 rounded-xl w-full outline-none"
+          className="bg-slate-900 border border-slate-700 p-4 rounded-2xl w-full outline-none text-white"
         />
 
         <button
           onClick={addHabit}
 
-          className="bg-cyan-500 px-6 rounded-xl font-bold"
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-2xl font-bold hover:scale-105 transition duration-300 shadow-xl"
         >
           Add
         </button>
 
       </div>
 
-      {/* HABITS GRID */}
+      {/* HABIT GRID */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -430,12 +410,12 @@ export default function Dashboard() {
                 toggleHabit(habit)
               }
 
-              className={`p-8 rounded-3xl cursor-pointer transition duration-300 hover:scale-105 shadow-xl
+              className={`p-8 rounded-3xl cursor-pointer transition duration-300 hover:scale-105 hover:rotate-1 shadow-2xl border
 
               ${
                 completed
-                  ? "bg-green-500"
-                  : "bg-slate-800 hover:bg-slate-700"
+                  ? "bg-gradient-to-br from-green-500 to-emerald-700 border-green-400"
+                  : "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-cyan-500"
               }`}
             >
 
@@ -461,7 +441,7 @@ export default function Dashboard() {
                       editHabit(habit);
                     }}
 
-                    className="bg-yellow-500 px-3 py-1 rounded-lg text-sm mr-2"
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 rounded-lg text-sm mr-2 shadow-lg"
                   >
                     ✏️
                   </button>
@@ -474,7 +454,7 @@ export default function Dashboard() {
                       deleteHabit(habit);
                     }}
 
-                    className="bg-red-500 px-3 py-1 rounded-lg text-sm"
+                    className="bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 rounded-lg text-sm shadow-lg"
                   >
                     ❌
                   </button>
@@ -483,24 +463,20 @@ export default function Dashboard() {
 
               </div>
 
-              <p className="mt-5 text-lg">
+              <p className="mt-5 text-lg text-slate-200">
 
                 {completed
-                  ? "Completed Today"
+                  ? "Completed Today 🎉"
                   : "Click to mark completed"}
 
               </p>
 
-              <p className="mt-5 text-slate-200 text-lg">
+              <p className="mt-5 text-slate-300 text-lg">
 
                 🔥 Streak:
-
                 {" "}
-
                 {calculateStreak(habit)}
-
                 {" "}
-
                 days
 
               </p>
