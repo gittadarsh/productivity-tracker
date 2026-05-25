@@ -10,7 +10,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 
 export default function Dashboard() {
 
@@ -38,8 +38,16 @@ export default function Dashboard() {
 
       try {
 
+        if (!auth.currentUser) {
+          return;
+        }
+
         const docRef =
-          doc(db, "habits", "userData");
+          doc(
+            db,
+            "habits",
+            auth.currentUser.uid
+          );
 
         const docSnap =
           await getDoc(docRef);
@@ -59,13 +67,30 @@ export default function Dashboard() {
 
         } else {
 
-          setHabitsList([
+          const defaultHabits = [
             "DSA",
             "Development",
             "Fitness",
             "Debating",
             "Reading",
-          ]);
+          ];
+
+          setHabitsList(
+            defaultHabits
+          );
+
+          await setDoc(
+            doc(
+              db,
+              "habits",
+              auth.currentUser.uid
+            ),
+            {
+              habits: {},
+              habitsList:
+                defaultHabits,
+            }
+          );
         }
 
       } catch (error) {
@@ -89,8 +114,16 @@ export default function Dashboard() {
 
       try {
 
+        if (!auth.currentUser) {
+          return;
+        }
+
         await setDoc(
-          doc(db, "habits", "userData"),
+          doc(
+            db,
+            "habits",
+            auth.currentUser.uid
+          ),
           {
             habits:
               updatedHabits,
