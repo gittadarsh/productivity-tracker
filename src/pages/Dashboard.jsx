@@ -14,15 +14,24 @@ import { db } from "../firebase";
 
 export default function Dashboard() {
 
-  const habitsList = [
-    "DSA",
-    "Development",
-    "Fitness",
-    "Debating",
-    "Reading",
-  ];
+  /* CUSTOM HABITS */
 
-  const [habits, setHabits] = useState({});
+  const [habitsList, setHabitsList] =
+    useState([
+      "DSA",
+      "Development",
+      "Fitness",
+      "Debating",
+      "Reading",
+    ]);
+
+  const [newHabit, setNewHabit] =
+    useState("");
+
+  /* HABIT DATA */
+
+  const [habits, setHabits] =
+    useState({});
 
   const today =
     new Date().toISOString().split("T")[0];
@@ -77,6 +86,25 @@ export default function Dashboard() {
       }
     };
 
+  /* ADD NEW HABIT */
+
+  const addHabit = () => {
+
+    if (
+      newHabit.trim() === "" ||
+      habitsList.includes(newHabit)
+    ) {
+      return;
+    }
+
+    setHabitsList([
+      ...habitsList,
+      newHabit,
+    ]);
+
+    setNewHabit("");
+  };
+
   /* TOGGLE HABIT */
 
   const toggleHabit = async (habit) => {
@@ -103,9 +131,11 @@ export default function Dashboard() {
 
   /* COMPLETED TODAY */
 
-  const completedToday = habitsList.filter(
-    (habit) => habits[today]?.[habit]
-  ).length;
+  const completedToday =
+    habitsList.filter(
+      (habit) =>
+        habits[today]?.[habit]
+    ).length;
 
   /* STREAK CALCULATOR */
 
@@ -117,12 +147,16 @@ export default function Dashboard() {
 
       const date = new Date();
 
-      date.setDate(date.getDate() - i);
+      date.setDate(
+        date.getDate() - i
+      );
 
       const formatted =
         date.toISOString().split("T")[0];
 
-      if (habits[formatted]?.[habit]) {
+      if (
+        habits[formatted]?.[habit]
+      ) {
 
         streak++;
 
@@ -150,7 +184,8 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-5xl font-bold">
-            {completedToday}/{habitsList.length}
+            {completedToday}/
+            {habitsList.length}
           </p>
 
         </div>
@@ -186,6 +221,36 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold mb-6">
         Today's Habits
       </h1>
+
+      {/* ADD HABIT */}
+
+      <div className="flex gap-4 mb-8">
+
+        <input
+          type="text"
+
+          placeholder="Add new habit..."
+
+          value={newHabit}
+
+          onChange={(e) =>
+            setNewHabit(
+              e.target.value
+            )
+          }
+
+          className="bg-slate-800 p-4 rounded-xl w-full outline-none"
+        />
+
+        <button
+          onClick={addHabit}
+
+          className="bg-cyan-500 px-6 rounded-xl font-bold"
+        >
+          Add
+        </button>
+
+      </div>
 
       {/* HABITS GRID */}
 
@@ -258,10 +323,17 @@ export default function Dashboard() {
         completed={completedToday}
         total={habitsList.length}
       />
-<Badges
-  completed={completedToday}
-/>
-<Heatmap habits={habits} />
+
+      {/* BADGES */}
+
+      <Badges
+        completed={completedToday}
+      />
+
+      {/* HEATMAP */}
+
+      <Heatmap habits={habits} />
+
     </div>
   );
 }
