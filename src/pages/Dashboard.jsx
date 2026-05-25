@@ -177,7 +177,8 @@ export default function Dashboard() {
     const updatedHabitsList =
       habitsList.filter(
         (habit) =>
-          habit !== habitToDelete
+          habit !==
+          habitToDelete
       );
 
     setHabitsList(
@@ -186,6 +187,73 @@ export default function Dashboard() {
 
     await saveHabitsToFirebase(
       habits,
+      updatedHabitsList
+    );
+  };
+
+  /* EDIT HABIT */
+
+  const editHabit = async (
+    oldHabit
+  ) => {
+
+    const newHabitName =
+      prompt(
+        "Enter new habit name:",
+        oldHabit
+      );
+
+    if (
+      !newHabitName ||
+      habitsList.includes(
+        newHabitName
+      )
+    ) {
+      return;
+    }
+
+    const updatedHabitsList =
+      habitsList.map((habit) =>
+
+        habit === oldHabit
+          ? newHabitName
+          : habit
+      );
+
+    const updatedHabits = {
+      ...habits,
+    };
+
+    Object.keys(updatedHabits)
+      .forEach((date) => {
+
+        if (
+          updatedHabits[date][
+            oldHabit
+          ] !== undefined
+        ) {
+
+          updatedHabits[date][
+            newHabitName
+          ] =
+            updatedHabits[date][
+              oldHabit
+            ];
+
+          delete updatedHabits[
+            date
+          ][oldHabit];
+        }
+      });
+
+    setHabitsList(
+      updatedHabitsList
+    );
+
+    setHabits(updatedHabits);
+
+    await saveHabitsToFirebase(
+      updatedHabits,
       updatedHabitsList
     );
   };
@@ -371,7 +439,7 @@ export default function Dashboard() {
               }`}
             >
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
 
                 <h2 className="text-2xl font-bold">
 
@@ -383,18 +451,35 @@ export default function Dashboard() {
 
                 </h2>
 
-                <button
-                  onClick={(e) => {
+                <div className="flex">
 
-                    e.stopPropagation();
+                  <button
+                    onClick={(e) => {
 
-                    deleteHabit(habit);
-                  }}
+                      e.stopPropagation();
 
-                  className="bg-red-500 px-3 py-1 rounded-lg text-sm"
-                >
-                  ❌
-                </button>
+                      editHabit(habit);
+                    }}
+
+                    className="bg-yellow-500 px-3 py-1 rounded-lg text-sm mr-2"
+                  >
+                    ✏️
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+
+                      e.stopPropagation();
+
+                      deleteHabit(habit);
+                    }}
+
+                    className="bg-red-500 px-3 py-1 rounded-lg text-sm"
+                  >
+                    ❌
+                  </button>
+
+                </div>
 
               </div>
 
