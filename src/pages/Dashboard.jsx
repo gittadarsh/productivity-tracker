@@ -17,13 +17,7 @@ export default function Dashboard() {
   /* CUSTOM HABITS */
 
   const [habitsList, setHabitsList] =
-    useState([
-      "DSA",
-      "Development",
-      "Fitness",
-      "Debating",
-      "Reading",
-    ]);
+    useState([]);
 
   const [newHabit, setNewHabit] =
     useState("");
@@ -52,8 +46,26 @@ export default function Dashboard() {
 
         if (docSnap.exists()) {
 
-          setHabits(docSnap.data());
+          const data =
+            docSnap.data();
 
+          setHabits(
+            data.habits || {}
+          );
+
+          setHabitsList(
+            data.habitsList || []
+          );
+
+        } else {
+
+          setHabitsList([
+            "DSA",
+            "Development",
+            "Fitness",
+            "Debating",
+            "Reading",
+          ]);
         }
 
       } catch (error) {
@@ -70,13 +82,22 @@ export default function Dashboard() {
   /* SAVE TO FIREBASE */
 
   const saveHabitsToFirebase =
-    async (updatedHabits) => {
+    async (
+      updatedHabits,
+      updatedHabitsList
+    ) => {
 
       try {
 
         await setDoc(
           doc(db, "habits", "userData"),
-          updatedHabits
+          {
+            habits:
+              updatedHabits,
+
+            habitsList:
+              updatedHabitsList,
+          }
         );
 
       } catch (error) {
@@ -97,17 +118,28 @@ export default function Dashboard() {
       return;
     }
 
-    setHabitsList([
+    const updatedHabitsList = [
       ...habitsList,
       newHabit,
-    ]);
+    ];
+
+    setHabitsList(
+      updatedHabitsList
+    );
+
+    saveHabitsToFirebase(
+      habits,
+      updatedHabitsList
+    );
 
     setNewHabit("");
   };
 
   /* TOGGLE HABIT */
 
-  const toggleHabit = async (habit) => {
+  const toggleHabit = async (
+    habit
+  ) => {
 
     const updatedHabits = {
 
@@ -125,7 +157,8 @@ export default function Dashboard() {
     setHabits(updatedHabits);
 
     await saveHabitsToFirebase(
-      updatedHabits
+      updatedHabits,
+      habitsList
     );
   };
 
@@ -139,7 +172,9 @@ export default function Dashboard() {
 
   /* STREAK CALCULATOR */
 
-  const calculateStreak = (habit) => {
+  const calculateStreak = (
+    habit
+  ) => {
 
     let streak = 0;
 
@@ -152,7 +187,9 @@ export default function Dashboard() {
       );
 
       const formatted =
-        date.toISOString().split("T")[0];
+        date
+          .toISOString()
+          .split("T")[0];
 
       if (
         habits[formatted]?.[habit]
