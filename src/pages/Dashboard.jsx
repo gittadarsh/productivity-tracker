@@ -168,6 +168,28 @@ export default function Dashboard() {
     setNewHabit("");
   };
 
+  /* DELETE HABIT */
+
+  const deleteHabit = async (
+    habitToDelete
+  ) => {
+
+    const updatedHabitsList =
+      habitsList.filter(
+        (habit) =>
+          habit !== habitToDelete
+      );
+
+    setHabitsList(
+      updatedHabitsList
+    );
+
+    await saveHabitsToFirebase(
+      habits,
+      updatedHabitsList
+    );
+  };
+
   /* TOGGLE HABIT */
 
   const toggleHabit = async (
@@ -349,15 +371,32 @@ export default function Dashboard() {
               }`}
             >
 
-              <h2 className="text-3xl font-bold">
+              <div className="flex items-center justify-between">
 
-                {completed
-                  ? "✅"
-                  : "⬜"}{" "}
+                <h2 className="text-2xl font-bold">
 
-                {habit}
+                  {completed
+                    ? "✅"
+                    : "⬜"}{" "}
 
-              </h2>
+                  {habit}
+
+                </h2>
+
+                <button
+                  onClick={(e) => {
+
+                    e.stopPropagation();
+
+                    deleteHabit(habit);
+                  }}
+
+                  className="bg-red-500 px-3 py-1 rounded-lg text-sm"
+                >
+                  ❌
+                </button>
+
+              </div>
 
               <p className="mt-5 text-lg">
 
