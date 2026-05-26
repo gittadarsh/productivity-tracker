@@ -47,6 +47,7 @@ import StudyPlanner from "./pages/StudyPlanner";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
 import LoadingSkeleton from "./components/LoadingSkeleton";
+import PageWrapper from "./components/PageWrapper";
 
 export default function App() {
 
@@ -532,9 +533,13 @@ export default function App() {
             <Route
               path="/"
               element={
-                <Dashboard
-                  user={user}
-                />
+                <PageWrapper>
+
+                  <Dashboard
+                    user={user}
+                  />
+
+                </PageWrapper>
               }
             />
 
@@ -545,7 +550,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Goals />
+                  <PageWrapper>
+
+                    <Goals />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -558,7 +567,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Analytics />
+                  <PageWrapper>
+
+                    <Analytics />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -571,7 +584,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Achievements />
+                  <PageWrapper>
+
+                    <Achievements />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -584,7 +601,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Heatmap />
+                  <PageWrapper>
+
+                    <Heatmap />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -597,7 +618,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Insights />
+                  <PageWrapper>
+
+                    <Insights />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -610,7 +635,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <Leaderboard />
+                  <PageWrapper>
+
+                    <Leaderboard />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -623,7 +652,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <QuestionSheets />
+                  <PageWrapper>
+
+                    <QuestionSheets />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -636,7 +669,11 @@ export default function App() {
                   user={user}
                 >
 
-                  <StudyPlanner />
+                  <PageWrapper>
+
+                    <StudyPlanner />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -650,7 +687,11 @@ export default function App() {
                   requiredRole="mentor"
                 >
 
-                  <MentorDashboard />
+                  <PageWrapper>
+
+                    <MentorDashboard />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -664,7 +705,11 @@ export default function App() {
                   requiredRole="mentor"
                 >
 
-                  <CreateSheet />
+                  <PageWrapper>
+
+                    <CreateSheet />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
@@ -678,7 +723,11 @@ export default function App() {
                   requiredRole="mentor"
                 >
 
-                  <StudentProgress />
+                  <PageWrapper>
+
+                    <StudentProgress />
+
+                  </PageWrapper>
 
                 </ProtectedRoute>
               }
