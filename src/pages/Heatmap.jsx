@@ -39,7 +39,7 @@ export default function Heatmap() {
         )
       ) {
 
-        return "bg-green-500 text-white rounded-xl";
+        return "completed-day";
       }
     }
 
@@ -56,19 +56,23 @@ export default function Heatmap() {
 
       </h1>
 
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-10 rounded-3xl shadow-2xl">
 
-        <Calendar
+        <div className="max-w-4xl mx-auto">
 
-          onChange={setDate}
+          <Calendar
 
-          value={date}
+            onChange={setDate}
 
-          tileClassName={
-            tileClassName
-          }
+            value={date}
 
-        />
+            tileClassName={
+              tileClassName
+            }
+
+          />
+
+        </div>
 
       </div>
 
