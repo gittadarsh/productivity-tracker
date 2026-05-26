@@ -82,6 +82,10 @@ export default function QuestionSheets() {
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Failed to load questions"
+        );
       }
     };
 
@@ -96,6 +100,10 @@ export default function QuestionSheets() {
         !topic ||
         !link
       ) {
+
+        alert(
+          "Please fill all fields"
+        );
 
         return;
       }
@@ -128,11 +136,19 @@ export default function QuestionSheets() {
         setTopic("");
         setLink("");
 
+        alert(
+          "Question Added Successfully!"
+        );
+
         loadQuestions();
 
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Failed to add question"
+        );
       }
     };
 
@@ -166,6 +182,10 @@ export default function QuestionSheets() {
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Failed to update question"
+        );
       }
     };
 
