@@ -43,6 +43,8 @@ import QuestionSheets from "./pages/QuestionSheets";
 import CreateSheet from "./pages/CreateSheet";
 import StudyPlanner from "./pages/StudyPlanner";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 export default function App() {
 
   const [darkMode, setDarkMode] =
@@ -510,19 +512,21 @@ export default function App() {
 
             <Link to="/questions">Question Sheets</Link>
 
-            <Link to="/create-sheet">Create Sheet</Link>
-
             <Link to="/planner">AI Planner</Link>
 
             {
               user?.role ===
               "mentor" && (
 
-                <Link to="/mentor">
+                <>
+                  <Link to="/mentor">
+                    Mentor Dashboard
+                  </Link>
 
-                  Mentor Dashboard
-
-                </Link>
+                  <Link to="/create-sheet">
+                    Create Sheet
+                  </Link>
+                </>
               )
             }
 
@@ -531,6 +535,8 @@ export default function App() {
           {/* ROUTES */}
 
           <Routes>
+
+            {/* PUBLIC */}
 
             <Route
               path="/"
@@ -541,72 +547,153 @@ export default function App() {
               }
             />
 
+            {/* AUTH REQUIRED */}
+
             <Route
               path="/goals"
-              element={<Goals />}
+              element={
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Goals />
+
+                </ProtectedRoute>
+              }
             />
 
             <Route
               path="/analytics"
-              element={<Analytics />}
+              element={
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Analytics />
+
+                </ProtectedRoute>
+              }
             />
 
             <Route
               path="/achievements"
               element={
-                <Achievements />
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Achievements />
+
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="/heatmap"
-              element={<Heatmap />}
-            />
-
-            <Route
-              path="/insights"
-              element={<Insights />}
-            />
-
-            <Route
-              path="/mentor"
               element={
-                <MentorDashboard />
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Heatmap />
+
+                </ProtectedRoute>
               }
             />
 
             <Route
-              path="/student/:uid"
+              path="/insights"
               element={
-                <StudentProgress />
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Insights />
+
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="/leaderboard"
               element={
-                <Leaderboard />
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <Leaderboard />
+
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="/questions"
               element={
-                <QuestionSheets />
-              }
-            />
+                <ProtectedRoute
+                  user={user}
+                >
 
-            <Route
-              path="/create-sheet"
-              element={
-                <CreateSheet />
+                  <QuestionSheets />
+
+                </ProtectedRoute>
               }
             />
 
             <Route
               path="/planner"
               element={
-                <StudyPlanner />
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <StudyPlanner />
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MENTOR ONLY */}
+
+            <Route
+              path="/mentor"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <MentorDashboard />
+
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/create-sheet"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <CreateSheet />
+
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/student/:uid"
+              element={
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <StudentProgress />
+
+                </ProtectedRoute>
               }
             />
 
