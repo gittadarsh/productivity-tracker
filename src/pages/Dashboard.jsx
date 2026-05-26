@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import AIInsights from "../components/AIInsights";
 import Badges from "../components/Badges";
 import Heatmap from "../components/Heatmap";
+import AIAnalysis from "../components/AIAnalysis";
 
 import {
   doc,
@@ -562,7 +563,10 @@ export default function Dashboard() {
       />
 
       <Heatmap habits={habits} />
-
+<AIAnalysis
+  habits={habits}
+  habitsList={habitsList}
+/>
     </div>
   );
 }
