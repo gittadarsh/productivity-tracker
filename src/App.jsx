@@ -1,6 +1,10 @@
 import { signInWithPopup, signOut } from "firebase/auth";
 
-import { auth, provider } from "./firebase";
+import {
+  auth,
+  provider,
+  db,
+} from "./firebase";
 
 import {
   doc,
@@ -8,9 +12,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 
-import { db } from "./firebase";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   BrowserRouter,
@@ -37,71 +39,147 @@ export default function App() {
     useState(null);
 
   const [role, setRole] =
-    useState("student");
+    useState("");
 
-  const handleGoogleLogin =
-    async () => {
+  const [selectedMentor, setSelectedMentor] =
+    useState("");
 
-      try {
+  const mentors = [
+    {
+      id: "mentor1",
+      name: "Prof. Sharma",
+    },
+    {
+      id: "mentor2",
+      name: "Prof. Singh",
+    },
+  ];
 
-        const result =
-          await signInWithPopup(
-            auth,
-            provider
-          );
+  /* AUTO LOGIN */
 
-        const loggedInUser =
-          result.user;
+  useEffect(() => {
 
-        setUser(loggedInUser);
+    const savedUser =
+      localStorage.getItem("user");
 
-        const userRef =
-          doc(
-            db,
-            "users",
-            loggedInUser.uid
-          );
+    if (savedUser) {
 
-        const userSnap =
-          await getDoc(userRef);
+      setUser(JSON.parse(savedUser));
+    }
 
-        if (!userSnap.exists()) {
+  }, []);
 
-          await setDoc(userRef, {
+  /* GOOGLE LOGIN */
 
-            uid:
-              loggedInUser.uid,
+  const handleGoogleLogin = async () => {
 
-            name:
-              loggedInUser.displayName,
+    try {
 
-            email:
-              loggedInUser.email,
+      if (!role) {
 
-            role:
-              role,
+        alert(
+          "Please select Student or Mentor first"
+        );
 
-            mentorId:
-              "",
-
-            createdAt:
-              new Date(),
-          });
-        }
-
-      } catch (error) {
-
-        console.log(error);
-
+        return;
       }
-    };
+
+      if (
+        role === "student" &&
+        !selectedMentor
+      ) {
+
+        alert(
+          "Please select a mentor"
+        );
+
+        return;
+      }
+
+      const result =
+        await signInWithPopup(
+          auth,
+          provider
+        );
+
+      const loggedInUser =
+        result.user;
+
+      const userRef = doc(
+        db,
+        "users",
+        loggedInUser.uid
+      );
+
+      const userSnap =
+        await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+
+        await setDoc(userRef, {
+
+          uid: loggedInUser.uid,
+
+          name:
+            loggedInUser.displayName,
+
+          email:
+            loggedInUser.email,
+
+          photo:
+            loggedInUser.photoURL,
+
+          role: role,
+
+          mentorId:
+            role === "student"
+              ? selectedMentor
+              : null,
+        });
+      }
+
+      const userData = {
+        uid: loggedInUser.uid,
+
+        name:
+          loggedInUser.displayName,
+
+        email:
+          loggedInUser.email,
+
+        photo:
+          loggedInUser.photoURL,
+
+        role: role,
+
+        mentorId:
+          role === "student"
+            ? selectedMentor
+            : null,
+      };
+
+      setUser(userData);
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(userData)
+      );
+
+    } catch (error) {
+
+      console.log(error);
+    }
+  };
+
+  /* LOGOUT */
 
   const handleLogout = async () => {
 
     await signOut(auth);
 
-    setUser(null);
+    localStorage.removeItem("user");
 
+    setUser(null);
   };
 
   return (
@@ -109,8 +187,7 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen px-6 py-8
-
+        className={`min-h-screen px-6 py-8 transition duration-300
         ${
           darkMode
             ? "bg-slate-950 text-white"
@@ -120,9 +197,9 @@ export default function App() {
 
         <div className="max-w-7xl mx-auto">
 
-          {/* TOP BAR */}
+          {/* HEADER */}
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
 
             <h1 className="text-5xl font-bold">
 
@@ -130,7 +207,9 @@ export default function App() {
 
             </h1>
 
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+
+              {/* ROLE BUTTONS */}
 
               {!user && (
 
@@ -140,77 +219,103 @@ export default function App() {
                     onClick={() =>
                       setRole("student")
                     }
-
-                    className={`px-5 py-3 rounded-xl font-bold
+                    className={`px-5 py-3 rounded-xl font-semibold transition
 
                     ${
                       role === "student"
-
                         ? "bg-cyan-500"
-
                         : "bg-slate-700"
                     }`}
                   >
-
-                    👨‍🎓 Student
-
+                    🎓 Student
                   </button>
 
                   <button
                     onClick={() =>
                       setRole("mentor")
                     }
-
-                    className={`px-5 py-3 rounded-xl font-bold
+                    className={`px-5 py-3 rounded-xl font-semibold transition
 
                     ${
                       role === "mentor"
-
-                        ? "bg-yellow-500"
-
+                        ? "bg-green-500"
                         : "bg-slate-700"
                     }`}
                   >
-
                     👨‍🏫 Mentor
-
                   </button>
 
                 </div>
               )}
+
+              {/* MENTOR SELECT */}
+
+              {
+                role === "student" &&
+                !user && (
+
+                  <select
+                    className="bg-slate-800 px-4 py-3 rounded-xl"
+                    onChange={(e) =>
+                      setSelectedMentor(
+                        e.target.value
+                      )
+                    }
+                  >
+
+                    <option value="">
+                      Select Mentor
+                    </option>
+
+                    {mentors.map((mentor) => (
+
+                      <option
+                        key={mentor.id}
+                        value={mentor.id}
+                      >
+                        {mentor.name}
+                      </option>
+
+                    ))}
+
+                  </select>
+                )
+              }
+
+              {/* LOGIN */}
 
               {user ? (
 
                 <div className="flex items-center gap-4">
 
                   <img
-                    src={user.photoURL}
+                    src={user.photo}
                     alt="profile"
-
                     className="w-12 h-12 rounded-full"
                   />
 
                   <div>
 
-                    <p className="font-bold">
-                      {user.displayName}
+                    <p className="font-semibold">
+
+                      {user.name}
+
                     </p>
 
-                    <p className="text-sm text-slate-400">
-                      {role}
+                    <p className="text-sm text-slate-300">
+
+                      {user.role}
+
                     </p>
-
-                    <button
-                      onClick={handleLogout}
-
-                      className="bg-red-500 px-4 py-2 rounded-xl mt-2"
-                    >
-
-                      Logout
-
-                    </button>
 
                   </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="bg-red-500 px-4 py-2 rounded-xl"
+                  >
+                    Logout
+                  </button>
 
                 </div>
 
@@ -220,67 +325,87 @@ export default function App() {
                   onClick={
                     handleGoogleLogin
                   }
-
-                  className="bg-blue-500 px-5 py-3 rounded-xl font-bold"
+                  className="bg-blue-500 px-5 py-3 rounded-xl font-semibold hover:bg-blue-600 transition"
                 >
-
                   Sign in with Google
-
                 </button>
 
               )}
 
+              {/* DARK MODE */}
+
               <button
                 onClick={() =>
-                  setDarkMode(
-                    !darkMode
-                  )
+                  setDarkMode(!darkMode)
                 }
-
-                className="bg-slate-700 px-5 py-3 rounded-xl"
+                className="bg-slate-700 px-5 py-3 rounded-xl hover:bg-slate-600 transition"
               >
-
                 {darkMode
                   ? "☀ Light"
                   : "🌙 Dark"}
-
               </button>
 
             </div>
 
           </div>
 
-          {/* NAVIGATION */}
+          {/* NAVBAR */}
 
           <div className="flex flex-wrap gap-8 mb-10 text-2xl font-semibold">
 
-            <Link to="/">
+            <Link
+              to="/"
+              className="hover:text-cyan-400 transition"
+            >
               Dashboard
             </Link>
 
-            <Link to="/goals">
+            <Link
+              to="/goals"
+              className="hover:text-cyan-400 transition"
+            >
               Goals
             </Link>
 
-            <Link to="/analytics">
+            <Link
+              to="/analytics"
+              className="hover:text-cyan-400 transition"
+            >
               Analytics
             </Link>
 
-            <Link to="/achievements">
+            <Link
+              to="/achievements"
+              className="hover:text-cyan-400 transition"
+            >
               Achievements
             </Link>
 
-            <Link to="/heatmap">
+            <Link
+              to="/heatmap"
+              className="hover:text-cyan-400 transition"
+            >
               Heatmap
             </Link>
 
-            <Link to="/insights">
+            <Link
+              to="/insights"
+              className="hover:text-cyan-400 transition"
+            >
               AI Insights
             </Link>
 
-            <Link to="/mentor">
-              Mentor Dashboard
-            </Link>
+            {
+              user?.role === "mentor" && (
+
+                <Link
+                  to="/mentor"
+                  className="hover:text-green-400 transition"
+                >
+                  Mentor Dashboard
+                </Link>
+              )
+            }
 
           </div>
 
@@ -290,7 +415,11 @@ export default function App() {
 
             <Route
               path="/"
-              element={<Dashboard />}
+              element={
+                <Dashboard
+                  user={user}
+                />
+              }
             />
 
             <Route
@@ -305,7 +434,9 @@ export default function App() {
 
             <Route
               path="/achievements"
-              element={<Achievements />}
+              element={
+                <Achievements />
+              }
             />
 
             <Route
