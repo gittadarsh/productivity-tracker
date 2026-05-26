@@ -7,6 +7,7 @@ import AIAnalysis from "../components/AIAnalysis";
 import NotificationBox from "../components/NotificationBox";
 import AIRecommendations from "../components/AIRecommendations";
 import ReportGenerator from "../components/ReportGenerator";
+import SmartGoals from "../components/SmartGoals";
 
 import {
   doc,
@@ -579,6 +580,10 @@ export default function Dashboard() {
   habitsList={habitsList}
 />
 <AIRecommendations
+  habits={habits}
+  habitsList={habitsList}
+/>
+<SmartGoals
   habits={habits}
   habitsList={habitsList}
 />
