@@ -5,6 +5,7 @@ import Badges from "../components/Badges";
 import Heatmap from "../components/Heatmap";
 import AIAnalysis from "../components/AIAnalysis";
 import NotificationBox from "../components/NotificationBox";
+import ReportGenerator from "../components/ReportGenerator";
 
 import {
   doc,
@@ -572,6 +573,11 @@ export default function Dashboard() {
   habits={habits}
   habitsList={habitsList}
 />
+<ReportGenerator
+  habits={habits}
+  habitsList={habitsList}
+/>
+
     </div>
   );
 }
