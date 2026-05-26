@@ -1,267 +1,343 @@
-import { useEffect, useState } from "react";
+import { signInWithPopup, signOut } from "firebase/auth";
+
+import { auth, provider } from "./firebase";
 
 import {
   doc,
+  setDoc,
   getDoc,
 } from "firebase/firestore";
 
+import { db } from "./firebase";
+
+import { useState } from "react";
+
 import {
-  useParams,
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
 } from "react-router-dom";
 
-import { db } from "../firebase";
+import Dashboard from "./pages/Dashboard";
+import Goals from "./pages/Goals";
+import Analytics from "./pages/Analytics";
+import Achievements from "./pages/Achievements";
+import Heatmap from "./pages/Heatmap";
+import Insights from "./pages/Insights";
+import MentorDashboard from "./pages/MentorDashboard";
+import StudentProgress from "./pages/StudentProgress";
 
-export default function StudentProgress() {
+export default function App() {
 
-  const { uid } = useParams();
+  const [darkMode, setDarkMode] =
+    useState(true);
 
-  const [studentData,
-    setStudentData] =
+  const [user, setUser] =
     useState(null);
 
-  useEffect(() => {
+  const [role, setRole] =
+    useState("student");
 
-    const loadStudentData =
-      async () => {
+  const handleGoogleLogin =
+    async () => {
 
-        try {
+      try {
 
-          const habitsRef =
-            doc(
-              db,
-              "habits",
-              uid
-            );
+        const result =
+          await signInWithPopup(
+            auth,
+            provider
+          );
 
-          const habitsSnap =
-            await getDoc(
-              habitsRef
-            );
+        const loggedInUser =
+          result.user;
 
-          const userRef =
-            doc(
-              db,
-              "users",
-              uid
-            );
+        setUser(loggedInUser);
 
-          const userSnap =
-            await getDoc(
-              userRef
-            );
+        const userRef =
+          doc(
+            db,
+            "users",
+            loggedInUser.uid
+          );
 
-          if (
-            habitsSnap.exists()
-            &&
-            userSnap.exists()
-          ) {
+        const userSnap =
+          await getDoc(userRef);
 
-            setStudentData({
+        if (!userSnap.exists()) {
 
-              user:
-                userSnap.data(),
+          await setDoc(userRef, {
 
-              habits:
-                habitsSnap.data(),
-            });
-          }
+            uid:
+              loggedInUser.uid,
 
-        } catch (error) {
+            name:
+              loggedInUser.displayName,
 
-          console.log(error);
+            email:
+              loggedInUser.email,
 
+            role:
+              role,
+
+            mentorId:
+              "",
+
+            createdAt:
+              new Date(),
+          });
         }
-      };
 
-    loadStudentData();
+      } catch (error) {
 
-  }, [uid]);
+        console.log(error);
 
-  if (!studentData) {
+      }
+    };
 
-    return (
+  const handleLogout = async () => {
 
-      <div className="text-3xl font-bold">
+    await signOut(auth);
 
-        Loading...
+    setUser(null);
 
-      </div>
-    );
-  }
-
-  const habits =
-    studentData.habits.habits || {};
-
-  const habitsList =
-    studentData.habits.habitsList || [];
-
-  const totalDays =
-    Object.keys(habits).length;
+  };
 
   return (
 
-    <div>
+    <BrowserRouter>
 
-      <h1 className="text-5xl font-bold mb-10 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+      <div
+        className={`min-h-screen px-6 py-8
 
-        👨‍🎓 Student Progress
+        ${
+          darkMode
+            ? "bg-slate-950 text-white"
+            : "bg-slate-100 text-black"
+        }`}
+      >
 
-      </h1>
+        <div className="max-w-7xl mx-auto">
 
-      {/* STUDENT INFO */}
+          {/* TOP BAR */}
 
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 
-        <h2 className="text-4xl font-bold mb-4">
+            <h1 className="text-5xl font-bold">
 
-          {studentData.user.name}
+              🚀 Productivity Tracker
 
-        </h2>
+            </h1>
 
-        <p className="text-xl text-slate-300">
+            <div className="flex flex-wrap items-center gap-4">
 
-          📧
-          {" "}
-          {studentData.user.email}
+              {!user && (
 
-        </p>
+                <div className="flex gap-3">
 
-        <p className="text-slate-400 mt-3 break-all">
+                  <button
+                    onClick={() =>
+                      setRole("student")
+                    }
 
-          UID:
-          {" "}
-          {studentData.user.uid}
+                    className={`px-5 py-3 rounded-xl font-bold
 
-        </p>
+                    ${
+                      role === "student"
 
-      </div>
+                        ? "bg-cyan-500"
 
-      {/* ANALYTICS */}
+                        : "bg-slate-700"
+                    }`}
+                  >
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    👨‍🎓 Student
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+                  </button>
 
-          <h2 className="text-2xl mb-4">
+                  <button
+                    onClick={() =>
+                      setRole("mentor")
+                    }
 
-            Total Habits
+                    className={`px-5 py-3 rounded-xl font-bold
 
-          </h2>
+                    ${
+                      role === "mentor"
 
-          <p className="text-5xl font-bold text-cyan-400">
+                        ? "bg-yellow-500"
 
-            {habitsList.length}
+                        : "bg-slate-700"
+                    }`}
+                  >
 
-          </p>
+                    👨‍🏫 Mentor
 
-        </div>
+                  </button>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+                </div>
+              )}
 
-          <h2 className="text-2xl mb-4">
+              {user ? (
 
-            Active Days
+                <div className="flex items-center gap-4">
 
-          </h2>
+                  <img
+                    src={user.photoURL}
+                    alt="profile"
 
-          <p className="text-5xl font-bold text-green-400">
+                    className="w-12 h-12 rounded-full"
+                  />
 
-            {totalDays}
+                  <div>
 
-          </p>
+                    <p className="font-bold">
+                      {user.displayName}
+                    </p>
 
-        </div>
+                    <p className="text-sm text-slate-400">
+                      {role}
+                    </p>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+                    <button
+                      onClick={handleLogout}
 
-          <h2 className="text-2xl mb-4">
+                      className="bg-red-500 px-4 py-2 rounded-xl mt-2"
+                    >
 
-            Productivity Score
+                      Logout
 
-          </h2>
+                    </button>
 
-          <p className="text-5xl font-bold text-yellow-400">
+                  </div>
 
-            {totalDays * habitsList.length}
+                </div>
 
-          </p>
+              ) : (
 
-        </div>
+                <button
+                  onClick={
+                    handleGoogleLogin
+                  }
 
-      </div>
+                  className="bg-blue-500 px-5 py-3 rounded-xl font-bold"
+                >
 
-      {/* HABIT DETAILS */}
+                  Sign in with Google
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </button>
 
-        {habitsList.map((habit) => {
+              )}
 
-          let streak = 0;
+              <button
+                onClick={() =>
+                  setDarkMode(
+                    !darkMode
+                  )
+                }
 
-          for (
-            let i = 0;
-            i < 30;
-            i++
-          ) {
+                className="bg-slate-700 px-5 py-3 rounded-xl"
+              >
 
-            const date =
-              new Date();
+                {darkMode
+                  ? "☀ Light"
+                  : "🌙 Dark"}
 
-            date.setDate(
-              date.getDate() - i
-            );
-
-            const formatted =
-              date
-                .toISOString()
-                .split("T")[0];
-
-            if (
-              habits[
-                formatted
-              ]?.[habit]
-            ) {
-
-              streak++;
-
-            } else {
-
-              break;
-            }
-          }
-
-          return (
-
-            <div
-              key={habit}
-
-              className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl"
-            >
-
-              <h2 className="text-3xl font-bold mb-4">
-
-                {habit}
-
-              </h2>
-
-              <p className="text-xl text-green-400">
-
-                🔥
-                {" "}
-                Streak:
-                {" "}
-                {streak}
-                {" "}
-                days
-
-              </p>
+              </button>
 
             </div>
-          );
-        })}
+
+          </div>
+
+          {/* NAVIGATION */}
+
+          <div className="flex flex-wrap gap-8 mb-10 text-2xl font-semibold">
+
+            <Link to="/">
+              Dashboard
+            </Link>
+
+            <Link to="/goals">
+              Goals
+            </Link>
+
+            <Link to="/analytics">
+              Analytics
+            </Link>
+
+            <Link to="/achievements">
+              Achievements
+            </Link>
+
+            <Link to="/heatmap">
+              Heatmap
+            </Link>
+
+            <Link to="/insights">
+              AI Insights
+            </Link>
+
+            <Link to="/mentor">
+              Mentor Dashboard
+            </Link>
+
+          </div>
+
+          {/* ROUTES */}
+
+          <Routes>
+
+            <Route
+              path="/"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/goals"
+              element={<Goals />}
+            />
+
+            <Route
+              path="/analytics"
+              element={<Analytics />}
+            />
+
+            <Route
+              path="/achievements"
+              element={<Achievements />}
+            />
+
+            <Route
+              path="/heatmap"
+              element={<Heatmap />}
+            />
+
+            <Route
+              path="/insights"
+              element={<Insights />}
+            />
+
+            <Route
+              path="/mentor"
+              element={
+                <MentorDashboard />
+              }
+            />
+
+            <Route
+              path="/student/:uid"
+              element={
+                <StudentProgress />
+              }
+            />
+
+          </Routes>
+
+        </div>
 
       </div>
 
-    </div>
+    </BrowserRouter>
   );
 }
