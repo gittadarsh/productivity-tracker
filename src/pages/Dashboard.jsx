@@ -8,6 +8,7 @@ import NotificationBox from "../components/NotificationBox";
 import AIRecommendations from "../components/AIRecommendations";
 import ReportGenerator from "../components/ReportGenerator";
 import SmartGoals from "../components/SmartGoals";
+import HabitManager from "../components/HabitManager";
 
 import {
   doc,
@@ -23,9 +24,6 @@ export default function Dashboard() {
   const [habitsList, setHabitsList] =
     useState([]);
 
-  const [newHabit, setNewHabit] =
-    useState("");
-
   const [
     mentorIdInput,
     setMentorIdInput
@@ -36,6 +34,8 @@ export default function Dashboard() {
 
   const today =
     new Date().toISOString().split("T")[0];
+
+  /* LOAD HABITS */
 
   useEffect(() => {
 
@@ -73,10 +73,15 @@ export default function Dashboard() {
         } else {
 
           const defaultHabits = [
+
             "DSA",
+
             "Development",
+
             "Fitness",
+
             "Debating",
+
             "Reading",
           ];
 
@@ -91,7 +96,9 @@ export default function Dashboard() {
               auth.currentUser.uid
             ),
             {
+
               habits: {},
+
               habitsList:
                 defaultHabits,
             }
@@ -101,13 +108,14 @@ export default function Dashboard() {
       } catch (error) {
 
         console.log(error);
-
       }
     };
 
     loadHabits();
 
   }, []);
+
+  /* SAVE TO FIREBASE */
 
   const saveHabitsToFirebase =
     async (
@@ -122,12 +130,15 @@ export default function Dashboard() {
         }
 
         await setDoc(
+
           doc(
             db,
             "habits",
             auth.currentUser.uid
           ),
+
           {
+
             habits:
               updatedHabits,
 
@@ -139,9 +150,10 @@ export default function Dashboard() {
       } catch (error) {
 
         console.log(error);
-
       }
     };
+
+  /* CONNECT TO MENTOR */
 
   const connectToMentor =
     async () => {
@@ -171,35 +183,10 @@ export default function Dashboard() {
       } catch (error) {
 
         console.log(error);
-
       }
     };
 
-  const addHabit = () => {
-
-    if (
-      newHabit.trim() === "" ||
-      habitsList.includes(newHabit)
-    ) {
-      return;
-    }
-
-    const updatedHabitsList = [
-      ...habitsList,
-      newHabit,
-    ];
-
-    setHabitsList(
-      updatedHabitsList
-    );
-
-    saveHabitsToFirebase(
-      habits,
-      updatedHabitsList
-    );
-
-    setNewHabit("");
-  };
+  /* DELETE HABIT */
 
   const deleteHabit = async (
     habitToDelete
@@ -222,6 +209,8 @@ export default function Dashboard() {
     );
   };
 
+  /* EDIT HABIT */
+
   const editHabit = async (
     oldHabit
   ) => {
@@ -238,6 +227,7 @@ export default function Dashboard() {
         newHabitName
       )
     ) {
+
       return;
     }
 
@@ -287,6 +277,8 @@ export default function Dashboard() {
     );
   };
 
+  /* TOGGLE HABIT */
+
   const toggleHabit = async (
     habit
   ) => {
@@ -312,11 +304,15 @@ export default function Dashboard() {
     );
   };
 
+  /* COMPLETED TODAY */
+
   const completedToday =
     habitsList.filter(
       (habit) =>
         habits[today]?.[habit]
     ).length;
+
+  /* STREAK */
 
   const calculateStreak = (
     habit
@@ -356,6 +352,8 @@ export default function Dashboard() {
 
     <div>
 
+      {/* TOP CARDS */}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
@@ -365,7 +363,9 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-5xl font-bold text-cyan-400">
+
             {completedToday}/{habitsList.length}
+
           </p>
 
         </div>
@@ -377,7 +377,9 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-4xl font-bold text-blue-400">
+
             {today}
+
           </p>
 
         </div>
@@ -389,17 +391,23 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-5xl font-bold text-green-400">
+
             {habitsList.length}
+
           </p>
 
         </div>
 
       </div>
 
+      {/* CONNECT MENTOR */}
+
       <div className="bg-slate-900 border border-slate-700 p-5 rounded-3xl mb-8 shadow-2xl">
 
         <h2 className="text-2xl font-bold mb-4">
+
           👨‍🏫 Connect Mentor
+
         </h2>
 
         <div className="flex gap-4">
@@ -424,12 +432,16 @@ export default function Dashboard() {
 
             className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-xl font-bold"
           >
+
             Connect
+
           </button>
 
         </div>
 
       </div>
+
+      {/* TITLE */}
 
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
@@ -437,32 +449,17 @@ export default function Dashboard() {
 
       </h1>
 
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-5 rounded-3xl flex gap-4 mb-10 shadow-2xl">
+      {/* HABIT MANAGER */}
 
-        <input
-          type="text"
-          placeholder="Add new habit..."
+      <HabitManager
 
-          value={newHabit}
+        habitsList={habitsList}
 
-          onChange={(e) =>
-            setNewHabit(
-              e.target.value
-            )
-          }
+        setHabitsList={setHabitsList}
 
-          className="bg-slate-900 border border-slate-700 p-4 rounded-2xl w-full outline-none text-white"
-        />
+      />
 
-        <button
-          onClick={addHabit}
-
-          className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-2xl font-bold"
-        >
-          Add
-        </button>
-
-      </div>
+      {/* HABIT GRID */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -495,7 +492,9 @@ export default function Dashboard() {
 
                   {completed
                     ? "✅"
-                    : "⬜"}{" "}
+                    : "⬜"}
+
+                  {" "}
 
                   {habit}
 
@@ -513,7 +512,9 @@ export default function Dashboard() {
 
                     className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 rounded-lg text-sm mr-2"
                   >
+
                     ✏️
+
                   </button>
 
                   <button
@@ -526,7 +527,9 @@ export default function Dashboard() {
 
                     className="bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 rounded-lg text-sm"
                   >
+
                     ❌
+
                   </button>
 
                 </div>
@@ -545,8 +548,13 @@ export default function Dashboard() {
 
                 🔥 Streak:
                 {" "}
-                {calculateStreak(habit)}
+
+                {calculateStreak(
+                  habit
+                )}
+
                 {" "}
+
                 days
 
               </p>
@@ -556,6 +564,8 @@ export default function Dashboard() {
         })}
 
       </div>
+
+      {/* AI + ANALYTICS */}
 
       <AIInsights
         completed={completedToday}
@@ -567,26 +577,31 @@ export default function Dashboard() {
       />
 
       <Heatmap habits={habits} />
-<AIAnalysis
-  habits={habits}
-  habitsList={habitsList}
-/>
-<NotificationBox
-  habits={habits}
-  habitsList={habitsList}
-/>
-<ReportGenerator
-  habits={habits}
-  habitsList={habitsList}
-/>
-<AIRecommendations
-  habits={habits}
-  habitsList={habitsList}
-/>
-<SmartGoals
-  habits={habits}
-  habitsList={habitsList}
-/>
+
+      <AIAnalysis
+        habits={habits}
+        habitsList={habitsList}
+      />
+
+      <NotificationBox
+        habits={habits}
+        habitsList={habitsList}
+      />
+
+      <ReportGenerator
+        habits={habits}
+        habitsList={habitsList}
+      />
+
+      <AIRecommendations
+        habits={habits}
+        habitsList={habitsList}
+      />
+
+      <SmartGoals
+        habits={habits}
+        habitsList={habitsList}
+      />
 
     </div>
   );
