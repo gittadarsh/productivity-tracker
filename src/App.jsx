@@ -31,6 +31,7 @@ import MentorDashboard from "./pages/MentorDashboard";
 import StudentProgress from "./pages/StudentProgress";
 import Leaderboard from "./pages/Leaderboard";
 import QuestionSheets from "./pages/QuestionSheets";
+import CreateSheet from "./pages/CreateSheet";
 
 export default function App() {
 
@@ -467,6 +468,13 @@ export default function App() {
               Question Sheets
             </Link>
 
+            <Link
+              to="/create-sheet"
+              className="hover:text-green-400 transition"
+            >
+              Create Sheet
+            </Link>
+
             {
               user?.role ===
               "mentor" && (
@@ -550,6 +558,13 @@ export default function App() {
               path="/questions"
               element={
                 <QuestionSheets />
+              }
+            />
+
+            <Route
+              path="/create-sheet"
+              element={
+                <CreateSheet />
               }
             />
 
