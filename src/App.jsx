@@ -29,6 +29,7 @@ import Heatmap from "./pages/Heatmap";
 import Insights from "./pages/Insights";
 import MentorDashboard from "./pages/MentorDashboard";
 import StudentProgress from "./pages/StudentProgress";
+import Leaderboard from "./pages/Leaderboard";
 
 export default function App() {
 
@@ -41,8 +42,10 @@ export default function App() {
   const [role, setRole] =
     useState("");
 
-  const [selectedMentor, setSelectedMentor] =
-    useState("");
+  const [
+    selectedMentor,
+    setSelectedMentor
+  ] = useState("");
 
   const mentors = [
     {
@@ -64,61 +67,91 @@ export default function App() {
 
     if (savedUser) {
 
-      setUser(JSON.parse(savedUser));
+      setUser(
+        JSON.parse(savedUser)
+      );
     }
 
   }, []);
 
   /* GOOGLE LOGIN */
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin =
+    async () => {
 
-    try {
+      try {
 
-      if (!role) {
+        if (!role) {
 
-        alert(
-          "Please select Student or Mentor first"
-        );
+          alert(
+            "Please select Student or Mentor first"
+          );
 
-        return;
-      }
+          return;
+        }
 
-      if (
-        role === "student" &&
-        !selectedMentor
-      ) {
+        if (
+          role === "student"
+          &&
+          !selectedMentor
+        ) {
 
-        alert(
-          "Please select a mentor"
-        );
+          alert(
+            "Please select a mentor"
+          );
 
-        return;
-      }
+          return;
+        }
 
-      const result =
-        await signInWithPopup(
-          auth,
-          provider
-        );
+        const result =
+          await signInWithPopup(
+            auth,
+            provider
+          );
 
-      const loggedInUser =
-        result.user;
+        const loggedInUser =
+          result.user;
 
-      const userRef = doc(
-        db,
-        "users",
-        loggedInUser.uid
-      );
+        const userRef =
+          doc(
+            db,
+            "users",
+            loggedInUser.uid
+          );
 
-      const userSnap =
-        await getDoc(userRef);
+        const userSnap =
+          await getDoc(userRef);
 
-      if (!userSnap.exists()) {
+        if (!userSnap.exists()) {
 
-        await setDoc(userRef, {
+          await setDoc(userRef, {
 
-          uid: loggedInUser.uid,
+            uid:
+              loggedInUser.uid,
+
+            name:
+              loggedInUser.displayName,
+
+            email:
+              loggedInUser.email,
+
+            photo:
+              loggedInUser.photoURL,
+
+            role:
+              role,
+
+            mentorId:
+              role === "student"
+                ? selectedMentor
+                : null,
+          });
+        }
+
+        const userData = {
+
+          uid:
+            loggedInUser.uid,
 
           name:
             loggedInUser.displayName,
@@ -129,58 +162,41 @@ export default function App() {
           photo:
             loggedInUser.photoURL,
 
-          role: role,
+          role:
+            role,
 
           mentorId:
             role === "student"
               ? selectedMentor
               : null,
-        });
+        };
+
+        setUser(userData);
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(userData)
+        );
+
+      } catch (error) {
+
+        console.log(error);
       }
-
-      const userData = {
-        uid: loggedInUser.uid,
-
-        name:
-          loggedInUser.displayName,
-
-        email:
-          loggedInUser.email,
-
-        photo:
-          loggedInUser.photoURL,
-
-        role: role,
-
-        mentorId:
-          role === "student"
-            ? selectedMentor
-            : null,
-      };
-
-      setUser(userData);
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(userData)
-      );
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
+    };
 
   /* LOGOUT */
 
-  const handleLogout = async () => {
+  const handleLogout =
+    async () => {
 
-    await signOut(auth);
+      await signOut(auth);
 
-    localStorage.removeItem("user");
+      localStorage.removeItem(
+        "user"
+      );
 
-    setUser(null);
-  };
+      setUser(null);
+    };
 
   return (
 
@@ -188,6 +204,7 @@ export default function App() {
 
       <div
         className={`min-h-screen px-6 py-8 transition duration-300
+
         ${
           darkMode
             ? "bg-slate-950 text-white"
@@ -217,32 +234,48 @@ export default function App() {
 
                   <button
                     onClick={() =>
-                      setRole("student")
+                      setRole(
+                        "student"
+                      )
                     }
+
                     className={`px-5 py-3 rounded-xl font-semibold transition
 
                     ${
-                      role === "student"
+                      role ===
+                      "student"
+
                         ? "bg-cyan-500"
+
                         : "bg-slate-700"
                     }`}
                   >
+
                     🎓 Student
+
                   </button>
 
                   <button
                     onClick={() =>
-                      setRole("mentor")
+                      setRole(
+                        "mentor"
+                      )
                     }
+
                     className={`px-5 py-3 rounded-xl font-semibold transition
 
                     ${
-                      role === "mentor"
+                      role ===
+                      "mentor"
+
                         ? "bg-green-500"
+
                         : "bg-slate-700"
                     }`}
                   >
+
                     👨‍🏫 Mentor
+
                   </button>
 
                 </div>
@@ -251,11 +284,13 @@ export default function App() {
               {/* MENTOR SELECT */}
 
               {
-                role === "student" &&
+                role === "student"
+                &&
                 !user && (
 
                   <select
                     className="bg-slate-800 px-4 py-3 rounded-xl"
+
                     onChange={(e) =>
                       setSelectedMentor(
                         e.target.value
@@ -267,16 +302,22 @@ export default function App() {
                       Select Mentor
                     </option>
 
-                    {mentors.map((mentor) => (
+                    {mentors.map(
+                      (mentor) => (
 
-                      <option
-                        key={mentor.id}
-                        value={mentor.id}
-                      >
-                        {mentor.name}
-                      </option>
+                        <option
+                          key={mentor.id}
 
-                    ))}
+                          value={
+                            mentor.id
+                          }
+                        >
+
+                          {mentor.name}
+
+                        </option>
+                      )
+                    )}
 
                   </select>
                 )
@@ -291,6 +332,7 @@ export default function App() {
                   <img
                     src={user.photo}
                     alt="profile"
+
                     className="w-12 h-12 rounded-full"
                   />
 
@@ -311,10 +353,15 @@ export default function App() {
                   </div>
 
                   <button
-                    onClick={handleLogout}
+                    onClick={
+                      handleLogout
+                    }
+
                     className="bg-red-500 px-4 py-2 rounded-xl"
                   >
+
                     Logout
+
                   </button>
 
                 </div>
@@ -325,9 +372,12 @@ export default function App() {
                   onClick={
                     handleGoogleLogin
                   }
+
                   className="bg-blue-500 px-5 py-3 rounded-xl font-semibold hover:bg-blue-600 transition"
                 >
+
                   Sign in with Google
+
                 </button>
 
               )}
@@ -336,13 +386,18 @@ export default function App() {
 
               <button
                 onClick={() =>
-                  setDarkMode(!darkMode)
+                  setDarkMode(
+                    !darkMode
+                  )
                 }
+
                 className="bg-slate-700 px-5 py-3 rounded-xl hover:bg-slate-600 transition"
               >
+
                 {darkMode
                   ? "☀ Light"
                   : "🌙 Dark"}
+
               </button>
 
             </div>
@@ -395,14 +450,25 @@ export default function App() {
               AI Insights
             </Link>
 
+            <Link
+              to="/leaderboard"
+              className="hover:text-yellow-400 transition"
+            >
+              Leaderboard
+            </Link>
+
             {
-              user?.role === "mentor" && (
+              user?.role ===
+              "mentor" && (
 
                 <Link
                   to="/mentor"
+
                   className="hover:text-green-400 transition"
                 >
+
                   Mentor Dashboard
+
                 </Link>
               )
             }
@@ -460,6 +526,13 @@ export default function App() {
               path="/student/:uid"
               element={
                 <StudentProgress />
+              }
+            />
+
+            <Route
+              path="/leaderboard"
+              element={
+                <Leaderboard />
               }
             />
 
