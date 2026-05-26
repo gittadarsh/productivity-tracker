@@ -1,4 +1,10 @@
-import { signInWithPopup, signOut } from "firebase/auth";
+import {
+
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+
+} from "firebase/auth";
 
 import {
   auth,
@@ -58,6 +64,11 @@ export default function App() {
     setMobileMenu
   ] = useState(false);
 
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
   const mentors = [
 
     {
@@ -71,19 +82,62 @@ export default function App() {
     },
   ];
 
-  /* AUTO LOGIN */
+  /* FIREBASE AUTH PERSISTENCE */
 
   useEffect(() => {
 
-    const savedUser =
-      localStorage.getItem("user");
+    const unsubscribe =
+      onAuthStateChanged(
 
-    if (savedUser) {
+        auth,
 
-      setUser(
-        JSON.parse(savedUser)
+        async (
+          currentUser
+        ) => {
+
+          if (
+            currentUser
+          ) {
+
+            const userRef =
+              doc(
+                db,
+                "users",
+                currentUser.uid
+              );
+
+            const userSnap =
+              await getDoc(
+                userRef
+              );
+
+            if (
+              userSnap.exists()
+            ) {
+
+              const userData =
+                userSnap.data();
+
+              setUser(
+                userData
+              );
+
+            } else {
+
+              setUser(null);
+            }
+
+          } else {
+
+            setUser(null);
+          }
+
+          setLoading(false);
+        }
       );
-    }
+
+    return () =>
+      unsubscribe();
 
   }, []);
 
@@ -161,39 +215,13 @@ export default function App() {
           });
         }
 
-        const userData = {
-
-          uid:
-            loggedInUser.uid,
-
-          name:
-            loggedInUser.displayName,
-
-          email:
-            loggedInUser.email,
-
-          photo:
-            loggedInUser.photoURL,
-
-          role:
-            role,
-
-          mentorId:
-            role === "student"
-              ? selectedMentor
-              : null,
-        };
-
-        setUser(userData);
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(userData)
-        );
-
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Login failed"
+        );
       }
     };
 
@@ -202,14 +230,31 @@ export default function App() {
   const handleLogout =
     async () => {
 
-      await signOut(auth);
+      try {
 
-      localStorage.removeItem(
-        "user"
-      );
+        await signOut(auth);
 
-      setUser(null);
+        setUser(null);
+
+      } catch (error) {
+
+        console.log(error);
+      }
     };
+
+  /* LOADING SCREEN */
+
+  if (loading) {
+
+    return (
+
+      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center text-3xl font-bold">
+
+        🚀 Loading...
+
+      </div>
+    );
+  }
 
   return (
 
@@ -236,8 +281,6 @@ export default function App() {
               🚀 Productivity Tracker
 
             </h1>
-
-            {/* MOBILE MENU */}
 
             <button
               onClick={() =>
@@ -440,45 +483,25 @@ export default function App() {
             md:flex flex-col md:flex-row gap-5 mb-10 text-lg md:text-2xl font-semibold
           `}>
 
-            <Link to="/">
-              Dashboard
-            </Link>
+            <Link to="/">Dashboard</Link>
 
-            <Link to="/goals">
-              Goals
-            </Link>
+            <Link to="/goals">Goals</Link>
 
-            <Link to="/analytics">
-              Analytics
-            </Link>
+            <Link to="/analytics">Analytics</Link>
 
-            <Link to="/achievements">
-              Achievements
-            </Link>
+            <Link to="/achievements">Achievements</Link>
 
-            <Link to="/heatmap">
-              Heatmap
-            </Link>
+            <Link to="/heatmap">Heatmap</Link>
 
-            <Link to="/insights">
-              AI Insights
-            </Link>
+            <Link to="/insights">AI Insights</Link>
 
-            <Link to="/leaderboard">
-              Leaderboard
-            </Link>
+            <Link to="/leaderboard">Leaderboard</Link>
 
-            <Link to="/questions">
-              Question Sheets
-            </Link>
+            <Link to="/questions">Question Sheets</Link>
 
-            <Link to="/create-sheet">
-              Create Sheet
-            </Link>
+            <Link to="/create-sheet">Create Sheet</Link>
 
-            <Link to="/planner">
-              AI Planner
-            </Link>
+            <Link to="/planner">AI Planner</Link>
 
             {
               user?.role ===
