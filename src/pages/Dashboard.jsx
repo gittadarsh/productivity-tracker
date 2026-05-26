@@ -5,6 +5,7 @@ import Badges from "../components/Badges";
 import Heatmap from "../components/Heatmap";
 import AIAnalysis from "../components/AIAnalysis";
 import NotificationBox from "../components/NotificationBox";
+import AIRecommendations from "../components/AIRecommendations";
 import ReportGenerator from "../components/ReportGenerator";
 
 import {
@@ -574,6 +575,10 @@ export default function Dashboard() {
   habitsList={habitsList}
 />
 <ReportGenerator
+  habits={habits}
+  habitsList={habitsList}
+/>
+<AIRecommendations
   habits={habits}
   habitsList={habitsList}
 />
