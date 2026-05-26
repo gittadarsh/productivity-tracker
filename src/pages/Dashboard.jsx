@@ -11,13 +11,17 @@ import SmartGoals from "../components/SmartGoals";
 import HabitManager from "../components/HabitManager";
 
 import {
+
   doc,
   setDoc,
-  getDoc,
   updateDoc,
+  onSnapshot,
+
 } from "firebase/firestore";
 
 import { db, auth } from "../firebase";
+
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
 
@@ -33,85 +37,93 @@ export default function Dashboard() {
     useState({});
 
   const today =
-    new Date().toISOString().split("T")[0];
+    new Date()
+      .toISOString()
+      .split("T")[0];
 
-  /* LOAD HABITS */
+  /* REALTIME LOAD */
 
   useEffect(() => {
 
-    const loadHabits = async () => {
+    if (!auth.currentUser) {
+      return;
+    }
 
-      try {
+    const docRef =
+      doc(
+        db,
+        "habits",
+        auth.currentUser.uid
+      );
 
-        if (!auth.currentUser) {
-          return;
-        }
+    const unsubscribe =
+      onSnapshot(
 
-        const docRef =
-          doc(
-            db,
-            "habits",
-            auth.currentUser.uid
-          );
+        docRef,
 
-        const docSnap =
-          await getDoc(docRef);
+        async (docSnap) => {
 
-        if (docSnap.exists()) {
+          try {
 
-          const data =
-            docSnap.data();
+            if (
+              docSnap.exists()
+            ) {
 
-          setHabits(
-            data.habits || {}
-          );
+              const data =
+                docSnap.data();
 
-          setHabitsList(
-            data.habitsList || []
-          );
+              setHabits(
+                data.habits || {}
+              );
 
-        } else {
+              setHabitsList(
+                data.habitsList || []
+              );
 
-          const defaultHabits = [
+            } else {
 
-            "DSA",
+              const defaultHabits = [
 
-            "Development",
+                "DSA",
 
-            "Fitness",
+                "Development",
 
-            "Debating",
+                "Fitness",
 
-            "Reading",
-          ];
+                "Debating",
 
-          setHabitsList(
-            defaultHabits
-          );
+                "Reading",
+              ];
 
-          await setDoc(
-            doc(
-              db,
-              "habits",
-              auth.currentUser.uid
-            ),
-            {
+              setHabitsList(
+                defaultHabits
+              );
 
-              habits: {},
+              await setDoc(
+                docRef,
+                {
 
-              habitsList:
-                defaultHabits,
+                  habits: {},
+
+                  habitsList:
+                    defaultHabits,
+                }
+              );
             }
-          );
+
+          } catch (error) {
+
+            console.log(error);
+
+            toast.error(
+              "Real-time sync failed"
+            );
+          }
         }
+      );
 
-      } catch (error) {
-
-        console.log(error);
-      }
-    };
-
-    loadHabits();
+    return () =>
+      unsubscribe();
 
   }, []);
 
@@ -150,6 +162,10 @@ export default function Dashboard() {
       } catch (error) {
 
         console.log(error);
+
+        toast.error(
+          "Failed to sync habits"
+        );
       }
     };
 
@@ -174,8 +190,8 @@ export default function Dashboard() {
           }
         );
 
-        alert(
-          "Connected to mentor successfully!"
+        toast.success(
+          "Connected to mentor successfully 🚀"
         );
 
         setMentorIdInput("");
@@ -183,6 +199,10 @@ export default function Dashboard() {
       } catch (error) {
 
         console.log(error);
+
+        toast.error(
+          "Failed to connect mentor"
+        );
       }
     };
 
@@ -206,6 +226,10 @@ export default function Dashboard() {
     await saveHabitsToFirebase(
       habits,
       updatedHabitsList
+    );
+
+    toast.success(
+      "Habit deleted"
     );
   };
 
@@ -275,6 +299,10 @@ export default function Dashboard() {
       updatedHabits,
       updatedHabitsList
     );
+
+    toast.success(
+      "Habit updated"
+    );
   };
 
   /* TOGGLE HABIT */
@@ -320,9 +348,14 @@ export default function Dashboard() {
 
     let streak = 0;
 
-    for (let i = 0; i < 30; i++) {
+    for (
+      let i = 0;
+      i < 30;
+      i++
+    ) {
 
-      const date = new Date();
+      const date =
+        new Date();
 
       date.setDate(
         date.getDate() - i
@@ -359,7 +392,9 @@ export default function Dashboard() {
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
           <h2 className="text-2xl mb-3 font-semibold">
+
             Completed Today
+
           </h2>
 
           <p className="text-5xl font-bold text-cyan-400">
@@ -373,7 +408,9 @@ export default function Dashboard() {
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
           <h2 className="text-2xl mb-3 font-semibold">
+
             Current Date
+
           </h2>
 
           <p className="text-4xl font-bold text-blue-400">
@@ -387,7 +424,9 @@ export default function Dashboard() {
         <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
           <h2 className="text-2xl mb-3 font-semibold">
+
             Total Habits
+
           </h2>
 
           <p className="text-5xl font-bold text-green-400">

@@ -8,7 +8,7 @@ import {
 import {
 
   doc,
-  getDoc,
+  onSnapshot,
 
 } from "firebase/firestore";
 
@@ -18,6 +18,8 @@ import {
   db,
 
 } from "../firebase";
+
+import toast from "react-hot-toast";
 
 import {
 
@@ -45,140 +47,171 @@ export default function Analytics() {
     setHabitData
   ] = useState([]);
 
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  /* REALTIME ANALYTICS */
+
   useEffect(() => {
 
-    const loadAnalytics =
-      async () => {
+    if (!auth.currentUser) {
+      return;
+    }
 
-        try {
+    const docRef =
+      doc(
+        db,
+        "habits",
+        auth.currentUser.uid
+      );
 
-          const uid =
-            auth.currentUser.uid;
+    const unsubscribe =
+      onSnapshot(
 
-          const docRef =
-            doc(
-              db,
-              "habits",
-              uid
-            );
+        docRef,
 
-          const docSnap =
-            await getDoc(
-              docRef
-            );
+        (docSnap) => {
 
-          if (
-            docSnap.exists()
-          ) {
+          try {
 
-            const data =
-              docSnap.data();
-
-            const habits =
-              data.habits || {};
-
-            const habitsList =
-              data.habitsList || [];
-
-            /* WEEKLY DATA */
-
-            const weekly =
-              [];
-
-            for (
-              let i = 6;
-              i >= 0;
-              i--
+            if (
+              docSnap.exists()
             ) {
 
-              const date =
-                new Date();
+              const data =
+                docSnap.data();
 
-              date.setDate(
-                date.getDate() - i
+              const habits =
+                data.habits || {};
+
+              const habitsList =
+                data.habitsList || [];
+
+              /* WEEKLY PRODUCTIVITY */
+
+              const weekly =
+                [];
+
+              for (
+                let i = 6;
+                i >= 0;
+                i--
+              ) {
+
+                const date =
+                  new Date();
+
+                date.setDate(
+                  date.getDate() - i
+                );
+
+                const formatted =
+                  date
+                    .toISOString()
+                    .split("T")[0];
+
+                const completed =
+                  Object.values(
+                    habits[
+                      formatted
+                    ] || {}
+                  ).filter(Boolean)
+                    .length;
+
+                weekly.push({
+
+                  day:
+                    date.toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday:
+                          "short",
+                      }
+                    ),
+
+                  productivity:
+                    completed,
+                });
+              }
+
+              setWeeklyData(
+                weekly
               );
 
-              const formatted =
-                date
-                  .toISOString()
-                  .split("T")[0];
+              /* HABIT PERFORMANCE */
 
-              const completed =
-                Object.values(
-                  habits[
-                    formatted
-                  ] || {}
-                ).filter(Boolean)
-                  .length;
+              const performance =
+                habitsList.map(
+                  (habit) => {
 
-              weekly.push({
+                    let total = 0;
 
-                day:
-                  date.toLocaleDateString(
-                    "en-US",
-                    {
-                      weekday:
-                        "short",
-                    }
-                  ),
+                    Object.values(
+                      habits
+                    ).forEach(
+                      (day) => {
 
-                productivity:
-                  completed,
-              });
+                        if (
+                          day[
+                            habit
+                          ]
+                        ) {
+
+                          total++;
+                        }
+                      }
+                    );
+
+                    return {
+
+                      habit,
+
+                      completed:
+                        total,
+                    };
+                  }
+                );
+
+              setHabitData(
+                performance
+              );
             }
 
-            setWeeklyData(
-              weekly
-            );
+            setLoading(false);
 
-            /* HABIT PERFORMANCE */
+          } catch (error) {
 
-            const performance =
-              habitsList.map(
-                (habit) => {
+            console.log(error);
 
-                  let total = 0;
-
-                  Object.values(
-                    habits
-                  ).forEach(
-                    (day) => {
-
-                      if (
-                        day[
-                          habit
-                        ]
-                      ) {
-
-                        total++;
-                      }
-                    }
-                  );
-
-                  return {
-
-                    habit,
-
-                    completed:
-                      total,
-                  };
-                }
-              );
-
-            setHabitData(
-              performance
+            toast.error(
+              "Analytics sync failed"
             );
           }
-
-        } catch (error) {
-
-          console.log(error);
         }
-      };
+      );
 
-    loadAnalytics();
+    return () =>
+      unsubscribe();
 
   }, []);
+
+  /* LOADING */
+
+  if (loading) {
+
+    return (
+
+      <div className="space-y-6 animate-pulse">
+
+        <div className="bg-slate-800 rounded-3xl p-8 h-[300px]"></div>
+
+        <div className="bg-slate-800 rounded-3xl p-8 h-[300px]"></div>
+
+      </div>
+    );
+  }
 
   return (
 
@@ -186,7 +219,7 @@ export default function Analytics() {
 
       <h1 className="text-5xl font-bold mb-10">
 
-        📈 Real Productivity Analytics
+        📈 Real-Time Analytics
 
       </h1>
 
