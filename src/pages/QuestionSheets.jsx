@@ -9,9 +9,9 @@ import {
 
   collection,
   addDoc,
-  getDocs,
   updateDoc,
   doc,
+  onSnapshot,
 
 } from "firebase/firestore";
 
@@ -38,56 +38,54 @@ export default function QuestionSheets() {
   const [link, setLink] =
     useState("");
 
-  /* LOAD QUESTIONS */
+  /* REAL-TIME QUESTION SYNC */
 
   useEffect(() => {
 
-    loadQuestions();
+    const unsubscribe =
+      onSnapshot(
 
-  }, []);
+        collection(
+          db,
+          "questions"
+        ),
 
-  const loadQuestions =
-    async () => {
+        (snapshot) => {
 
-      try {
+          const loadedQuestions =
+            [];
 
-        const snapshot =
-          await getDocs(
+          snapshot.forEach(
+            (doc) => {
 
-            collection(
-              db,
-              "questions"
-            )
+              loadedQuestions.push({
+
+                id: doc.id,
+
+                ...doc.data(),
+              });
+            }
           );
 
-        const loadedQuestions =
-          [];
+          setQuestions(
+            loadedQuestions
+          );
+        },
 
-        snapshot.forEach(
-          (doc) => {
+        (error) => {
 
-            loadedQuestions.push({
+          console.log(error);
 
-              id: doc.id,
+          alert(
+            "Real-time sync failed"
+          );
+        }
+      );
 
-              ...doc.data(),
-            });
-          }
-        );
+    return () =>
+      unsubscribe();
 
-        setQuestions(
-          loadedQuestions
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          "Failed to load questions"
-        );
-      }
-    };
+  }, []);
 
   /* ADD QUESTION */
 
@@ -128,6 +126,9 @@ export default function QuestionSheets() {
             link,
 
             solved: false,
+
+            createdAt:
+              new Date(),
           }
         );
 
@@ -139,8 +140,6 @@ export default function QuestionSheets() {
         alert(
           "Question Added Successfully!"
         );
-
-        loadQuestions();
 
       } catch (error) {
 
@@ -176,8 +175,6 @@ export default function QuestionSheets() {
               !currentSolved,
           }
         );
-
-        loadQuestions();
 
       } catch (error) {
 
@@ -215,7 +212,7 @@ export default function QuestionSheets() {
 
       <h1 className="text-5xl font-bold mb-10">
 
-        📚 DSA Question Sheet
+        📚 Real-Time DSA Question Sheet
 
       </h1>
 
@@ -309,17 +306,27 @@ export default function QuestionSheets() {
 
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl mb-10">
 
-        <h2 className="text-3xl font-bold mb-6">
+        <div className="flex items-center justify-between mb-6">
 
-          📈 Progress Tracker
+          <h2 className="text-3xl font-bold">
 
-        </h2>
+            📈 Live Progress Tracker
+
+          </h2>
+
+          <div className="bg-green-500 text-black px-4 py-2 rounded-xl font-bold">
+
+            LIVE
+
+          </div>
+
+        </div>
 
         <div className="w-full bg-slate-700 rounded-full h-6 mb-4">
 
           <div
 
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 h-6 rounded-full"
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 h-6 rounded-full transition-all duration-500"
 
             style={{
               width:

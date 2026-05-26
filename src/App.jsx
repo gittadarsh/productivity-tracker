@@ -35,6 +35,7 @@ import StudentProgress from "./pages/StudentProgress";
 import Leaderboard from "./pages/Leaderboard";
 import QuestionSheets from "./pages/QuestionSheets";
 import CreateSheet from "./pages/CreateSheet";
+import StudyPlanner from "./pages/StudyPlanner";
 
 export default function App() {
 
@@ -236,7 +237,7 @@ export default function App() {
 
             </h1>
 
-            {/* MOBILE MENU BUTTON */}
+            {/* MOBILE MENU */}
 
             <button
               onClick={() =>
@@ -254,7 +255,7 @@ export default function App() {
 
           </div>
 
-          {/* TOP CONTROLS */}
+          {/* CONTROLS */}
 
           <div className="flex flex-wrap gap-4 items-center mb-8">
 
@@ -475,6 +476,10 @@ export default function App() {
               Create Sheet
             </Link>
 
+            <Link to="/planner">
+              AI Planner
+            </Link>
+
             {
               user?.role ===
               "mentor" && (
@@ -561,6 +566,13 @@ export default function App() {
               path="/create-sheet"
               element={
                 <CreateSheet />
+              }
+            />
+
+            <Route
+              path="/planner"
+              element={
+                <StudyPlanner />
               }
             />
 
