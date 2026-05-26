@@ -8,6 +8,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { db, auth } from "../firebase";
@@ -19,6 +20,11 @@ export default function Dashboard() {
 
   const [newHabit, setNewHabit] =
     useState("");
+
+  const [
+    mentorIdInput,
+    setMentorIdInput
+  ] = useState("");
 
   const [habits, setHabits] =
     useState({});
@@ -124,6 +130,38 @@ export default function Dashboard() {
               updatedHabitsList,
           }
         );
+
+      } catch (error) {
+
+        console.log(error);
+
+      }
+    };
+
+  const connectToMentor =
+    async () => {
+
+      try {
+
+        await updateDoc(
+
+          doc(
+            db,
+            "users",
+            auth.currentUser.uid
+          ),
+
+          {
+            mentorId:
+              mentorIdInput,
+          }
+        );
+
+        alert(
+          "Connected to mentor successfully!"
+        );
+
+        setMentorIdInput("");
 
       } catch (error) {
 
@@ -311,28 +349,25 @@ export default function Dashboard() {
 
   return (
 
-    <div className="min-h-screen">
-
-      {/* TOP CARDS */}
+    <div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
-          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
+          <h2 className="text-2xl mb-3 font-semibold">
             Completed Today
           </h2>
 
           <p className="text-5xl font-bold text-cyan-400">
-            {completedToday}/
-            {habitsList.length}
+            {completedToday}/{habitsList.length}
           </p>
 
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
-          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
+          <h2 className="text-2xl mb-3 font-semibold">
             Current Date
           </h2>
 
@@ -342,9 +377,9 @@ export default function Dashboard() {
 
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-8 rounded-3xl shadow-2xl hover:scale-105 transition duration-300">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
-          <h2 className="text-2xl mb-3 font-semibold text-slate-300">
+          <h2 className="text-2xl mb-3 font-semibold">
             Total Habits
           </h2>
 
@@ -356,19 +391,51 @@ export default function Dashboard() {
 
       </div>
 
-      {/* TITLE */}
+      <div className="bg-slate-900 border border-slate-700 p-5 rounded-3xl mb-8 shadow-2xl">
+
+        <h2 className="text-2xl font-bold mb-4">
+          👨‍🏫 Connect Mentor
+        </h2>
+
+        <div className="flex gap-4">
+
+          <input
+            type="text"
+            placeholder="Enter mentor UID"
+
+            value={mentorIdInput}
+
+            onChange={(e) =>
+              setMentorIdInput(
+                e.target.value
+              )
+            }
+
+            className="bg-slate-800 p-4 rounded-xl w-full outline-none"
+          />
+
+          <button
+            onClick={connectToMentor}
+
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-xl font-bold"
+          >
+            Connect
+          </button>
+
+        </div>
+
+      </div>
 
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+
         Today's Habits
+
       </h1>
 
-      {/* ADD HABIT */}
-
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-lg border border-slate-700 p-5 rounded-3xl flex gap-4 mb-10 shadow-2xl">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-5 rounded-3xl flex gap-4 mb-10 shadow-2xl">
 
         <input
           type="text"
-
           placeholder="Add new habit..."
 
           value={newHabit}
@@ -385,14 +452,12 @@ export default function Dashboard() {
         <button
           onClick={addHabit}
 
-          className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-2xl font-bold hover:scale-105 transition duration-300 shadow-xl"
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-2xl font-bold"
         >
           Add
         </button>
 
       </div>
-
-      {/* HABIT GRID */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -410,12 +475,12 @@ export default function Dashboard() {
                 toggleHabit(habit)
               }
 
-              className={`p-8 rounded-3xl cursor-pointer transition duration-300 hover:scale-105 hover:rotate-1 shadow-2xl border
+              className={`p-8 rounded-3xl cursor-pointer transition duration-300 hover:scale-105 shadow-2xl border
 
               ${
                 completed
                   ? "bg-gradient-to-br from-green-500 to-emerald-700 border-green-400"
-                  : "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 hover:border-cyan-500"
+                  : "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700"
               }`}
             >
 
@@ -441,7 +506,7 @@ export default function Dashboard() {
                       editHabit(habit);
                     }}
 
-                    className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 rounded-lg text-sm mr-2 shadow-lg"
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 rounded-lg text-sm mr-2"
                   >
                     ✏️
                   </button>
@@ -454,7 +519,7 @@ export default function Dashboard() {
                       deleteHabit(habit);
                     }}
 
-                    className="bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 rounded-lg text-sm shadow-lg"
+                    className="bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 rounded-lg text-sm"
                   >
                     ❌
                   </button>
@@ -487,20 +552,14 @@ export default function Dashboard() {
 
       </div>
 
-      {/* AI INSIGHTS */}
-
       <AIInsights
         completed={completedToday}
         total={habitsList.length}
       />
 
-      {/* BADGES */}
-
       <Badges
         completed={completedToday}
       />
-
-      {/* HEATMAP */}
 
       <Heatmap habits={habits} />
 
