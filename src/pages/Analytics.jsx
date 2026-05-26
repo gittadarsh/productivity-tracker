@@ -1,154 +1,174 @@
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 
 export default function Analytics() {
 
-  const data = [
+  const weeklyData = [
+
     {
-      name: "Mon",
-      completed: 4,
+      day: "Mon",
+      productivity: 4,
     },
 
     {
-      name: "Tue",
-      completed: 3,
+      day: "Tue",
+      productivity: 6,
     },
 
     {
-      name: "Wed",
-      completed: 5,
+      day: "Wed",
+      productivity: 5,
     },
 
     {
-      name: "Thu",
-      completed: 2,
+      day: "Thu",
+      productivity: 8,
     },
 
     {
-      name: "Fri",
-      completed: 5,
+      day: "Fri",
+      productivity: 7,
     },
 
     {
-      name: "Sat",
-      completed: 4,
+      day: "Sat",
+      productivity: 9,
     },
 
     {
-      name: "Sun",
-      completed: 3,
+      day: "Sun",
+      productivity: 6,
     },
   ];
 
-  const total =
-    data.reduce(
-      (acc, item) =>
-        acc + item.completed,
-      0
-    );
+  const habitData = [
 
-  const average =
-    (
-      total / data.length
-    ).toFixed(1);
+    {
+      habit: "DSA",
+      completed: 22,
+    },
 
-  const bestDay =
-    data.reduce((prev, current) =>
-      prev.completed >
-      current.completed
-        ? prev
-        : current
-    );
+    {
+      habit: "Development",
+      completed: 18,
+    },
+
+    {
+      habit: "Fitness",
+      completed: 15,
+    },
+
+    {
+      habit: "Reading",
+      completed: 12,
+    },
+
+    {
+      habit: "Debating",
+      completed: 10,
+    },
+  ];
 
   return (
 
     <div>
 
-      <h1 className="text-4xl font-bold mb-10 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+      <h1 className="text-5xl font-bold mb-10">
 
-        📊 Advanced Analytics
+        📈 Advanced Analytics
 
       </h1>
 
-      {/* TOP CARDS */}
+      {/* WEEKLY PRODUCTIVITY */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl mb-10">
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+        <h2 className="text-3xl font-bold mb-8">
 
-          <h2 className="text-2xl mb-4 text-slate-300">
-            Weekly Total
-          </h2>
+          📊 Weekly Productivity Trend
 
-          <p className="text-5xl font-bold text-cyan-400">
-            {total}
-          </p>
+        </h2>
 
-        </div>
+        <div className="w-full h-[400px]">
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+          <ResponsiveContainer>
 
-          <h2 className="text-2xl mb-4 text-slate-300">
-            Daily Average
-          </h2>
+            <LineChart
+              data={weeklyData}
+            >
 
-          <p className="text-5xl font-bold text-green-400">
-            {average}
-          </p>
+              <CartesianGrid
+                strokeDasharray="3 3"
+              />
 
-        </div>
+              <XAxis dataKey="day" />
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+              <YAxis />
 
-          <h2 className="text-2xl mb-4 text-slate-300">
-            Best Day
-          </h2>
+              <Tooltip />
 
-          <p className="text-5xl font-bold text-yellow-400">
-            {bestDay.name}
-          </p>
+              <Line
+                type="monotone"
+                dataKey="productivity"
+                stroke="#06b6d4"
+                strokeWidth={4}
+              />
+
+            </LineChart>
+
+          </ResponsiveContainer>
 
         </div>
 
       </div>
 
-      {/* CHART */}
+      {/* HABIT PERFORMANCE */}
 
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
         <h2 className="text-3xl font-bold mb-8">
 
-          Weekly Progress
+          🏆 Habit Performance
 
         </h2>
 
-        <ResponsiveContainer
-          width="100%"
-          height={400}
-        >
+        <div className="w-full h-[400px]">
 
-          <BarChart data={data}>
+          <ResponsiveContainer>
 
-            <XAxis dataKey="name" />
+            <BarChart
+              data={habitData}
+            >
 
-            <YAxis />
+              <CartesianGrid
+                strokeDasharray="3 3"
+              />
 
-            <Tooltip />
+              <XAxis dataKey="habit" />
 
-            <Bar
-              dataKey="completed"
-              radius={[10, 10, 0, 0]}
-            />
+              <YAxis />
 
-          </BarChart>
+              <Tooltip />
 
-        </ResponsiveContainer>
+              <Bar
+                dataKey="completed"
+                fill="#22c55e"
+              />
+
+            </BarChart>
+
+          </ResponsiveContainer>
+
+        </div>
 
       </div>
 
