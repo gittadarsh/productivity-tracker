@@ -12,7 +12,10 @@ import {
   getDoc,
 } from "firebase/firestore";
 
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
 
 import {
   BrowserRouter,
@@ -48,6 +51,11 @@ export default function App() {
     selectedMentor,
     setSelectedMentor
   ] = useState("");
+
+  const [
+    mobileMenu,
+    setMobileMenu
+  ] = useState(false);
 
   const mentors = [
 
@@ -207,7 +215,7 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen px-6 py-8 transition duration-300
+        className={`min-h-screen transition duration-300
 
         ${
           darkMode
@@ -216,262 +224,254 @@ export default function App() {
         }`}
       >
 
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 py-6">
 
           {/* HEADER */}
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+          <div className="flex items-center justify-between mb-8">
 
-            <h1 className="text-5xl font-bold">
+            <h1 className="text-3xl md:text-5xl font-bold">
 
               🚀 Productivity Tracker
 
             </h1>
 
-            <div className="flex items-center gap-4 flex-wrap">
+            {/* MOBILE MENU BUTTON */}
 
-              {/* ROLE BUTTONS */}
-
-              {!user && (
-
-                <div className="flex gap-3">
-
-                  <button
-                    onClick={() =>
-                      setRole(
-                        "student"
-                      )
-                    }
-
-                    className={`px-5 py-3 rounded-xl font-semibold transition
-
-                    ${
-                      role ===
-                      "student"
-
-                        ? "bg-cyan-500"
-
-                        : "bg-slate-700"
-                    }`}
-                  >
-
-                    🎓 Student
-
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setRole(
-                        "mentor"
-                      )
-                    }
-
-                    className={`px-5 py-3 rounded-xl font-semibold transition
-
-                    ${
-                      role ===
-                      "mentor"
-
-                        ? "bg-green-500"
-
-                        : "bg-slate-700"
-                    }`}
-                  >
-
-                    👨‍🏫 Mentor
-
-                  </button>
-
-                </div>
-              )}
-
-              {/* MENTOR SELECT */}
-
-              {
-                role === "student"
-                &&
-                !user && (
-
-                  <select
-                    className="bg-slate-800 px-4 py-3 rounded-xl"
-
-                    onChange={(e) =>
-                      setSelectedMentor(
-                        e.target.value
-                      )
-                    }
-                  >
-
-                    <option value="">
-                      Select Mentor
-                    </option>
-
-                    {mentors.map(
-                      (mentor) => (
-
-                        <option
-                          key={mentor.id}
-
-                          value={
-                            mentor.id
-                          }
-                        >
-
-                          {mentor.name}
-
-                        </option>
-                      )
-                    )}
-
-                  </select>
+            <button
+              onClick={() =>
+                setMobileMenu(
+                  !mobileMenu
                 )
               }
 
-              {/* LOGIN */}
+              className="md:hidden bg-slate-800 px-4 py-2 rounded-xl text-2xl"
+            >
 
-              {user ? (
+              ☰
 
-                <div className="flex items-center gap-4">
+            </button>
 
-                  <img
-                    src={user.photo}
-                    alt="profile"
+          </div>
 
-                    className="w-12 h-12 rounded-full"
-                  />
+          {/* TOP CONTROLS */}
 
-                  <div>
+          <div className="flex flex-wrap gap-4 items-center mb-8">
 
-                    <p className="font-semibold">
+            {!user && (
 
-                      {user.name}
-
-                    </p>
-
-                    <p className="text-sm text-slate-300">
-
-                      {user.role}
-
-                    </p>
-
-                  </div>
-
-                  <button
-                    onClick={
-                      handleLogout
-                    }
-
-                    className="bg-red-500 px-4 py-2 rounded-xl"
-                  >
-
-                    Logout
-
-                  </button>
-
-                </div>
-
-              ) : (
+              <div className="flex gap-3 flex-wrap">
 
                 <button
-                  onClick={
-                    handleGoogleLogin
+                  onClick={() =>
+                    setRole(
+                      "student"
+                    )
                   }
 
-                  className="bg-blue-500 px-5 py-3 rounded-xl font-semibold hover:bg-blue-600 transition"
+                  className={`px-5 py-3 rounded-xl font-semibold
+
+                  ${
+                    role ===
+                    "student"
+
+                      ? "bg-cyan-500"
+
+                      : "bg-slate-700"
+                  }`}
                 >
 
-                  Sign in with Google
+                  🎓 Student
 
                 </button>
 
-              )}
+                <button
+                  onClick={() =>
+                    setRole(
+                      "mentor"
+                    )
+                  }
 
-              {/* DARK MODE */}
+                  className={`px-5 py-3 rounded-xl font-semibold
+
+                  ${
+                    role ===
+                    "mentor"
+
+                      ? "bg-green-500"
+
+                      : "bg-slate-700"
+                  }`}
+                >
+
+                  👨‍🏫 Mentor
+
+                </button>
+
+              </div>
+            )}
+
+            {
+              role === "student"
+              &&
+              !user && (
+
+                <select
+                  className="bg-slate-800 px-4 py-3 rounded-xl"
+
+                  onChange={(e) =>
+                    setSelectedMentor(
+                      e.target.value
+                    )
+                  }
+                >
+
+                  <option value="">
+                    Select Mentor
+                  </option>
+
+                  {mentors.map(
+                    (mentor) => (
+
+                      <option
+                        key={mentor.id}
+
+                        value={
+                          mentor.id
+                        }
+                      >
+
+                        {mentor.name}
+
+                      </option>
+                    )
+                  )}
+
+                </select>
+              )
+            }
+
+            {user ? (
+
+              <div className="flex items-center gap-4 flex-wrap">
+
+                <img
+                  src={user.photo}
+                  alt="profile"
+
+                  className="w-12 h-12 rounded-full"
+                />
+
+                <div>
+
+                  <p className="font-semibold">
+
+                    {user.name}
+
+                  </p>
+
+                  <p className="text-sm text-slate-400">
+
+                    {user.role}
+
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={
+                    handleLogout
+                  }
+
+                  className="bg-red-500 px-4 py-2 rounded-xl"
+                >
+
+                  Logout
+
+                </button>
+
+              </div>
+
+            ) : (
 
               <button
-                onClick={() =>
-                  setDarkMode(
-                    !darkMode
-                  )
+                onClick={
+                  handleGoogleLogin
                 }
 
-                className="bg-slate-700 px-5 py-3 rounded-xl hover:bg-slate-600 transition"
+                className="bg-blue-500 px-5 py-3 rounded-xl font-semibold"
               >
 
-                {darkMode
-                  ? "☀ Light"
-                  : "🌙 Dark"}
+                Sign in with Google
 
               </button>
 
-            </div>
+            )}
+
+            <button
+              onClick={() =>
+                setDarkMode(
+                  !darkMode
+                )
+              }
+
+              className="bg-slate-700 px-5 py-3 rounded-xl"
+            >
+
+              {darkMode
+                ? "☀ Light"
+                : "🌙 Dark"}
+
+            </button>
 
           </div>
 
           {/* NAVBAR */}
 
-          <div className="flex flex-wrap gap-8 mb-10 text-2xl font-semibold">
+          <div className={`
 
-            <Link
-              to="/"
-              className="hover:text-cyan-400 transition"
-            >
+            ${
+              mobileMenu
+                ? "flex"
+                : "hidden"
+            }
+
+            md:flex flex-col md:flex-row gap-5 mb-10 text-lg md:text-2xl font-semibold
+          `}>
+
+            <Link to="/">
               Dashboard
             </Link>
 
-            <Link
-              to="/goals"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/goals">
               Goals
             </Link>
 
-            <Link
-              to="/analytics"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/analytics">
               Analytics
             </Link>
 
-            <Link
-              to="/achievements"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/achievements">
               Achievements
             </Link>
 
-            <Link
-              to="/heatmap"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/heatmap">
               Heatmap
             </Link>
 
-            <Link
-              to="/insights"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/insights">
               AI Insights
             </Link>
 
-            <Link
-              to="/leaderboard"
-              className="hover:text-yellow-400 transition"
-            >
+            <Link to="/leaderboard">
               Leaderboard
             </Link>
 
-            <Link
-              to="/questions"
-              className="hover:text-cyan-400 transition"
-            >
+            <Link to="/questions">
               Question Sheets
             </Link>
 
-            <Link
-              to="/create-sheet"
-              className="hover:text-green-400 transition"
-            >
+            <Link to="/create-sheet">
               Create Sheet
             </Link>
 
@@ -479,11 +479,7 @@ export default function App() {
               user?.role ===
               "mentor" && (
 
-                <Link
-                  to="/mentor"
-
-                  className="hover:text-green-400 transition"
-                >
+                <Link to="/mentor">
 
                   Mentor Dashboard
 

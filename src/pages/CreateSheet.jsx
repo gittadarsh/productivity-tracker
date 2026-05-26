@@ -30,8 +30,10 @@ export default function CreateSheet() {
     setDescription
   ] = useState("");
 
-  const [section, setSection] =
-    useState("");
+  const [
+    assignedSection,
+    setAssignedSection
+  ] = useState("");
 
   const [sheets, setSheets] =
     useState([]);
@@ -80,6 +82,10 @@ export default function CreateSheet() {
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Failed to load sheets"
+        );
       }
     };
 
@@ -91,8 +97,12 @@ export default function CreateSheet() {
       if (
         !sheetName ||
         !description ||
-        !section
+        !assignedSection
       ) {
+
+        alert(
+          "Please fill all fields"
+        );
 
         return;
       }
@@ -112,7 +122,9 @@ export default function CreateSheet() {
 
             description,
 
-            section,
+            assignedSection,
+
+            assignedStudents: [],
 
             createdBy:
               auth.currentUser
@@ -124,14 +136,24 @@ export default function CreateSheet() {
         );
 
         setSheetName("");
+
         setDescription("");
-        setSection("");
+
+        setAssignedSection("");
+
+        alert(
+          "Sheet Created Successfully!"
+        );
 
         loadSheets();
 
       } catch (error) {
 
         console.log(error);
+
+        alert(
+          "Failed to create sheet"
+        );
       }
     };
 
@@ -172,20 +194,36 @@ export default function CreateSheet() {
             className="bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none"
           />
 
-          <input
-            type="text"
-            placeholder="Section"
+          <select
 
-            value={section}
+            value={assignedSection}
 
             onChange={(e) =>
-              setSection(
+              setAssignedSection(
                 e.target.value
               )
             }
 
             className="bg-slate-900 border border-slate-700 p-4 rounded-2xl outline-none"
-          />
+          >
+
+            <option value="">
+              Select Section
+            </option>
+
+            <option value="Section A">
+              Section A
+            </option>
+
+            <option value="Section B">
+              Section B
+            </option>
+
+            <option value="Section C">
+              Section C
+            </option>
+
+          </select>
 
         </div>
 
@@ -244,15 +282,27 @@ export default function CreateSheet() {
 
                 🎓 Section:
                 {" "}
-                {sheet.section}
+                {sheet.assignedSection}
 
               </p>
 
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-400 mb-2">
 
-                Created By:
+                👨‍🏫 Created By:
                 {" "}
                 {sheet.createdBy}
+
+              </p>
+
+              <p className="text-sm text-slate-500">
+
+                👥 Assigned Students:
+                {" "}
+                {
+                  sheet
+                    .assignedStudents
+                    ?.length
+                }
 
               </p>
 
