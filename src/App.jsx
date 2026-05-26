@@ -30,6 +30,7 @@ import Insights from "./pages/Insights";
 import MentorDashboard from "./pages/MentorDashboard";
 import StudentProgress from "./pages/StudentProgress";
 import Leaderboard from "./pages/Leaderboard";
+import QuestionSheets from "./pages/QuestionSheets";
 
 export default function App() {
 
@@ -48,10 +49,12 @@ export default function App() {
   ] = useState("");
 
   const mentors = [
+
     {
       id: "mentor1",
       name: "Prof. Sharma",
     },
+
     {
       id: "mentor2",
       name: "Prof. Singh",
@@ -457,6 +460,13 @@ export default function App() {
               Leaderboard
             </Link>
 
+            <Link
+              to="/questions"
+              className="hover:text-cyan-400 transition"
+            >
+              Question Sheets
+            </Link>
+
             {
               user?.role ===
               "mentor" && (
@@ -533,6 +543,13 @@ export default function App() {
               path="/leaderboard"
               element={
                 <Leaderboard />
+              }
+            />
+
+            <Route
+              path="/questions"
+              element={
+                <QuestionSheets />
               }
             />
 
