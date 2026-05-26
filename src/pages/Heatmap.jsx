@@ -1,81 +1,76 @@
-import CalendarHeatmap from "react-calendar-heatmap";
+import Calendar from "react-calendar";
 
-import "react-calendar-heatmap/dist/styles.css";
+import "react-calendar/dist/Calendar.css";
+
+import { useState } from "react";
 
 export default function Heatmap() {
 
-  const values = [
-    { date: "2026-05-01", count: 1 },
-    { date: "2026-05-02", count: 3 },
-    { date: "2026-05-03", count: 2 },
-    { date: "2026-05-04", count: 5 },
-    { date: "2026-05-05", count: 4 },
-    { date: "2026-05-06", count: 1 },
-    { date: "2026-05-07", count: 2 },
-    { date: "2026-05-08", count: 5 },
-    { date: "2026-05-09", count: 3 },
-    { date: "2026-05-10", count: 4 },
+  const [date, setDate] =
+    useState(new Date());
+
+  const completedDates = [
+
+    "2026-05-01",
+    "2026-05-02",
+    "2026-05-03",
+    "2026-05-05",
+    "2026-05-06",
+    "2026-05-08",
+    "2026-05-10",
+    "2026-05-12",
   ];
+
+  const tileClassName = ({
+    date,
+    view,
+  }) => {
+
+    if (view === "month") {
+
+      const formatted =
+        date
+          .toISOString()
+          .split("T")[0];
+
+      if (
+        completedDates.includes(
+          formatted
+        )
+      ) {
+
+        return "bg-green-500 text-white rounded-xl";
+      }
+    }
+
+    return "";
+  };
 
   return (
 
     <div>
 
       <h1 className="text-5xl font-bold mb-10">
-        📅 Consistency Heatmap
+
+        📅 Productivity Calendar
+
       </h1>
 
-      <div className="bg-slate-800 p-8 rounded-3xl shadow-xl overflow-x-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
-        <CalendarHeatmap
-          startDate={new Date("2026-05-01")}
-          endDate={new Date("2026-06-01")}
-          values={values}
+        <Calendar
 
-          classForValue={(value) => {
+          onChange={setDate}
 
-            if (!value) {
-              return "color-empty";
-            }
+          value={date}
 
-            return `color-scale-${value.count}`;
-          }}
+          tileClassName={
+            tileClassName
+          }
+
         />
 
       </div>
-
-      {/* CUSTOM COLORS */}
-
-      <style>
-
-        {`
-
-        .react-calendar-heatmap .color-empty {
-          fill: #1e293b;
-        }
-
-        .react-calendar-heatmap .color-scale-1 {
-          fill: #14532d;
-        }
-
-        .react-calendar-heatmap .color-scale-2 {
-          fill: #166534;
-        }
-
-        .react-calendar-heatmap .color-scale-3 {
-          fill: #16a34a;
-        }
-
-        .react-calendar-heatmap .color-scale-4 {
-          fill: #22c55e;
-        }
-
-        .react-calendar-heatmap .color-scale-5 {
-          fill: #4ade80;
-        }
-
-        `}
-      </style>
 
     </div>
   );
