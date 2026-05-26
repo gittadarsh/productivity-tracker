@@ -242,7 +242,7 @@ export default function App() {
       }
     };
 
-  /* LOADING SCREEN */
+  /* LOADING */
 
   if (loading) {
 
@@ -400,10 +400,20 @@ export default function App() {
               <div className="flex items-center gap-4 flex-wrap">
 
                 <img
-                  src={user.photo}
+                  src={
+                    user.photo ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
+
                   alt="profile"
 
-                  className="w-12 h-12 rounded-full"
+                  onError={(e) => {
+
+                    e.target.src =
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                  }}
+
+                  className="w-12 h-12 rounded-full object-cover"
                 />
 
                 <div>
