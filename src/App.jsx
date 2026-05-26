@@ -416,18 +416,18 @@ export default function App() {
                       `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`;
                   }}
 
-                  className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400 shadow-lg"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-cyan-400 shadow-lg"
                 />
 
                 <div>
 
-                  <p className="font-semibold">
+                  <p className="font-semibold text-lg">
 
                     {user.name}
 
                   </p>
 
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-400 capitalize">
 
                     {user.role}
 
@@ -440,7 +440,7 @@ export default function App() {
                     handleLogout
                   }
 
-                  className="bg-red-500 px-4 py-2 rounded-xl"
+                  className="bg-red-500 hover:bg-red-600 transition px-5 py-3 rounded-xl font-semibold"
                 >
 
                   Logout
@@ -456,7 +456,7 @@ export default function App() {
                   handleGoogleLogin
                 }
 
-                className="bg-blue-500 px-5 py-3 rounded-xl font-semibold"
+                className="bg-blue-500 hover:bg-blue-600 transition px-5 py-3 rounded-xl font-semibold"
               >
 
                 Sign in with Google
@@ -472,7 +472,7 @@ export default function App() {
                 )
               }
 
-              className="bg-slate-700 px-5 py-3 rounded-xl"
+              className="bg-slate-700 hover:bg-slate-600 transition px-5 py-3 rounded-xl"
             >
 
               {darkMode
@@ -485,7 +485,8 @@ export default function App() {
 
           {/* NAVBAR */}
 
-          <div className={`
+          <div
+            className={`
 
             ${
               mobileMenu
@@ -493,37 +494,97 @@ export default function App() {
                 : "hidden"
             }
 
-            md:flex flex-col md:flex-row gap-5 mb-10 text-lg md:text-2xl font-semibold
-          `}>
+            md:flex flex-col md:flex-row
+            gap-4
+            mb-10
+            text-base md:text-xl
+            font-semibold
+            overflow-x-auto
+            whitespace-nowrap
+          `}
+          >
 
-            <Link to="/">Dashboard</Link>
+            <Link
+              to="/"
+              className="hover:text-cyan-400 transition"
+            >
+              Dashboard
+            </Link>
 
-            <Link to="/goals">Goals</Link>
+            <Link
+              to="/goals"
+              className="hover:text-cyan-400 transition"
+            >
+              Goals
+            </Link>
 
-            <Link to="/analytics">Analytics</Link>
+            <Link
+              to="/analytics"
+              className="hover:text-cyan-400 transition"
+            >
+              Analytics
+            </Link>
 
-            <Link to="/achievements">Achievements</Link>
+            <Link
+              to="/achievements"
+              className="hover:text-cyan-400 transition"
+            >
+              Achievements
+            </Link>
 
-            <Link to="/heatmap">Heatmap</Link>
+            <Link
+              to="/heatmap"
+              className="hover:text-cyan-400 transition"
+            >
+              Heatmap
+            </Link>
 
-            <Link to="/insights">AI Insights</Link>
+            <Link
+              to="/insights"
+              className="hover:text-cyan-400 transition"
+            >
+              AI Insights
+            </Link>
 
-            <Link to="/leaderboard">Leaderboard</Link>
+            <Link
+              to="/leaderboard"
+              className="hover:text-cyan-400 transition"
+            >
+              Leaderboard
+            </Link>
 
-            <Link to="/questions">Question Sheets</Link>
+            <Link
+              to="/questions"
+              className="hover:text-cyan-400 transition"
+            >
+              Question Sheets
+            </Link>
 
-            <Link to="/planner">AI Planner</Link>
+            <Link
+              to="/planner"
+              className="hover:text-cyan-400 transition"
+            >
+              AI Planner
+            </Link>
 
             {
               user?.role ===
               "mentor" && (
 
                 <>
-                  <Link to="/mentor">
+                  <Link
+                    to="/mentor"
+
+                    className="text-cyan-400 hover:text-cyan-300 transition"
+                  >
                     Mentor Dashboard
                   </Link>
 
-                  <Link to="/create-sheet">
+                  <Link
+                    to="/create-sheet"
+
+                    className="text-cyan-400 hover:text-cyan-300 transition"
+                  >
                     Create Sheet
                   </Link>
                 </>

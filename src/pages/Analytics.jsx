@@ -1,5 +1,26 @@
 import {
 
+  useEffect,
+  useState,
+
+} from "react";
+
+import {
+
+  doc,
+  getDoc,
+
+} from "firebase/firestore";
+
+import {
+
+  auth,
+  db,
+
+} from "../firebase";
+
+import {
+
   LineChart,
   Line,
   XAxis,
@@ -9,137 +30,155 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
 
 } from "recharts";
 
 export default function Analytics() {
 
-  /* WEEKLY PRODUCTIVITY */
+  const [
+    weeklyData,
+    setWeeklyData
+  ] = useState([]);
 
-  const weeklyData = [
+  const [
+    habitData,
+    setHabitData
+  ] = useState([]);
 
-    {
-      day: "Mon",
-      productivity: 4,
-    },
+  useEffect(() => {
 
-    {
-      day: "Tue",
-      productivity: 6,
-    },
+    const loadAnalytics =
+      async () => {
 
-    {
-      day: "Wed",
-      productivity: 5,
-    },
+        try {
 
-    {
-      day: "Thu",
-      productivity: 8,
-    },
+          const uid =
+            auth.currentUser.uid;
 
-    {
-      day: "Fri",
-      productivity: 7,
-    },
+          const docRef =
+            doc(
+              db,
+              "habits",
+              uid
+            );
 
-    {
-      day: "Sat",
-      productivity: 9,
-    },
+          const docSnap =
+            await getDoc(
+              docRef
+            );
 
-    {
-      day: "Sun",
-      productivity: 6,
-    },
-  ];
+          if (
+            docSnap.exists()
+          ) {
 
-  /* HABIT PERFORMANCE */
+            const data =
+              docSnap.data();
 
-  const habitData = [
+            const habits =
+              data.habits || {};
 
-    {
-      habit: "DSA",
-      completed: 22,
-    },
+            const habitsList =
+              data.habitsList || [];
 
-    {
-      habit: "Development",
-      completed: 18,
-    },
+            /* WEEKLY DATA */
 
-    {
-      habit: "Fitness",
-      completed: 15,
-    },
+            const weekly =
+              [];
 
-    {
-      habit: "Reading",
-      completed: 12,
-    },
+            for (
+              let i = 6;
+              i >= 0;
+              i--
+            ) {
 
-    {
-      habit: "Debating",
-      completed: 10,
-    },
-  ];
+              const date =
+                new Date();
 
-  /* QUESTION ANALYTICS */
+              date.setDate(
+                date.getDate() - i
+              );
 
-  const questionData = [
+              const formatted =
+                date
+                  .toISOString()
+                  .split("T")[0];
 
-    {
-      topic: "Arrays",
-      solved: 18,
-    },
+              const completed =
+                Object.values(
+                  habits[
+                    formatted
+                  ] || {}
+                ).filter(Boolean)
+                  .length;
 
-    {
-      topic: "Graphs",
-      solved: 10,
-    },
+              weekly.push({
 
-    {
-      topic: "DP",
-      solved: 7,
-    },
+                day:
+                  date.toLocaleDateString(
+                    "en-US",
+                    {
+                      weekday:
+                        "short",
+                    }
+                  ),
 
-    {
-      topic: "Trees",
-      solved: 13,
-    },
+                productivity:
+                  completed,
+              });
+            }
 
-    {
-      topic: "Binary Search",
-      solved: 15,
-    },
-  ];
+            setWeeklyData(
+              weekly
+            );
 
-  /* PRODUCTIVITY DISTRIBUTION */
+            /* HABIT PERFORMANCE */
 
-  const productivityData = [
+            const performance =
+              habitsList.map(
+                (habit) => {
 
-    {
-      name: "Completed",
-      value: 75,
-    },
+                  let total = 0;
 
-    {
-      name: "Missed",
-      value: 25,
-    },
-  ];
+                  Object.values(
+                    habits
+                  ).forEach(
+                    (day) => {
 
-  const COLORS = [
+                      if (
+                        day[
+                          habit
+                        ]
+                      ) {
 
-    "#06b6d4",
+                        total++;
+                      }
+                    }
+                  );
 
-    "#ef4444",
-  ];
+                  return {
+
+                    habit,
+
+                    completed:
+                      total,
+                  };
+                }
+              );
+
+            setHabitData(
+              performance
+            );
+          }
+
+        } catch (error) {
+
+          console.log(error);
+        }
+      };
+
+    loadAnalytics();
+
+  }, []);
 
   return (
 
@@ -147,79 +186,9 @@ export default function Analytics() {
 
       <h1 className="text-5xl font-bold mb-10">
 
-        📈 Enterprise Analytics Dashboard
+        📈 Real Productivity Analytics
 
       </h1>
-
-      {/* TOP ANALYTICS CARDS */}
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-
-        <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-2xl font-bold mb-4">
-
-            Productivity Score
-
-          </h2>
-
-          <p className="text-5xl font-bold">
-
-            87%
-
-          </p>
-
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-2xl font-bold mb-4">
-
-            Questions Solved
-
-          </h2>
-
-          <p className="text-5xl font-bold">
-
-            63
-
-          </p>
-
-        </div>
-
-        <div className="bg-gradient-to-br from-orange-500 to-red-500 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-2xl font-bold mb-4">
-
-            Current Streak
-
-          </h2>
-
-          <p className="text-5xl font-bold">
-
-            12
-
-          </p>
-
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-2xl font-bold mb-4">
-
-            AI Consistency
-
-          </h2>
-
-          <p className="text-5xl font-bold">
-
-            High
-
-          </p>
-
-        </div>
-
-      </div>
 
       {/* WEEKLY PRODUCTIVITY */}
 
@@ -235,7 +204,7 @@ export default function Analytics() {
 
           <ResponsiveContainer>
 
-            <AreaChart
+            <LineChart
               data={weeklyData}
             >
 
@@ -249,14 +218,14 @@ export default function Analytics() {
 
               <Tooltip />
 
-              <Area
+              <Line
                 type="monotone"
                 dataKey="productivity"
                 stroke="#06b6d4"
-                fill="#06b6d4"
+                strokeWidth={4}
               />
 
-            </AreaChart>
+            </LineChart>
 
           </ResponsiveContainer>
 
@@ -264,124 +233,13 @@ export default function Analytics() {
 
       </div>
 
-      {/* SECOND ROW */}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-
-        {/* HABIT PERFORMANCE */}
-
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-3xl font-bold mb-8">
-
-            🏆 Habit Performance
-
-          </h2>
-
-          <div className="w-full h-[400px]">
-
-            <ResponsiveContainer>
-
-              <BarChart
-                data={habitData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                />
-
-                <XAxis dataKey="habit" />
-
-                <YAxis />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="completed"
-                  fill="#22c55e"
-                />
-
-              </BarChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-        {/* PRODUCTIVITY PIE */}
-
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-3xl font-bold mb-8">
-
-            🎯 Productivity Distribution
-
-          </h2>
-
-          <div className="w-full h-[400px]">
-
-            <ResponsiveContainer>
-
-              <PieChart>
-
-                <Pie
-                  data={
-                    productivityData
-                  }
-
-                  cx="50%"
-
-                  cy="50%"
-
-                  outerRadius={120}
-
-                  dataKey="value"
-
-                  label
-                >
-
-                  {
-                    productivityData.map(
-                      (
-                        entry,
-                        index
-                      ) => (
-
-                        <Cell
-                          key={`cell-${index}`}
-
-                          fill={
-                            COLORS[
-                              index
-                            ]
-                          }
-                        />
-                      )
-                    )
-                  }
-
-                </Pie>
-
-                <Tooltip />
-
-              </PieChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* QUESTION ANALYTICS */}
+      {/* HABIT PERFORMANCE */}
 
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
 
         <h2 className="text-3xl font-bold mb-8">
 
-          📚 Question Solving Analytics
+          🏆 Habit Performance
 
         </h2>
 
@@ -389,28 +247,26 @@ export default function Analytics() {
 
           <ResponsiveContainer>
 
-            <LineChart
-              data={questionData}
+            <BarChart
+              data={habitData}
             >
 
               <CartesianGrid
                 strokeDasharray="3 3"
               />
 
-              <XAxis dataKey="topic" />
+              <XAxis dataKey="habit" />
 
               <YAxis />
 
               <Tooltip />
 
-              <Line
-                type="monotone"
-                dataKey="solved"
-                stroke="#f59e0b"
-                strokeWidth={4}
+              <Bar
+                dataKey="completed"
+                fill="#22c55e"
               />
 
-            </LineChart>
+            </BarChart>
 
           </ResponsiveContainer>
 
