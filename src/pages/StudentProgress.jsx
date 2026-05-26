@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useParams } from "react-router-dom";
+import FeedbackChat from "../components/FeedbackChat";
 
 import {
   doc,
@@ -367,6 +368,9 @@ export default function StudentProgress() {
       <FeedbackBox
         studentId={uid}
       />
+      <FeedbackChat
+  studentUID={uid}
+/>
 
     </div>
   );
