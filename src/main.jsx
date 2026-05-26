@@ -12,6 +12,19 @@ import {
 
 } from "react-hot-toast";
 
+import {
+
+  registerSW,
+
+} from "virtual:pwa-register";
+
+/* REGISTER PWA */
+
+registerSW({
+
+  immediate: true,
+});
+
 ReactDOM.createRoot(
 
   document.getElementById("root")
@@ -19,6 +32,8 @@ ReactDOM.createRoot(
 ).render(
 
   <React.StrictMode>
+
+    {/* TOAST SYSTEM */}
 
     <Toaster
 
@@ -32,7 +47,7 @@ ReactDOM.createRoot(
 
           background: "#0f172a",
 
-          color: "#fff",
+          color: "#ffffff",
 
           border:
             "1px solid #334155",
@@ -42,9 +57,24 @@ ReactDOM.createRoot(
 
           borderRadius:
             "16px",
+
+          fontWeight:
+            "600",
+        },
+
+        success: {
+
+          duration: 2500,
+        },
+
+        error: {
+
+          duration: 3500,
         },
       }}
     />
+
+    {/* MAIN APP */}
 
     <App />
 
