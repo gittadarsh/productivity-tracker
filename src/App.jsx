@@ -27,8 +27,9 @@ import {
   BrowserRouter,
   Routes,
   Route,
-  Link,
 } from "react-router-dom";
+
+import toast from "react-hot-toast";
 
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
@@ -44,6 +45,8 @@ import CreateSheet from "./pages/CreateSheet";
 import StudyPlanner from "./pages/StudyPlanner";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import Sidebar from "./components/Sidebar";
+import LoadingSkeleton from "./components/LoadingSkeleton";
 
 export default function App() {
 
@@ -84,7 +87,7 @@ export default function App() {
     },
   ];
 
-  /* FIREBASE AUTH PERSISTENCE */
+  /* FIREBASE AUTH */
 
   useEffect(() => {
 
@@ -117,11 +120,8 @@ export default function App() {
               userSnap.exists()
             ) {
 
-              const userData =
-                userSnap.data();
-
               setUser(
-                userData
+                userSnap.data()
               );
 
             } else {
@@ -143,7 +143,7 @@ export default function App() {
 
   }, []);
 
-  /* GOOGLE LOGIN */
+  /* LOGIN */
 
   const handleGoogleLogin =
     async () => {
@@ -152,7 +152,7 @@ export default function App() {
 
         if (!role) {
 
-          alert(
+          toast.error(
             "Please select Student or Mentor first"
           );
 
@@ -165,7 +165,7 @@ export default function App() {
           !selectedMentor
         ) {
 
-          alert(
+          toast.error(
             "Please select a mentor"
           );
 
@@ -217,11 +217,15 @@ export default function App() {
           });
         }
 
+        toast.success(
+          "Login successful 🚀"
+        );
+
       } catch (error) {
 
         console.log(error);
 
-        alert(
+        toast.error(
           "Login failed"
         );
       }
@@ -238,9 +242,17 @@ export default function App() {
 
         setUser(null);
 
+        toast.success(
+          "Logged out successfully"
+        );
+
       } catch (error) {
 
         console.log(error);
+
+        toast.error(
+          "Logout failed"
+        );
       }
     };
 
@@ -250,9 +262,9 @@ export default function App() {
 
     return (
 
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center text-3xl font-bold">
+      <div className="min-h-screen bg-slate-950 text-white p-8">
 
-        🚀 Loading...
+        <LoadingSkeleton />
 
       </div>
     );
@@ -263,7 +275,7 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen transition duration-300
+        className={`min-h-screen flex transition duration-300
 
         ${
           darkMode
@@ -272,17 +284,27 @@ export default function App() {
         }`}
       >
 
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* SIDEBAR */}
+
+        <Sidebar
+          user={user}
+
+          mobileMenu={
+            mobileMenu
+          }
+
+          setMobileMenu={
+            setMobileMenu
+          }
+        />
+
+        {/* MAIN CONTENT */}
+
+        <div className="flex-1 md:ml-[260px] p-4 md:p-8">
 
           {/* HEADER */}
 
           <div className="flex items-center justify-between mb-8">
-
-            <h1 className="text-3xl md:text-5xl font-bold">
-
-              🚀 Productivity Tracker
-
-            </h1>
 
             <button
               onClick={() =>
@@ -298,15 +320,43 @@ export default function App() {
 
             </button>
 
+            <h1 className="text-2xl md:text-4xl font-bold">
+
+              🚀 Productivity Tracker
+
+            </h1>
+
+            <button
+              onClick={() =>
+                setDarkMode(
+                  !darkMode
+                )
+              }
+
+              className="bg-slate-700 hover:bg-slate-600 transition px-4 py-2 rounded-xl"
+            >
+
+              {darkMode
+                ? "☀"
+                : "🌙"}
+
+            </button>
+
           </div>
 
-          {/* CONTROLS */}
+          {/* AUTH SECTION */}
 
-          <div className="flex flex-wrap gap-4 items-center mb-8">
+          {!user && (
 
-            {!user && (
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl mb-10">
 
-              <div className="flex gap-3 flex-wrap">
+              <h2 className="text-3xl font-bold mb-6">
+
+                Welcome 🚀
+
+              </h2>
+
+              <div className="flex flex-wrap gap-4 mb-6">
 
                 <button
                   onClick={() =>
@@ -355,83 +405,107 @@ export default function App() {
                 </button>
 
               </div>
-            )}
 
-            {
-              role === "student"
-              &&
-              !user && (
+              {
+                role ===
+                  "student" && (
 
-                <select
-                  className="bg-slate-800 px-4 py-3 rounded-xl"
+                  <select
+                    className="bg-slate-800 px-4 py-3 rounded-xl mb-6 w-full md:w-[300px]"
 
-                  onChange={(e) =>
-                    setSelectedMentor(
-                      e.target.value
-                    )
+                    onChange={(e) =>
+                      setSelectedMentor(
+                        e.target.value
+                      )
+                    }
+                  >
+
+                    <option value="">
+                      Select Mentor
+                    </option>
+
+                    {mentors.map(
+                      (
+                        mentor
+                      ) => (
+
+                        <option
+                          key={
+                            mentor.id
+                          }
+
+                          value={
+                            mentor.id
+                          }
+                        >
+
+                          {
+                            mentor.name
+                          }
+
+                        </option>
+                      )
+                    )}
+
+                  </select>
+                )
+              }
+
+              <div>
+
+                <button
+                  onClick={
+                    handleGoogleLogin
                   }
+
+                  className="bg-blue-500 hover:bg-blue-600 transition px-6 py-3 rounded-xl font-semibold"
                 >
 
-                  <option value="">
-                    Select Mentor
-                  </option>
+                  Sign in with Google
 
-                  {mentors.map(
-                    (mentor) => (
+                </button>
 
-                      <option
-                        key={mentor.id}
+              </div>
 
-                        value={
-                          mentor.id
-                        }
-                      >
+            </div>
+          )}
 
-                        {mentor.name}
+          {/* USER BAR */}
 
-                      </option>
-                    )
-                  )}
+          {
+            user && (
 
-                </select>
-              )
-            }
+              <div className="flex items-center justify-between flex-wrap gap-4 bg-slate-900 border border-slate-800 p-5 rounded-3xl mb-10">
 
-            {user ? (
+                <div className="flex items-center gap-4">
 
-              <div className="flex items-center gap-4 flex-wrap">
+                  <img
+                    src={
+                      user?.photo ||
 
-                <img
-                  src={
-                    user?.photo ||
+                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
+                    }
 
-                    `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
-                  }
+                    alt="profile"
 
-                  alt="profile"
+                    className="w-14 h-14 rounded-full border-2 border-cyan-400"
+                  />
 
-                  onError={(e) => {
+                  <div>
 
-                    e.target.src =
-                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`;
-                  }}
+                    <h2 className="text-2xl font-bold">
 
-                  className="w-14 h-14 rounded-full object-cover border-2 border-cyan-400 shadow-lg"
-                />
+                      {user.name}
 
-                <div>
+                    </h2>
 
-                  <p className="font-semibold text-lg">
+                    <p className="text-slate-400 capitalize">
 
-                    {user.name}
+                      {user.role}
 
-                  </p>
+                    </p>
 
-                  <p className="text-sm text-slate-400 capitalize">
-
-                    {user.role}
-
-                  </p>
+                  </div>
 
                 </div>
 
@@ -448,156 +522,12 @@ export default function App() {
                 </button>
 
               </div>
-
-            ) : (
-
-              <button
-                onClick={
-                  handleGoogleLogin
-                }
-
-                className="bg-blue-500 hover:bg-blue-600 transition px-5 py-3 rounded-xl font-semibold"
-              >
-
-                Sign in with Google
-
-              </button>
-
-            )}
-
-            <button
-              onClick={() =>
-                setDarkMode(
-                  !darkMode
-                )
-              }
-
-              className="bg-slate-700 hover:bg-slate-600 transition px-5 py-3 rounded-xl"
-            >
-
-              {darkMode
-                ? "☀ Light"
-                : "🌙 Dark"}
-
-            </button>
-
-          </div>
-
-          {/* NAVBAR */}
-
-          <div
-            className={`
-
-            ${
-              mobileMenu
-                ? "flex"
-                : "hidden"
-            }
-
-            md:flex flex-col md:flex-row
-            gap-4
-            mb-10
-            text-base md:text-xl
-            font-semibold
-            overflow-x-auto
-            whitespace-nowrap
-          `}
-          >
-
-            <Link
-              to="/"
-              className="hover:text-cyan-400 transition"
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              to="/goals"
-              className="hover:text-cyan-400 transition"
-            >
-              Goals
-            </Link>
-
-            <Link
-              to="/analytics"
-              className="hover:text-cyan-400 transition"
-            >
-              Analytics
-            </Link>
-
-            <Link
-              to="/achievements"
-              className="hover:text-cyan-400 transition"
-            >
-              Achievements
-            </Link>
-
-            <Link
-              to="/heatmap"
-              className="hover:text-cyan-400 transition"
-            >
-              Heatmap
-            </Link>
-
-            <Link
-              to="/insights"
-              className="hover:text-cyan-400 transition"
-            >
-              AI Insights
-            </Link>
-
-            <Link
-              to="/leaderboard"
-              className="hover:text-cyan-400 transition"
-            >
-              Leaderboard
-            </Link>
-
-            <Link
-              to="/questions"
-              className="hover:text-cyan-400 transition"
-            >
-              Question Sheets
-            </Link>
-
-            <Link
-              to="/planner"
-              className="hover:text-cyan-400 transition"
-            >
-              AI Planner
-            </Link>
-
-            {
-              user?.role ===
-              "mentor" && (
-
-                <>
-                  <Link
-                    to="/mentor"
-
-                    className="text-cyan-400 hover:text-cyan-300 transition"
-                  >
-                    Mentor Dashboard
-                  </Link>
-
-                  <Link
-                    to="/create-sheet"
-
-                    className="text-cyan-400 hover:text-cyan-300 transition"
-                  >
-                    Create Sheet
-                  </Link>
-                </>
-              )
-            }
-
-          </div>
+            )
+          }
 
           {/* ROUTES */}
 
           <Routes>
-
-            {/* PUBLIC */}
 
             <Route
               path="/"
@@ -607,8 +537,6 @@ export default function App() {
                 />
               }
             />
-
-            {/* AUTH REQUIRED */}
 
             <Route
               path="/goals"
@@ -713,8 +641,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* MENTOR ONLY */}
 
             <Route
               path="/mentor"
