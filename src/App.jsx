@@ -203,7 +203,7 @@ export default function App() {
               loggedInUser.email,
 
             photo:
-              loggedInUser.photoURL,
+              loggedInUser.photoURL || "",
 
             role:
               role,
@@ -401,8 +401,9 @@ export default function App() {
 
                 <img
                   src={
-                    user.photo ||
-                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    user?.photo ||
+
+                    `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
                   }
 
                   alt="profile"
@@ -410,10 +411,10 @@ export default function App() {
                   onError={(e) => {
 
                     e.target.src =
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`;
                   }}
 
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400 shadow-lg"
                 />
 
                 <div>
