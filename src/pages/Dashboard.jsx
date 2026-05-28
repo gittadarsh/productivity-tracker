@@ -6,11 +6,28 @@ import {
 
 import {
 
+  useEffect,
   useState,
 
 } from "react";
 
 import FocusSessionModal from "../components/FocusSessionModal";
+
+import {
+
+  auth,
+  db,
+
+} from "../firebase";
+
+import {
+
+  collection,
+  getDocs,
+  query,
+  where,
+
+} from "firebase/firestore";
 
 export default function Dashboard() {
 
@@ -19,14 +36,182 @@ export default function Dashboard() {
     setFocusOpen
   ] = useState(false);
 
-  const stats = [
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  const [
+    stats,
+    setStats
+  ] = useState({
+
+    xp: 0,
+
+    sessions: 0,
+
+    habits: 0,
+
+    completedHabits: 0,
+
+    streak: 0,
+  });
+
+  /* LOAD DATA */
+
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, []);
+
+  const loadDashboard =
+    async () => {
+
+      try {
+
+        const user =
+          auth.currentUser;
+
+        if (!user)
+          return;
+
+        /* FOCUS SESSIONS */
+
+        const sessionQuery =
+          query(
+
+            collection(
+              db,
+              "focusSessions"
+            ),
+
+            where(
+              "uid",
+              "==",
+              user.uid
+            )
+          );
+
+        const sessionSnap =
+          await getDocs(
+            sessionQuery
+          );
+
+        const sessions =
+          sessionSnap.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        /* HABITS */
+
+        const habitQuery =
+          query(
+
+            collection(
+              db,
+              "habits"
+            ),
+
+            where(
+              "uid",
+              "==",
+              user.uid
+            )
+          );
+
+        const habitSnap =
+          await getDocs(
+            habitQuery
+          );
+
+        const habits =
+          habitSnap.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        /* CALCULATIONS */
+
+        const totalXP =
+          sessions.reduce(
+            (
+              acc,
+              curr
+            ) =>
+
+              acc +
+              (
+                curr.xp ||
+                0
+              ),
+
+            0
+          );
+
+        const totalSessions =
+          sessions.length;
+
+        const totalHabits =
+          habits.length;
+
+        const completedHabits =
+          habits.filter(
+            (h) =>
+              h.completed
+          ).length;
+
+        const highestStreak =
+          habits.reduce(
+            (
+              max,
+              habit
+            ) =>
+
+              Math.max(
+                max,
+                habit.streak ||
+                  0
+              ),
+
+            0
+          );
+
+        setStats({
+
+          xp: totalXP,
+
+          sessions:
+            totalSessions,
+
+          habits:
+            totalHabits,
+
+          completedHabits,
+
+          streak:
+            highestStreak,
+        });
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  const cards = [
 
     {
       title:
-        "Productivity Score",
+        "Total XP",
 
       value:
-        "87%",
+        stats.xp,
 
       icon:
         "⚡",
@@ -37,24 +222,24 @@ export default function Dashboard() {
 
     {
       title:
-        "Current Streak",
+        "Focus Sessions",
 
       value:
-        "12 Days",
+        stats.sessions,
 
       icon:
-        "🔥",
+        "🧠",
 
       gradient:
-        "from-orange-500 to-red-500",
+        "from-purple-500 to-pink-500",
     },
 
     {
       title:
-        "Goals Completed",
+        "Habits Completed",
 
       value:
-        "18",
+        `${stats.completedHabits}/${stats.habits}`,
 
       icon:
         "🎯",
@@ -65,16 +250,16 @@ export default function Dashboard() {
 
     {
       title:
-        "AI Consistency",
+        "Highest Streak",
 
       value:
-        "92%",
+        `${stats.streak} Days`,
 
       icon:
-        "🤖",
+        "🔥",
 
       gradient:
-        "from-purple-500 to-pink-500",
+        "from-orange-500 to-red-500",
     },
   ];
 
@@ -108,15 +293,13 @@ export default function Dashboard() {
           className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
         >
 
-          {/* GLOW */}
-
           <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
           <div className="relative z-10">
 
             <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
 
-              AI Productivity Platform
+              Live Productivity System
 
             </p>
 
@@ -128,21 +311,21 @@ export default function Dashboard() {
               <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
                 unstoppable
-
               </span>
 
               {" "}
-              productivity habits.
+              productivity consistency.
             </h1>
 
             <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
 
-              Track habits, monitor consistency, analyze performance,
-              and unlock AI-powered insights for maximum growth.
+              Your live productivity metrics,
+              focus sessions,
+              habits,
+              streaks,
+              and AI insights all in one place.
 
             </p>
-
-            {/* ACTIONS */}
 
             <div className="flex flex-wrap gap-4 mt-8">
 
@@ -160,12 +343,6 @@ export default function Dashboard() {
 
               </button>
 
-              <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-8 py-4 rounded-2xl font-semibold">
-
-                📊 View Analytics
-
-              </button>
-
             </div>
 
           </div>
@@ -176,7 +353,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-          {stats.map((stat, index) => (
+          {cards.map((card, index) => (
 
             <motion.div
 
@@ -204,7 +381,7 @@ export default function Dashboard() {
             >
 
               <div
-                className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-20 blur-3xl`}
+                className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.gradient} opacity-20 blur-3xl`}
               />
 
               <div className="relative z-10">
@@ -215,23 +392,29 @@ export default function Dashboard() {
 
                     <p className="text-slate-400 text-sm">
 
-                      {stat.title}
+                      {card.title}
 
                     </p>
 
                     <h2 className="text-4xl font-black mt-3">
 
-                      {stat.value}
+                      {
+                        loading
+
+                          ? "--"
+
+                          : card.value
+                      }
 
                     </h2>
 
                   </div>
 
                   <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.gradient} flex items-center justify-center text-3xl shadow-xl`}
+                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${card.gradient} flex items-center justify-center text-3xl shadow-xl`}
                   >
 
-                    {stat.icon}
+                    {card.icon}
 
                   </div>
 
@@ -244,160 +427,56 @@ export default function Dashboard() {
 
         </div>
 
-        {/* MAIN GRID */}
+        {/* LIVE STATUS */}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <motion.div
 
-          {/* PRODUCTIVITY */}
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
 
-          <motion.div
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
 
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
+          className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+        >
 
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
+          <div className="flex items-center justify-between flex-wrap gap-5">
 
-            className="xl:col-span-2 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-          >
+            <div>
 
-            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-4xl font-black">
 
-              <div>
+                ⚡ Productivity Status
 
-                <h2 className="text-3xl font-black">
+              </h2>
 
-                  📈 Productivity Overview
+              <p className="text-slate-400 mt-3">
 
-                </h2>
+                Real-time productivity overview powered by Firebase data.
 
-                <p className="text-slate-400 mt-2">
-
-                  Weekly performance analysis
-
-                </p>
-
-              </div>
-
-              <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
-
-                This Week
-
-              </button>
+              </p>
 
             </div>
 
-            <div className="h-[350px] rounded-[28px] bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center">
+            <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 px-5 py-3 rounded-2xl">
 
-              <div className="text-center">
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
 
-                <div className="text-7xl mb-4">
+              <span className="font-bold text-green-400">
 
-                  📊
+                Live Tracking Active
 
-                </div>
-
-                <p className="text-slate-400 text-lg">
-
-                  Live productivity analytics will appear here
-
-                </p>
-
-              </div>
+              </span>
 
             </div>
 
-          </motion.div>
+          </div>
 
-          {/* AI INSIGHTS */}
-
-          <motion.div
-
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
-
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-
-            transition={{
-              delay: 0.1,
-            }}
-
-            className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-          >
-
-            <h2 className="text-3xl font-black mb-8">
-
-              🤖 AI Insights
-
-            </h2>
-
-            <div className="space-y-5">
-
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-5">
-
-                <h3 className="font-bold text-cyan-400 mb-2">
-
-                  Peak Focus Time
-
-                </h3>
-
-                <p className="text-slate-300 leading-relaxed">
-
-                  Your highest productivity occurs between
-                  8AM - 11AM consistently.
-
-                </p>
-
-              </div>
-
-              <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5">
-
-                <h3 className="font-bold text-purple-400 mb-2">
-
-                  Consistency Improvement
-
-                </h3>
-
-                <p className="text-slate-300 leading-relaxed">
-
-                  Your habit completion rate improved
-                  by 24% this month.
-
-                </p>
-
-              </div>
-
-              <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
-
-                <h3 className="font-bold text-green-400 mb-2">
-
-                  AI Recommendation
-
-                </h3>
-
-                <p className="text-slate-300 leading-relaxed">
-
-                  Add a focused evening revision block
-                  to maximize retention.
-
-                </p>
-
-              </div>
-
-            </div>
-
-          </motion.div>
-
-        </div>
+        </motion.div>
 
       </div>
 
