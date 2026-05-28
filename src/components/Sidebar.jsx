@@ -15,6 +15,8 @@ export default function Sidebar({
 
 }) {
 
+  /* STUDENT LINKS */
+
   const studentLinks = [
 
     {
@@ -60,6 +62,8 @@ export default function Sidebar({
     },
   ];
 
+  /* MENTOR LINKS */
+
   const mentorLinks = [
 
     {
@@ -99,28 +103,30 @@ export default function Sidebar({
 
     <>
 
-      {/* MOBILE */}
+      {/* MOBILE SIDEBAR */}
 
       <motion.div
 
-        initial={{
-          x: -300,
-        }}
+        initial={false}
 
         animate={{
           x: mobileMenu
             ? 0
-            : -320,
+            : "-100%",
         }}
 
         transition={{
-          duration: 0.3,
+          type: "spring",
+          stiffness: 260,
+          damping: 26,
         }}
 
         className="fixed top-0 left-0 z-50 h-screen w-[290px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-2xl lg:hidden"
       >
 
         <div className="flex flex-col h-full">
+
+          {/* TOP */}
 
           <div className="p-6 border-b border-white/10">
 
@@ -159,6 +165,8 @@ export default function Sidebar({
 
           </div>
 
+          {/* USER */}
+
           <div className="p-6 border-b border-white/10">
 
             <div className="flex items-center gap-4">
@@ -192,6 +200,8 @@ export default function Sidebar({
             </div>
 
           </div>
+
+          {/* LINKS */}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
 
@@ -254,6 +264,8 @@ export default function Sidebar({
 
           </div>
 
+          {/* LOGOUT */}
+
           <div className="p-4 border-t border-white/10">
 
             <button
@@ -271,11 +283,13 @@ export default function Sidebar({
 
       </motion.div>
 
-      {/* DESKTOP */}
+      {/* DESKTOP SIDEBAR */}
 
       <div className="hidden lg:flex fixed top-0 left-0 h-screen w-[290px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-2xl z-40">
 
         <div className="flex flex-col w-full">
+
+          {/* TOP */}
 
           <div className="p-8 border-b border-white/10">
 
@@ -292,6 +306,8 @@ export default function Sidebar({
             </p>
 
           </div>
+
+          {/* USER */}
 
           <div className="p-6 border-b border-white/10">
 
@@ -326,6 +342,8 @@ export default function Sidebar({
             </div>
 
           </div>
+
+          {/* LINKS */}
 
           <div className="flex-1 overflow-y-auto p-5 space-y-3">
 
@@ -376,6 +394,8 @@ export default function Sidebar({
             ))}
 
           </div>
+
+          {/* LOGOUT */}
 
           <div className="p-5 border-t border-white/10">
 
