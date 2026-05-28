@@ -15,33 +15,29 @@ export default function PageWrapper({
     <motion.div
 
       initial={{
-
         opacity: 0,
-
         y: 20,
       }}
 
       animate={{
-
         opacity: 1,
-
         y: 0,
       }}
 
-      exit={{
-
-        opacity: 0,
-
-        y: -20,
-      }}
-
       transition={{
-
-        duration: 0.4,
+        duration: 0.35,
       }}
+
+      className="relative z-10"
     >
 
-      {children}
+      {/* PREMIUM PAGE CONTAINER */}
+
+      <div className="space-y-8">
+
+        {children}
+
+      </div>
 
     </motion.div>
   );
