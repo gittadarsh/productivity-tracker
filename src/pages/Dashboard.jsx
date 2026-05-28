@@ -1,646 +1,455 @@
-import { useState, useEffect } from "react";
-
-import AIInsights from "../components/AIInsights";
-import Badges from "../components/Badges";
-import Heatmap from "../components/Heatmap";
-import AIAnalysis from "../components/AIAnalysis";
-import NotificationBox from "../components/NotificationBox";
-import AIRecommendations from "../components/AIRecommendations";
-import ReportGenerator from "../components/ReportGenerator";
-import SmartGoals from "../components/SmartGoals";
-import HabitManager from "../components/HabitManager";
-
 import {
 
-  doc,
-  setDoc,
-  updateDoc,
-  onSnapshot,
+  motion,
 
-} from "firebase/firestore";
-
-import { db, auth } from "../firebase";
-
-import toast from "react-hot-toast";
+} from "framer-motion";
 
 export default function Dashboard() {
 
-  const [habitsList, setHabitsList] =
-    useState([]);
+  const stats = [
 
-  const [
-    mentorIdInput,
-    setMentorIdInput
-  ] = useState("");
+    {
+      title:
+        "Productivity Score",
 
-  const [habits, setHabits] =
-    useState({});
+      value:
+        "87%",
 
-  const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
+      icon:
+        "⚡",
 
-  /* REALTIME LOAD */
+      gradient:
+        "from-cyan-500 to-blue-500",
+    },
 
-  useEffect(() => {
+    {
+      title:
+        "Current Streak",
 
-    if (!auth.currentUser) {
-      return;
-    }
+      value:
+        "12 Days",
 
-    const docRef =
-      doc(
-        db,
-        "habits",
-        auth.currentUser.uid
-      );
+      icon:
+        "🔥",
 
-    const unsubscribe =
-      onSnapshot(
+      gradient:
+        "from-orange-500 to-red-500",
+    },
 
-        docRef,
+    {
+      title:
+        "Goals Completed",
 
-        async (docSnap) => {
+      value:
+        "18",
 
-          try {
+      icon:
+        "🎯",
 
-            if (
-              docSnap.exists()
-            ) {
+      gradient:
+        "from-green-500 to-emerald-500",
+    },
 
-              const data =
-                docSnap.data();
+    {
+      title:
+        "AI Consistency",
 
-              setHabits(
-                data.habits || {}
-              );
+      value:
+        "92%",
 
-              setHabitsList(
-                data.habitsList || []
-              );
+      icon:
+        "🤖",
 
-            } else {
-
-              const defaultHabits = [
-
-                "DSA",
-
-                "Development",
-
-                "Fitness",
-
-                "Debating",
-
-                "Reading",
-              ];
-
-              setHabitsList(
-                defaultHabits
-              );
-
-              await setDoc(
-                docRef,
-                {
-
-                  habits: {},
-
-                  habitsList:
-                    defaultHabits,
-                }
-              );
-            }
-
-          } catch (error) {
-
-            console.log(error);
-
-            toast.error(
-              "Real-time sync failed"
-            );
-          }
-        }
-      );
-
-    return () =>
-      unsubscribe();
-
-  }, []);
-
-  /* SAVE TO FIREBASE */
-
-  const saveHabitsToFirebase =
-    async (
-      updatedHabits,
-      updatedHabitsList
-    ) => {
-
-      try {
-
-        if (!auth.currentUser) {
-          return;
-        }
-
-        await setDoc(
-
-          doc(
-            db,
-            "habits",
-            auth.currentUser.uid
-          ),
-
-          {
-
-            habits:
-              updatedHabits,
-
-            habitsList:
-              updatedHabitsList,
-          }
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Failed to sync habits"
-        );
-      }
-    };
-
-  /* CONNECT TO MENTOR */
-
-  const connectToMentor =
-    async () => {
-
-      try {
-
-        await updateDoc(
-
-          doc(
-            db,
-            "users",
-            auth.currentUser.uid
-          ),
-
-          {
-            mentorId:
-              mentorIdInput,
-          }
-        );
-
-        toast.success(
-          "Connected to mentor successfully 🚀"
-        );
-
-        setMentorIdInput("");
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Failed to connect mentor"
-        );
-      }
-    };
-
-  /* DELETE HABIT */
-
-  const deleteHabit = async (
-    habitToDelete
-  ) => {
-
-    const updatedHabitsList =
-      habitsList.filter(
-        (habit) =>
-          habit !==
-          habitToDelete
-      );
-
-    setHabitsList(
-      updatedHabitsList
-    );
-
-    await saveHabitsToFirebase(
-      habits,
-      updatedHabitsList
-    );
-
-    toast.success(
-      "Habit deleted"
-    );
-  };
-
-  /* EDIT HABIT */
-
-  const editHabit = async (
-    oldHabit
-  ) => {
-
-    const newHabitName =
-      prompt(
-        "Enter new habit name:",
-        oldHabit
-      );
-
-    if (
-      !newHabitName ||
-      habitsList.includes(
-        newHabitName
-      )
-    ) {
-
-      return;
-    }
-
-    const updatedHabitsList =
-      habitsList.map((habit) =>
-
-        habit === oldHabit
-          ? newHabitName
-          : habit
-      );
-
-    const updatedHabits = {
-      ...habits,
-    };
-
-    Object.keys(updatedHabits)
-      .forEach((date) => {
-
-        if (
-          updatedHabits[date][
-            oldHabit
-          ] !== undefined
-        ) {
-
-          updatedHabits[date][
-            newHabitName
-          ] =
-            updatedHabits[date][
-              oldHabit
-            ];
-
-          delete updatedHabits[
-            date
-          ][oldHabit];
-        }
-      });
-
-    setHabitsList(
-      updatedHabitsList
-    );
-
-    setHabits(updatedHabits);
-
-    await saveHabitsToFirebase(
-      updatedHabits,
-      updatedHabitsList
-    );
-
-    toast.success(
-      "Habit updated"
-    );
-  };
-
-  /* TOGGLE HABIT */
-
-  const toggleHabit = async (
-    habit
-  ) => {
-
-    const updatedHabits = {
-
-      ...habits,
-
-      [today]: {
-
-        ...habits[today],
-
-        [habit]:
-          !habits[today]?.[habit],
-      },
-    };
-
-    setHabits(updatedHabits);
-
-    await saveHabitsToFirebase(
-      updatedHabits,
-      habitsList
-    );
-  };
-
-  /* COMPLETED TODAY */
-
-  const completedToday =
-    habitsList.filter(
-      (habit) =>
-        habits[today]?.[habit]
-    ).length;
-
-  /* STREAK */
-
-  const calculateStreak = (
-    habit
-  ) => {
-
-    let streak = 0;
-
-    for (
-      let i = 0;
-      i < 30;
-      i++
-    ) {
-
-      const date =
-        new Date();
-
-      date.setDate(
-        date.getDate() - i
-      );
-
-      const formatted =
-        date
-          .toISOString()
-          .split("T")[0];
-
-      if (
-        habits[formatted]?.[habit]
-      ) {
-
-        streak++;
-
-      } else {
-
-        break;
-      }
-    }
-
-    return streak;
-  };
+      gradient:
+        "from-purple-500 to-pink-500",
+    },
+  ];
 
   return (
 
-    <div>
+    <div className="space-y-8">
 
-      {/* TOP CARDS */}
+      {/* HERO */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <motion.div
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+        initial={{
+          opacity: 0,
+          y: 30,
+        }}
 
-          <h2 className="text-2xl mb-3 font-semibold">
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-            Completed Today
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+      >
 
-          </h2>
+        {/* GLOW */}
 
-          <p className="text-5xl font-bold text-cyan-400">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
-            {completedToday}/{habitsList.length}
+        <div className="relative z-10">
 
-          </p>
+          <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
 
-        </div>
-
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
-
-          <h2 className="text-2xl mb-3 font-semibold">
-
-            Current Date
-
-          </h2>
-
-          <p className="text-4xl font-bold text-blue-400">
-
-            {today}
+            AI Productivity Platform
 
           </p>
 
-        </div>
+          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
 
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
+            Build
+            {" "}
 
-          <h2 className="text-2xl mb-3 font-semibold">
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-            Total Habits
+              unstoppable
 
-          </h2>
+            </span>
 
-          <p className="text-5xl font-bold text-green-400">
+            {" "}
+            productivity habits.
+          </h1>
 
-            {habitsList.length}
+          <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
+
+            Track habits, monitor consistency, analyze performance,
+            and unlock AI-powered insights for maximum growth.
 
           </p>
 
+          {/* ACTIONS */}
+
+          <div className="flex flex-wrap gap-4 mt-8">
+
+            <button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-4 rounded-2xl font-bold shadow-2xl">
+
+              🚀 Start Focus Session
+
+            </button>
+
+            <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-8 py-4 rounded-2xl font-semibold">
+
+              📊 View Analytics
+
+            </button>
+
+          </div>
+
         </div>
 
-      </div>
+      </motion.div>
 
-      {/* CONNECT MENTOR */}
+      {/* STATS */}
 
-      <div className="bg-slate-900 border border-slate-700 p-5 rounded-3xl mb-8 shadow-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        <h2 className="text-2xl font-bold mb-4">
+        {stats.map((stat, index) => (
 
-          👨‍🏫 Connect Mentor
+          <motion.div
 
-        </h2>
+            key={index}
 
-        <div className="flex gap-4">
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
 
-          <input
-            type="text"
-            placeholder="Enter mentor UID"
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
 
-            value={mentorIdInput}
+            transition={{
+              delay: index * 0.08,
+            }}
 
-            onChange={(e) =>
-              setMentorIdInput(
-                e.target.value
-              )
-            }
+            whileHover={{
+              y: -6,
+            }}
 
-            className="bg-slate-800 p-4 rounded-xl w-full outline-none"
-          />
-
-          <button
-            onClick={connectToMentor}
-
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 rounded-xl font-bold"
+            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
           >
 
-            Connect
-
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* TITLE */}
-
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-
-        Today's Habits
-
-      </h1>
-
-      {/* HABIT MANAGER */}
-
-      <HabitManager
-
-        habitsList={habitsList}
-
-        setHabitsList={setHabitsList}
-
-      />
-
-      {/* HABIT GRID */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        {habitsList.map((habit) => {
-
-          const completed =
-            habits[today]?.[habit];
-
-          return (
+            {/* GLOW */}
 
             <div
-              key={habit}
+              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-20 blur-3xl`}
+            />
 
-              onClick={() =>
-                toggleHabit(habit)
-              }
+            <div className="relative z-10">
 
-              className={`p-8 rounded-3xl cursor-pointer transition duration-300 hover:scale-105 shadow-2xl border
+              <div className="flex items-center justify-between">
 
-              ${
-                completed
-                  ? "bg-gradient-to-br from-green-500 to-emerald-700 border-green-400"
-                  : "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700"
-              }`}
-            >
+                <div>
 
-              <div className="flex items-center justify-between gap-2">
+                  <p className="text-slate-400 text-sm">
 
-                <h2 className="text-2xl font-bold">
+                    {stat.title}
 
-                  {completed
-                    ? "✅"
-                    : "⬜"}
+                  </p>
 
-                  {" "}
+                  <h2 className="text-4xl font-black mt-3">
 
-                  {habit}
+                    {stat.value}
 
-                </h2>
+                  </h2>
 
-                <div className="flex">
+                </div>
 
-                  <button
-                    onClick={(e) => {
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.gradient} flex items-center justify-center text-3xl shadow-xl`}
+                >
 
-                      e.stopPropagation();
-
-                      editHabit(habit);
-                    }}
-
-                    className="bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 rounded-lg text-sm mr-2"
-                  >
-
-                    ✏️
-
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-
-                      e.stopPropagation();
-
-                      deleteHabit(habit);
-                    }}
-
-                    className="bg-gradient-to-r from-red-500 to-pink-500 px-3 py-1 rounded-lg text-sm"
-                  >
-
-                    ❌
-
-                  </button>
+                  {stat.icon}
 
                 </div>
 
               </div>
 
-              <p className="mt-5 text-lg text-slate-200">
+            </div>
 
-                {completed
-                  ? "Completed Today 🎉"
-                  : "Click to mark completed"}
+          </motion.div>
+        ))}
 
-              </p>
+      </div>
 
-              <p className="mt-5 text-slate-300 text-lg">
+      {/* MAIN GRID */}
 
-                🔥 Streak:
-                {" "}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                {calculateStreak(
-                  habit
-                )}
+        {/* PRODUCTIVITY */}
 
-                {" "}
+        <motion.div
 
-                days
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          className="xl:col-span-2 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+        >
+
+          <div className="flex items-center justify-between mb-8">
+
+            <div>
+
+              <h2 className="text-3xl font-black">
+
+                📈 Productivity Overview
+
+              </h2>
+
+              <p className="text-slate-400 mt-2">
+
+                Weekly performance analysis
 
               </p>
 
             </div>
-          );
-        })}
+
+            <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
+
+              This Week
+
+            </button>
+
+          </div>
+
+          {/* CHART PLACEHOLDER */}
+
+          <div className="h-[350px] rounded-[28px] bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center">
+
+            <div className="text-center">
+
+              <div className="text-7xl mb-4">
+
+                📊
+
+              </div>
+
+              <p className="text-slate-400 text-lg">
+
+                Analytics charts will appear here
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </motion.div>
+
+        {/* AI INSIGHTS */}
+
+        <motion.div
+
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            delay: 0.1,
+          }}
+
+          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+        >
+
+          <h2 className="text-3xl font-black mb-8">
+
+            🤖 AI Insights
+
+          </h2>
+
+          <div className="space-y-5">
+
+            <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-cyan-400 mb-2">
+
+                Peak Focus Time
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                Your highest productivity occurs between
+                8AM - 11AM consistently.
+
+              </p>
+
+            </div>
+
+            <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-purple-400 mb-2">
+
+                Consistency Improvement
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                Your habit completion rate improved
+                by 24% this month.
+
+              </p>
+
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-green-400 mb-2">
+
+                AI Recommendation
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                Add a focused evening revision block
+                to maximize retention.
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </motion.div>
 
       </div>
 
-      {/* AI + ANALYTICS */}
+      {/* QUICK ACTIONS */}
 
-      <AIInsights
-        completed={completedToday}
-        total={habitsList.length}
-      />
+      <motion.div
 
-      <Badges
-        completed={completedToday}
-      />
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
 
-      <Heatmap habits={habits} />
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-      <AIAnalysis
-        habits={habits}
-        habitsList={habitsList}
-      />
+        transition={{
+          delay: 0.2,
+        }}
 
-      <NotificationBox
-        habits={habits}
-        habitsList={habitsList}
-      />
+        className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+      >
 
-      <ReportGenerator
-        habits={habits}
-        habitsList={habitsList}
-      />
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
 
-      <AIRecommendations
-        habits={habits}
-        habitsList={habitsList}
-      />
+          <div>
 
-      <SmartGoals
-        habits={habits}
-        habitsList={habitsList}
-      />
+            <h2 className="text-3xl font-black">
+
+              ⚡ Quick Actions
+
+            </h2>
+
+            <p className="text-slate-400 mt-2">
+
+              Jump directly into productivity workflows
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+
+          {[
+            "➕ Add Habit",
+            "🎯 Set Goal",
+            "📚 Create Sheet",
+            "🤖 Generate AI Plan",
+          ].map((action, index) => (
+
+            <motion.button
+
+              key={index}
+
+              whileHover={{
+                scale: 1.03,
+              }}
+
+              whileTap={{
+                scale: 0.98,
+              }}
+
+              className="bg-gradient-to-br from-slate-800 to-slate-900 hover:from-cyan-500/20 hover:to-blue-500/20 border border-white/10 transition-all duration-300 rounded-3xl p-8 text-left shadow-xl"
+            >
+
+              <div className="text-xl font-bold">
+
+                {action}
+
+              </div>
+
+            </motion.button>
+          ))}
+
+        </div>
+
+      </motion.div>
 
     </div>
   );
