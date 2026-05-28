@@ -226,7 +226,7 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen flex transition duration-300
+        className={`min-h-screen transition duration-300
 
         ${
           darkMode
@@ -236,6 +236,23 @@ export default function App() {
             : "bg-slate-100 text-black"
         }`}
       >
+
+        {/* OVERLAY */}
+
+        {
+          mobileMenu && (
+
+            <div
+              onClick={() =>
+                setMobileMenu(
+                  false
+                )
+              }
+
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            />
+          )
+        }
 
         {/* SIDEBAR */}
 
@@ -262,17 +279,7 @@ export default function App() {
 
         {/* MAIN */}
 
-        <div
-          className={`flex-1
-
-          ${
-            user?.role
-              ? "md:ml-[250px]"
-              : ""
-          }
-
-          p-4 md:p-6 xl:p-8`}
-        >
+        <div className="p-4 md:p-6 xl:p-8">
 
           {/* TOPBAR */}
 
@@ -289,7 +296,7 @@ export default function App() {
 
                     <div className="flex items-center gap-5">
 
-                      {/* MOBILE MENU */}
+                      {/* MENU */}
 
                       <button
                         onClick={() =>
@@ -298,7 +305,7 @@ export default function App() {
                           )
                         }
 
-                        className="md:hidden bg-white/5 hover:bg-white/10 transition px-4 py-3 rounded-2xl text-2xl"
+                        className="bg-white/5 hover:bg-white/10 transition px-4 py-3 rounded-2xl text-2xl border border-white/10"
                       >
 
                         ☰
@@ -410,20 +417,6 @@ export default function App() {
 
                       </button>
 
-                      {/* LOGOUT */}
-
-                      <button
-                        onClick={
-                          handleLogout
-                        }
-
-                        className="bg-gradient-to-r from-red-500 to-red-600 hover:scale-[1.03] transition-all duration-300 px-6 py-4 rounded-2xl font-bold shadow-xl"
-                      >
-
-                        Logout
-
-                      </button>
-
                     </div>
 
                   </div>
@@ -438,15 +431,11 @@ export default function App() {
 
           <Routes>
 
-            {/* LANDING */}
-
             <Route
               path="/"
 
               element={<Landing />}
             />
-
-            {/* LOGIN */}
 
             <Route
               path="/login"
@@ -475,8 +464,6 @@ export default function App() {
                   : <Login />
               }
             />
-
-            {/* ONBOARDING */}
 
             <Route
               path="/onboarding"
@@ -507,8 +494,6 @@ export default function App() {
               }
             />
 
-            {/* DASHBOARD */}
-
             <Route
               path="/dashboard"
 
@@ -527,8 +512,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* GOALS */}
 
             <Route
               path="/goals"
@@ -549,8 +532,6 @@ export default function App() {
               }
             />
 
-            {/* ANALYTICS */}
-
             <Route
               path="/analytics"
 
@@ -569,8 +550,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* ACHIEVEMENTS */}
 
             <Route
               path="/achievements"
@@ -591,8 +570,6 @@ export default function App() {
               }
             />
 
-            {/* HEATMAP */}
-
             <Route
               path="/heatmap"
 
@@ -611,8 +588,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* INSIGHTS */}
 
             <Route
               path="/insights"
@@ -633,8 +608,6 @@ export default function App() {
               }
             />
 
-            {/* LEADERBOARD */}
-
             <Route
               path="/leaderboard"
 
@@ -653,8 +626,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* QUESTIONS */}
 
             <Route
               path="/questions"
@@ -675,8 +646,6 @@ export default function App() {
               }
             />
 
-            {/* CHAT */}
-
             <Route
               path="/chat"
 
@@ -696,8 +665,6 @@ export default function App() {
               }
             />
 
-            {/* PLANNER */}
-
             <Route
               path="/planner"
 
@@ -716,8 +683,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* MENTOR */}
 
             <Route
               path="/mentor"
@@ -739,8 +704,6 @@ export default function App() {
               }
             />
 
-            {/* CREATE SHEET */}
-
             <Route
               path="/create-sheet"
 
@@ -760,8 +723,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* STUDENT */}
 
             <Route
               path="/student/:uid"
