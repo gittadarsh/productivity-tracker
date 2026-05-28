@@ -2,46 +2,30 @@ export default function LoadingSkeleton() {
 
   return (
 
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-8 animate-pulse">
 
-      {/* TOP CARD */}
+      {/* HERO */}
 
-      <div className="bg-slate-800 rounded-3xl p-8">
+      <div className="h-52 rounded-[36px] bg-white/5 border border-white/10" />
 
-        <div className="h-10 w-64 bg-slate-700 rounded-xl mb-6"></div>
+      {/* STATS */}
 
-        <div className="h-6 w-full bg-slate-700 rounded-xl mb-4"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        <div className="h-6 w-3/4 bg-slate-700 rounded-xl"></div>
+        {[1, 2, 3, 4].map((item) => (
 
-      </div>
+          <div
+            key={item}
+            className="h-40 rounded-[30px] bg-white/5 border border-white/10"
+          />
 
-      {/* GRID */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        {[1, 2, 3].map(
-          (item) => (
-
-            <div
-              key={item}
-
-              className="bg-slate-800 rounded-3xl p-6"
-            >
-
-              <div className="h-8 w-40 bg-slate-700 rounded-xl mb-5"></div>
-
-              <div className="h-5 w-full bg-slate-700 rounded-xl mb-3"></div>
-
-              <div className="h-5 w-2/3 bg-slate-700 rounded-xl mb-6"></div>
-
-              <div className="h-12 w-full bg-slate-700 rounded-2xl"></div>
-
-            </div>
-          )
-        )}
+        ))}
 
       </div>
+
+      {/* CONTENT */}
+
+      <div className="h-[500px] rounded-[36px] bg-white/5 border border-white/10" />
 
     </div>
   );

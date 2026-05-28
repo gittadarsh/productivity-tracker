@@ -1,43 +1,33 @@
 import {
-
   motion,
-
 } from "framer-motion";
 
 export default function PageWrapper({
-
   children,
-
 }) {
 
   return (
 
     <motion.div
-
       initial={{
         opacity: 0,
-        y: 20,
+        y: 25,
       }}
-
       animate={{
         opacity: 1,
         y: 0,
       }}
-
+      exit={{
+        opacity: 0,
+        y: -20,
+      }}
       transition={{
         duration: 0.35,
       }}
-
-      className="relative z-10"
+      className="w-full"
     >
 
-      {/* PREMIUM PAGE CONTAINER */}
-
-      <div className="space-y-8">
-
-        {children}
-
-      </div>
+      {children}
 
     </motion.div>
   );

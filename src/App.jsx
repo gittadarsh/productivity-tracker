@@ -3,14 +3,6 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
-// ONLY ADD THESE IMPORTS IF NOT ALREADY PRESENT
-
-import Notifications from "./pages/Notifications";
-
-import AssignedGoals from "./pages/AssignedGoals";
-
-import AssignGoals from "./pages/AssignGoals";
-
 import {
   auth,
   db,
@@ -42,29 +34,21 @@ import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 
 import Dashboard from "./pages/Dashboard";
-import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
-import Achievements from "./pages/Achievements";
 import Heatmap from "./pages/Heatmap";
-import Insights from "./pages/Insights";
 
 import MentorDashboard from "./pages/MentorDashboard";
 import StudentProgress from "./pages/StudentProgress";
 
 import Leaderboard from "./pages/Leaderboard";
 
-import QuestionSheets from "./pages/QuestionSheets";
-import CreateSheet from "./pages/CreateSheet";
-
-import StudyPlanner from "./pages/StudyPlanner";
-
-import Chat from "./pages/Chat";
-
 import Habits from "./pages/Habits";
 
 import AssignGoals from "./pages/AssignGoals";
 
 import AssignedGoals from "./pages/AssignedGoals";
+
+import Notifications from "./pages/Notifications";
 
 /* COMPONENTS */
 
@@ -263,7 +247,7 @@ export default function App() {
         }`}
       >
 
-        {/* BACKGROUND GLOWS */}
+        {/* BACKGROUND */}
 
         <div className="absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-cyan-500/20 blur-[140px] rounded-full pointer-events-none" />
 
@@ -303,7 +287,7 @@ export default function App() {
 
         {/* MAIN */}
 
-        <div className="relative z-10 p-4 md:p-6 xl:p-8">
+        <div className="relative z-10 p-4 md:p-6 xl:p-8 lg:ml-[290px]">
 
           {/* TOPBAR */}
 
@@ -326,7 +310,7 @@ export default function App() {
                             !mobileMenu
                           )
                         }
-                        className="bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
+                        className="lg:hidden bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
                       >
 
                         ☰
@@ -382,36 +366,6 @@ export default function App() {
 
                     <div className="flex items-center gap-4 flex-wrap">
 
-                      {/* SEARCH */}
-
-                      <div className="hidden lg:flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl min-w-[260px]">
-
-                        <span className="text-slate-400">
-
-                          🔍
-
-                        </span>
-
-                        <input
-                          type="text"
-                          placeholder="Search..."
-                          className="bg-transparent outline-none text-white placeholder:text-slate-500 w-full"
-                        />
-
-                      </div>
-
-                      {/* NOTIFICATION */}
-
-                      <button className="relative bg-white/5 hover:bg-white/10 transition-all duration-300 p-4 rounded-2xl border border-white/10">
-
-                        🔔
-
-                        <span className="absolute top-2 right-2 w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
-
-                      </button>
-
-                      {/* THEME */}
-
                       <button
                         onClick={() =>
                           setDarkMode(
@@ -443,14 +397,10 @@ export default function App() {
 
           <Routes>
 
-            {/* LANDING */}
-
             <Route
               path="/"
               element={<Landing />}
             />
-
-            {/* LOGIN */}
 
             <Route
               path="/login"
@@ -480,8 +430,6 @@ export default function App() {
                   : <Login />
               }
             />
-
-            {/* ONBOARDING */}
 
             <Route
               path="/onboarding"
@@ -513,385 +461,139 @@ export default function App() {
               }
             />
 
-            {/* DASHBOARD */}
-
             <Route
               path="/dashboard"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <Dashboard />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* HABITS */}
 
             <Route
               path="/habits"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <Habits />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* ASSIGNED GOALS */}
 
             <Route
               path="/assigned-goals"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <AssignedGoals />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* GOALS */}
-
-            <Route
-              path="/goals"
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
-                  <PageWrapper>
-
-                    <Goals />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ANALYTICS */}
 
             <Route
               path="/analytics"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <Analytics />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* ACHIEVEMENTS */}
-
-            <Route
-              path="/achievements"
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
-                  <PageWrapper>
-
-                    <Achievements />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* HEATMAP */}
 
             <Route
               path="/heatmap"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <Heatmap />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* INSIGHTS */}
-
-            <Route
-              path="/insights"
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
-                  <PageWrapper>
-
-                    <Insights />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* LEADERBOARD */}
 
             <Route
               path="/leaderboard"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
                     <Leaderboard />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* QUESTION SHEETS */}
 
             <Route
-              path="/questions"
+              path="/notifications"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
+                <ProtectedRoute user={user}>
                   <PageWrapper>
-
-                    <QuestionSheets />
-
+                    <Notifications />
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* CREATE SHEET */}
-
-            <Route
-              path="/create-sheet"
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                  requiredRole="mentor"
-                >
-
-                  <PageWrapper>
-
-                    <CreateSheet />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* ASSIGN GOALS */}
 
             <Route
               path="/assign-goals"
               element={
-
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
                 >
-
                   <PageWrapper>
-
                     <AssignGoals />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* MENTOR */}
 
             <Route
               path="/mentor"
               element={
-
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
                 >
-
                   <PageWrapper>
-
                     <MentorDashboard />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
-
-            {/* STUDENT ANALYTICS */}
 
             <Route
               path="/student/:uid"
               element={
-
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
                 >
-
                   <PageWrapper>
-
                     <StudentProgress />
-
                   </PageWrapper>
-
                 </ProtectedRoute>
               }
             />
 
-            {/* AI PLANNER */}
+            {/* FALLBACK */}
 
             <Route
-              path="/planner"
+              path="*"
               element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
-                  <PageWrapper>
-
-                    <StudyPlanner />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* CHAT */}
-
-            <Route
-  path="/notifications"
-
-  element={
-
-    <ProtectedRoute
-      user={user}
-    >
-
-      <PageWrapper>
-
-        <Notifications />
-
-      </PageWrapper>
-
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/assigned-goals"
-
-  element={
-
-    <ProtectedRoute
-      user={user}
-    >
-
-      <PageWrapper>
-
-        <AssignedGoals />
-
-      </PageWrapper>
-
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/assign-goals"
-
-  element={
-
-    <ProtectedRoute
-      user={user}
-      requiredRole="mentor"
-    >
-
-      <PageWrapper>
-
-        <AssignGoals />
-
-      </PageWrapper>
-
-    </ProtectedRoute>
-  }
-/>
-
-            <Route
-              path="/chat"
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                >
-
-                  <PageWrapper>
-
-                    <Chat />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
+                <Navigate
+                  to={
+                    user?.role === "mentor"
+                      ? "/mentor"
+                      : user
+                      ? "/dashboard"
+                      : "/login"
+                  }
+                />
               }
             />
 
