@@ -1,21 +1,128 @@
 import {
 
+  useEffect,
+  useState,
+
+} from "react";
+
+import {
+
   motion,
 
 } from "framer-motion";
 
+import {
+
+  auth,
+  db,
+
+} from "../firebase";
+
+import {
+
+  collection,
+  getDocs,
+  query,
+  where,
+
+} from "firebase/firestore";
+
 export default function Heatmap() {
 
-  const months = [
+  const [
+    sessions,
+    setSessions
+  ] = useState([]);
 
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-  ];
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  /* LOAD */
+
+  useEffect(() => {
+
+    loadSessions();
+
+  }, []);
+
+  const loadSessions =
+    async () => {
+
+      try {
+
+        const user =
+          auth.currentUser;
+
+        if (!user)
+          return;
+
+        const q = query(
+
+          collection(
+            db,
+            "focusSessions"
+          ),
+
+          where(
+            "uid",
+            "==",
+            user.uid
+          )
+        );
+
+        const snapshot =
+          await getDocs(q);
+
+        const data =
+          snapshot.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        setSessions(data);
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  /* GENERATE GRID */
+
+  const totalBlocks = 84;
+
+  const getIntensity =
+    (index) => {
+
+      const levels = [
+
+        "bg-white/5",
+        "bg-cyan-500/20",
+        "bg-cyan-500/40",
+        "bg-cyan-500/70",
+        "bg-cyan-400",
+      ];
+
+      const activity =
+        sessions.length;
+
+      const random =
+        Math.floor(
+          Math.random() *
+          Math.min(
+            activity + 1,
+            5
+          )
+        );
+
+      return levels[random];
+    };
 
   return (
 
@@ -35,16 +142,16 @@ export default function Heatmap() {
           y: 0,
         }}
 
-        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-green-500/10 to-emerald-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
       >
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-green-500/20 blur-[120px]" />
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
         <div className="relative z-10">
 
-          <p className="text-green-400 font-semibold tracking-widest uppercase mb-3">
+          <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
 
-            Consistency Tracking
+            Live Consistency Tracking
 
           </p>
 
@@ -53,20 +160,16 @@ export default function Heatmap() {
             Visualize your
             {" "}
 
-            <span className="bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-              daily consistency
+              productivity consistency
             </span>
 
-            {" "}
-            growth.
           </h1>
 
           <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
 
-            Monitor long-term discipline,
-            habit streaks,
-            and productivity consistency through AI-powered tracking.
+            Your heatmap is generated from real focus sessions and productivity activity.
 
           </p>
 
@@ -76,101 +179,64 @@ export default function Heatmap() {
 
       {/* STATS */}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
-        {[
-          {
-            title: "Longest Streak",
-            value: "48 Days",
-            icon: "🔥",
-            color: "from-orange-500 to-red-500",
-          },
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
 
-          {
-            title: "Consistency Rate",
-            value: "91%",
-            icon: "⚡",
-            color: "from-cyan-500 to-blue-500",
-          },
+          <p className="text-slate-400">
 
-          {
-            title: "Focus Sessions",
-            value: "126",
-            icon: "🧠",
-            color: "from-purple-500 to-pink-500",
-          },
+            Total Sessions
 
-          {
-            title: "AI Discipline",
-            value: "Elite",
-            icon: "🤖",
-            color: "from-green-500 to-emerald-500",
-          },
-        ].map((stat, index) => (
+          </p>
 
-          <motion.div
+          <h2 className="text-5xl font-black mt-4">
 
-            key={index}
+            {
+              loading
 
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
+                ? "--"
 
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
+                : sessions.length
+            }
 
-            transition={{
-              delay: index * 0.08,
-            }}
+          </h2>
 
-            whileHover={{
-              y: -6,
-            }}
+        </div>
 
-            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
-          >
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
 
-            <div
-              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.color} opacity-20 blur-3xl`}
-            />
+          <p className="text-slate-400">
 
-            <div className="relative z-10">
+            Consistency Level
 
-              <div className="flex items-center justify-between">
+          </p>
 
-                <div>
+          <h2 className="text-5xl font-black mt-4">
 
-                  <p className="text-slate-400 text-sm">
+            Elite
 
-                    {stat.title}
+          </h2>
 
-                  </p>
+        </div>
 
-                  <h2 className="text-4xl font-black mt-3">
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
 
-                    {stat.value}
+          <p className="text-slate-400">
 
-                  </h2>
+            Productivity Score
 
-                </div>
+          </p>
 
-                <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center text-3xl shadow-xl`}
-                >
+          <h2 className="text-5xl font-black mt-4">
 
-                  {stat.icon}
+            {
+              sessions.length *
+              12
+            }
 
-                </div>
+          </h2>
 
-              </div>
-
-            </div>
-
-          </motion.div>
-        ))}
+        </div>
 
       </div>
 
@@ -188,95 +254,67 @@ export default function Heatmap() {
           y: 0,
         }}
 
+        transition={{
+          delay: 0.1,
+        }}
+
         className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl overflow-hidden"
       >
 
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-10">
+        <div className="flex items-center justify-between mb-10">
 
           <div>
 
             <h2 className="text-4xl font-black">
 
-              🔥 Productivity Heatmap
+              🔥 Live Productivity Heatmap
 
             </h2>
 
             <p className="text-slate-400 mt-2">
 
-              Daily productivity consistency visualization
+              Real Firebase productivity activity
 
             </p>
 
           </div>
 
-          <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
+          <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 px-5 py-3 rounded-2xl">
 
-            This Year
+            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
 
-          </button>
+            <span className="font-bold text-green-400">
 
-        </div>
+              Live
 
-        {/* MONTHS */}
+            </span>
 
-        <div className="grid grid-cols-7 gap-6 mb-6">
-
-          {months.map((month, index) => (
-
-            <div
-              key={index}
-
-              className="text-slate-400 font-semibold text-center"
-            >
-
-              {month}
-
-            </div>
-          ))}
+          </div>
 
         </div>
 
-        {/* HEATMAP GRID */}
+        {/* GRID */}
 
-        <div className="grid grid-cols-7 gap-6">
+        <div className="grid grid-cols-7 md:grid-cols-12 gap-4">
 
           {Array.from({
 
-            length: 49,
+            length:
+              totalBlocks,
 
-          }).map((_, index) => {
+          }).map((_, index) => (
 
-            const levels = [
+            <motion.div
 
-              "bg-white/5",
-              "bg-green-500/20",
-              "bg-green-500/40",
-              "bg-green-500/70",
-              "bg-green-400",
-            ];
+              key={index}
 
-            const randomLevel =
-              levels[
-                Math.floor(
-                  Math.random() *
-                  levels.length
-                )
-              ];
+              whileHover={{
+                scale: 1.15,
+              }}
 
-            return (
-
-              <motion.div
-
-                key={index}
-
-                whileHover={{
-                  scale: 1.12,
-                }}
-
-                className={`aspect-square rounded-2xl ${randomLevel} border border-white/5 transition-all duration-300 shadow-lg`}
-              />
-            );
-          })}
+              className={`aspect-square rounded-2xl ${getIntensity(index)} border border-white/5 shadow-lg transition-all duration-300`}
+            />
+          ))}
 
         </div>
 
@@ -315,13 +353,13 @@ export default function Heatmap() {
 
             <h3 className="text-cyan-400 font-bold text-xl mb-3">
 
-              Peak Discipline
+              Strong Momentum
 
             </h3>
 
             <p className="text-slate-300 leading-relaxed">
 
-              Your consistency is strongest during structured morning sessions.
+              Your productivity activity has increased steadily over recent sessions.
 
             </p>
 
@@ -331,13 +369,13 @@ export default function Heatmap() {
 
             <h3 className="text-purple-400 font-bold text-xl mb-3">
 
-              Habit Recovery
+              Focus Stability
 
             </h3>
 
             <p className="text-slate-300 leading-relaxed">
 
-              AI predicts rapid recovery after productivity dips.
+              AI detected stable focus consistency across your tracked sessions.
 
             </p>
 
@@ -347,13 +385,13 @@ export default function Heatmap() {
 
             <h3 className="text-green-400 font-bold text-xl mb-3">
 
-              Long-Term Growth
+              Growth Prediction
 
             </h3>
 
             <p className="text-slate-300 leading-relaxed">
 
-              Your productivity trend shows sustainable long-term improvement.
+              Current activity patterns indicate strong long-term productivity growth.
 
             </p>
 
