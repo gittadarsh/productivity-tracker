@@ -1,311 +1,471 @@
 import {
 
-  useEffect,
-  useState,
+  motion,
 
-} from "react";
-
-import {
-
-  doc,
-  onSnapshot,
-
-} from "firebase/firestore";
-
-import {
-
-  auth,
-  db,
-
-} from "../firebase";
-
-import toast from "react-hot-toast";
-
-import {
-
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-
-} from "recharts";
+} from "framer-motion";
 
 export default function Analytics() {
 
-  const [
-    weeklyData,
-    setWeeklyData
-  ] = useState([]);
+  const stats = [
 
-  const [
-    habitData,
-    setHabitData
-  ] = useState([]);
+    {
+      title:
+        "Weekly Focus",
 
-  const [
-    loading,
-    setLoading
-  ] = useState(true);
+      value:
+        "42h",
 
-  /* REALTIME ANALYTICS */
+      growth:
+        "+18%",
 
-  useEffect(() => {
+      color:
+        "from-cyan-500 to-blue-500",
 
-    if (!auth.currentUser) {
-      return;
-    }
+      icon:
+        "⚡",
+    },
 
-    const docRef =
-      doc(
-        db,
-        "habits",
-        auth.currentUser.uid
-      );
+    {
+      title:
+        "Habit Completion",
 
-    const unsubscribe =
-      onSnapshot(
+      value:
+        "89%",
 
-        docRef,
+      growth:
+        "+12%",
 
-        (docSnap) => {
+      color:
+        "from-green-500 to-emerald-500",
 
-          try {
+      icon:
+        "🎯",
+    },
 
-            if (
-              docSnap.exists()
-            ) {
+    {
+      title:
+        "Consistency Score",
 
-              const data =
-                docSnap.data();
+      value:
+        "92%",
 
-              const habits =
-                data.habits || {};
+      growth:
+        "+24%",
 
-              const habitsList =
-                data.habitsList || [];
+      color:
+        "from-purple-500 to-pink-500",
 
-              /* WEEKLY PRODUCTIVITY */
+      icon:
+        "🔥",
+    },
 
-              const weekly =
-                [];
+    {
+      title:
+        "AI Efficiency",
 
-              for (
-                let i = 6;
-                i >= 0;
-                i--
-              ) {
+      value:
+        "95%",
 
-                const date =
-                  new Date();
+      growth:
+        "+31%",
 
-                date.setDate(
-                  date.getDate() - i
-                );
+      color:
+        "from-orange-500 to-red-500",
 
-                const formatted =
-                  date
-                    .toISOString()
-                    .split("T")[0];
-
-                const completed =
-                  Object.values(
-                    habits[
-                      formatted
-                    ] || {}
-                  ).filter(Boolean)
-                    .length;
-
-                weekly.push({
-
-                  day:
-                    date.toLocaleDateString(
-                      "en-US",
-                      {
-                        weekday:
-                          "short",
-                      }
-                    ),
-
-                  productivity:
-                    completed,
-                });
-              }
-
-              setWeeklyData(
-                weekly
-              );
-
-              /* HABIT PERFORMANCE */
-
-              const performance =
-                habitsList.map(
-                  (habit) => {
-
-                    let total = 0;
-
-                    Object.values(
-                      habits
-                    ).forEach(
-                      (day) => {
-
-                        if (
-                          day[
-                            habit
-                          ]
-                        ) {
-
-                          total++;
-                        }
-                      }
-                    );
-
-                    return {
-
-                      habit,
-
-                      completed:
-                        total,
-                    };
-                  }
-                );
-
-              setHabitData(
-                performance
-              );
-            }
-
-            setLoading(false);
-
-          } catch (error) {
-
-            console.log(error);
-
-            toast.error(
-              "Analytics sync failed"
-            );
-          }
-        }
-      );
-
-    return () =>
-      unsubscribe();
-
-  }, []);
-
-  /* LOADING */
-
-  if (loading) {
-
-    return (
-
-      <div className="space-y-6 animate-pulse">
-
-        <div className="bg-slate-800 rounded-3xl p-8 h-[300px]"></div>
-
-        <div className="bg-slate-800 rounded-3xl p-8 h-[300px]"></div>
-
-      </div>
-    );
-  }
+      icon:
+        "🤖",
+    },
+  ];
 
   return (
 
-    <div>
+    <div className="space-y-8">
 
-      <h1 className="text-5xl font-bold mb-10">
+      {/* HERO */}
 
-        📈 Real-Time Analytics
+      <motion.div
 
-      </h1>
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
 
-      {/* WEEKLY PRODUCTIVITY */}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl mb-10">
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+      >
 
-        <h2 className="text-3xl font-bold mb-8">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
-          📊 Weekly Productivity Trend
+        <div className="relative z-10">
 
-        </h2>
+          <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
 
-        <div className="w-full h-[400px]">
+            Productivity Analytics
 
-          <ResponsiveContainer>
+          </p>
 
-            <LineChart
-              data={weeklyData}
-            >
+          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
 
-              <CartesianGrid
-                strokeDasharray="3 3"
-              />
+            Analyze your
+            {" "}
 
-              <XAxis dataKey="day" />
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-              <YAxis />
+              performance
+            </span>
 
-              <Tooltip />
+            {" "}
+            deeply.
+          </h1>
 
-              <Line
-                type="monotone"
-                dataKey="productivity"
-                stroke="#06b6d4"
-                strokeWidth={4}
-              />
+          <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
 
-            </LineChart>
+            Monitor consistency,
+            productivity trends,
+            focus patterns,
+            and AI-generated performance insights.
 
-          </ResponsiveContainer>
-
-        </div>
-
-      </div>
-
-      {/* HABIT PERFORMANCE */}
-
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl">
-
-        <h2 className="text-3xl font-bold mb-8">
-
-          🏆 Habit Performance
-
-        </h2>
-
-        <div className="w-full h-[400px]">
-
-          <ResponsiveContainer>
-
-            <BarChart
-              data={habitData}
-            >
-
-              <CartesianGrid
-                strokeDasharray="3 3"
-              />
-
-              <XAxis dataKey="habit" />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Bar
-                dataKey="completed"
-                fill="#22c55e"
-              />
-
-            </BarChart>
-
-          </ResponsiveContainer>
+          </p>
 
         </div>
 
+      </motion.div>
+
+      {/* STATS */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        {stats.map((stat, index) => (
+
+          <motion.div
+
+            key={index}
+
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+
+            transition={{
+              delay: index * 0.08,
+            }}
+
+            whileHover={{
+              y: -6,
+            }}
+
+            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
+          >
+
+            <div
+              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.color} opacity-20 blur-3xl`}
+            />
+
+            <div className="relative z-10">
+
+              <div className="flex items-center justify-between">
+
+                <div>
+
+                  <p className="text-slate-400 text-sm">
+
+                    {stat.title}
+
+                  </p>
+
+                  <h2 className="text-4xl font-black mt-3">
+
+                    {stat.value}
+
+                  </h2>
+
+                </div>
+
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center text-3xl shadow-xl`}
+                >
+
+                  {stat.icon}
+
+                </div>
+
+              </div>
+
+              <div className="mt-6 flex items-center gap-2">
+
+                <span className="text-green-400 font-bold">
+
+                  {stat.growth}
+
+                </span>
+
+                <span className="text-slate-400 text-sm">
+
+                  vs last week
+
+                </span>
+
+              </div>
+
+            </div>
+
+          </motion.div>
+        ))}
+
       </div>
+
+      {/* MAIN GRID */}
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        {/* CHART */}
+
+        <motion.div
+
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          className="xl:col-span-2 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+        >
+
+          <div className="flex items-center justify-between mb-8">
+
+            <div>
+
+              <h2 className="text-3xl font-black">
+
+                📈 Productivity Trends
+
+              </h2>
+
+              <p className="text-slate-400 mt-2">
+
+                AI-powered weekly analysis
+
+              </p>
+
+            </div>
+
+            <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
+
+              Last 30 Days
+
+            </button>
+
+          </div>
+
+          {/* CHART PLACEHOLDER */}
+
+          <div className="h-[400px] rounded-[30px] bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center">
+
+            <div className="text-center">
+
+              <div className="text-7xl mb-5">
+
+                📊
+
+              </div>
+
+              <p className="text-slate-400 text-lg">
+
+                Advanced analytics charts here
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </motion.div>
+
+        {/* AI PANEL */}
+
+        <motion.div
+
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            delay: 0.1,
+          }}
+
+          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+        >
+
+          <h2 className="text-3xl font-black mb-8">
+
+            🤖 AI Analysis
+
+          </h2>
+
+          <div className="space-y-5">
+
+            <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-cyan-400 mb-2">
+
+                Productivity Spike
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                Your efficiency increases dramatically after focused morning sessions.
+
+              </p>
+
+            </div>
+
+            <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-purple-400 mb-2">
+
+                Focus Pattern
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                AI detected your highest focus window between 9AM–12PM.
+
+              </p>
+
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
+
+              <h3 className="font-bold text-green-400 mb-2">
+
+                Consistency Growth
+
+              </h3>
+
+              <p className="text-slate-300 leading-relaxed">
+
+                Your consistency improved by 24% over the previous cycle.
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </motion.div>
+
+      </div>
+
+      {/* ACTIVITY */}
+
+      <motion.div
+
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+
+        transition={{
+          delay: 0.2,
+        }}
+
+        className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+      >
+
+        <div className="flex items-center justify-between mb-8">
+
+          <div>
+
+            <h2 className="text-3xl font-black">
+
+              ⚡ Activity Timeline
+
+            </h2>
+
+            <p className="text-slate-400 mt-2">
+
+              Recent productivity activity
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="space-y-5">
+
+          {[
+            "Completed 5 productivity goals",
+            "Maintained 12-day streak",
+            "AI planner generated new study workflow",
+            "Focus score increased by 18%",
+          ].map((item, index) => (
+
+            <motion.div
+
+              key={index}
+
+              whileHover={{
+                x: 6,
+              }}
+
+              className="flex items-center gap-5 bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300 rounded-2xl p-5"
+            >
+
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-2xl shadow-xl">
+
+                ⚡
+
+              </div>
+
+              <div>
+
+                <h3 className="font-bold text-lg">
+
+                  {item}
+
+                </h3>
+
+                <p className="text-slate-400 mt-1">
+
+                  AI productivity tracking event
+
+                </p>
+
+              </div>
+
+            </motion.div>
+          ))}
+
+        </div>
+
+      </motion.div>
 
     </div>
   );
