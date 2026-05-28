@@ -60,6 +60,8 @@ import LoadingSkeleton from "./components/LoadingSkeleton";
 
 import PageWrapper from "./components/PageWrapper";
 
+import SearchModal from "./components/SearchModal";
+
 export default function App() {
 
   const [darkMode, setDarkMode] =
@@ -86,6 +88,11 @@ export default function App() {
     loading,
     setLoading
   ] = useState(true);
+
+  const [
+    searchOpen,
+    setSearchOpen
+  ] = useState(false);
 
   /* THEME */
 
@@ -255,6 +262,13 @@ export default function App() {
 
         <div className="absolute top-[40%] left-[35%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
 
+        {/* SEARCH MODAL */}
+
+        <SearchModal
+          open={searchOpen}
+          setOpen={setSearchOpen}
+        />
+
         {/* SIDEBAR */}
 
         {
@@ -278,7 +292,7 @@ export default function App() {
           {
             user?.role && (
 
-              <div className="mb-8">
+              <div className="mb-8 sticky top-4 z-30">
 
                 <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[30px] px-6 py-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)]">
 
@@ -349,6 +363,29 @@ export default function App() {
                     {/* RIGHT */}
 
                     <div className="flex items-center gap-4 flex-wrap">
+
+                      {/* SEARCH */}
+
+                      <button
+                        onClick={() =>
+                          setSearchOpen(
+                            true
+                          )
+                        }
+                        className="bg-white/5 hover:bg-white/10 transition-all duration-300 px-5 py-4 rounded-2xl border border-white/10 flex items-center gap-3"
+                      >
+
+                        🔍
+
+                        <span className="hidden md:block">
+
+                          Search
+
+                        </span>
+
+                      </button>
+
+                      {/* THEME */}
 
                       <button
                         onClick={() =>

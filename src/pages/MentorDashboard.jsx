@@ -51,8 +51,6 @@ export default function MentorDashboard() {
         if (!mentor)
           return;
 
-        /* GET MENTOR */
-
         const mentorQuery =
           query(
             collection(
@@ -81,8 +79,6 @@ export default function MentorDashboard() {
           mentorData.mentorId
         );
 
-        /* GET STUDENTS */
-
         const studentQuery =
           query(
             collection(
@@ -102,104 +98,23 @@ export default function MentorDashboard() {
           );
 
         const studentData =
-          await Promise.all(
-
-            studentSnap.docs.map(
-              async (docSnap) => {
-
-                const student = {
-                  id: docSnap.id,
-                  ...docSnap.data(),
-                };
-
-                /* GOALS */
-
-                const goalQuery =
-                  query(
-                    collection(
-                      db,
-                      "assignedGoals"
-                    ),
-                    where(
-                      "studentUid",
-                      "==",
-                      student.uid
-                    )
-                  );
-
-                const goalSnap =
-                  await getDocs(
-                    goalQuery
-                  );
-
-                const goals =
-                  goalSnap.docs.map(
-                    (doc) =>
-                      doc.data()
-                  );
-
-                const completedGoals =
-                  goals.filter(
-                    (g) =>
-                      g.completed
-                  ).length;
-
-                const completionRate =
-
-                  goals.length === 0
-
-                    ? 0
-
-                    : Math.round(
-                        (
-                          completedGoals /
-                          goals.length
-                        ) * 100
-                      );
-
-                /* PRODUCTIVITY SCORE */
-
-                const productivityScore =
-
-                  (
-                    student.xp ||
-                    0
-                  ) +
-
-                  (
-                    student.totalSessions ||
-                    0
-                  ) *
-                    10 +
-
-                  completedGoals *
-                    25;
-
-                return {
-
-                  ...student,
-
-                  completedGoals,
-
-                  totalGoals:
-                    goals.length,
-
-                  completionRate,
-
-                  productivityScore,
-                };
-              }
-            )
+          studentSnap.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })
           );
-
-        /* SORT */
 
         studentData.sort(
           (a, b) =>
 
-            b.productivityScore -
+            (
+              b.xp || 0
+            ) -
 
-            a.productivityScore
+            (
+              a.xp || 0
+            )
         );
 
         setStudents(
@@ -217,16 +132,8 @@ export default function MentorDashboard() {
       }
     };
 
-  const totalStudents =
-    students.length;
-
   const topPerformer =
     students[0];
-
-  const weakestPerformer =
-    students[
-      students.length - 1
-    ];
 
   return (
 
@@ -263,7 +170,7 @@ export default function MentorDashboard() {
 
             <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
 
-              productivity performance
+              student productivity
 
             </span>
 
@@ -271,10 +178,7 @@ export default function MentorDashboard() {
 
           <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
 
-            Analyze student rankings,
-            goal completion,
-            focus consistency,
-            and productivity intelligence.
+            Track performance, productivity, consistency, and accountability intelligence.
 
           </p>
 
@@ -282,11 +186,16 @@ export default function MentorDashboard() {
 
       </motion.div>
 
-      {/* TOP STATS */}
+      {/* STATS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+        <motion.div
+          whileHover={{
+            y: -5,
+          }}
+          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
+        >
 
           <p className="text-slate-400">
 
@@ -296,13 +205,18 @@ export default function MentorDashboard() {
 
           <h2 className="text-5xl font-black mt-4">
 
-            {totalStudents}
+            {students.length}
 
           </h2>
 
-        </div>
+        </motion.div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+        <motion.div
+          whileHover={{
+            y: -5,
+          }}
+          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
+        >
 
           <p className="text-slate-400">
 
@@ -316,9 +230,14 @@ export default function MentorDashboard() {
 
           </h2>
 
-        </div>
+        </motion.div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+        <motion.div
+          whileHover={{
+            y: -5,
+          }}
+          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
+        >
 
           <p className="text-slate-400">
 
@@ -326,7 +245,7 @@ export default function MentorDashboard() {
 
           </p>
 
-          <h2 className="text-2xl font-black mt-4">
+          <h2 className="text-3xl font-black mt-4">
 
             {
               topPerformer?.name ||
@@ -335,30 +254,11 @@ export default function MentorDashboard() {
 
           </h2>
 
-        </div>
-
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
-
-          <p className="text-slate-400">
-
-            Lowest Performer
-
-          </p>
-
-          <h2 className="text-2xl font-black mt-4">
-
-            {
-              weakestPerformer?.name ||
-              "--"
-            }
-
-          </h2>
-
-        </div>
+        </motion.div>
 
       </div>
 
-      {/* STUDENT RANKINGS */}
+      {/* STUDENTS */}
 
       <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
@@ -374,7 +274,7 @@ export default function MentorDashboard() {
 
             <p className="text-slate-400 mt-2">
 
-              Ranked by productivity intelligence score
+              Ranked by XP and productivity
 
             </p>
 
@@ -385,39 +285,67 @@ export default function MentorDashboard() {
         {
           loading ? (
 
-            <div className="text-center py-20 text-slate-400">
+            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
 
-              Loading analytics...
+              <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
+
+              <div className="relative z-10">
+
+                <div className="text-8xl mb-6">
+
+                  📊
+
+                </div>
+
+                <h2 className="text-4xl font-black">
+
+                  Loading Students...
+
+                </h2>
+
+                <p className="text-slate-400 text-lg mt-4">
+
+                  Fetching productivity intelligence.
+
+                </p>
+
+              </div>
 
             </div>
 
           ) : students.length === 0 ? (
 
-            <div className="text-center py-20">
+            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
 
-              <div className="text-8xl mb-6">
+              <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
 
-                🎓
+              <div className="relative z-10">
+
+                <div className="text-8xl mb-6">
+
+                  🎓
+
+                </div>
+
+                <h3 className="text-4xl font-black mb-4">
+
+                  No Students Yet
+
+                </h3>
+
+                <p className="text-slate-400 text-lg">
+
+                  Share your mentor ID to connect students.
+
+                </p>
 
               </div>
-
-              <h3 className="text-4xl font-black mb-4">
-
-                No Students Yet
-
-              </h3>
-
-              <p className="text-slate-400 text-lg">
-
-                Share your mentor ID to connect students.
-
-              </p>
 
             </div>
 
           ) : (
 
-            <div className="space-y-6">
+            <div className="space-y-5">
 
               {students.map(
                 (
@@ -446,16 +374,14 @@ export default function MentorDashboard() {
                           index * 0.05,
                       }}
                       whileHover={{
-                        y: -4,
+                        y: -5,
                       }}
-                      className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl cursor-pointer"
+                      className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl cursor-pointer transition-all duration-300 hover:scale-[1.015]"
                     >
 
                       <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 blur-3xl" />
 
-                      <div className="relative z-10 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8">
-
-                        {/* LEFT */}
+                      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
                         <div className="flex items-center gap-5">
 
@@ -494,105 +420,22 @@ export default function MentorDashboard() {
 
                         </div>
 
-                        {/* METRICS */}
+                        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 rounded-2xl px-8 py-5">
 
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                          <p className="text-cyan-300 text-sm">
 
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[130px]">
+                            Total XP
 
-                            <p className="text-slate-400 text-sm">
+                          </p>
 
-                              XP
+                          <h3 className="text-5xl font-black text-cyan-400 mt-2">
 
-                            </p>
+                            {
+                              student.xp ||
+                              0
+                            }
 
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.xp ||
-                                0
-                              }
-
-                            </h3>
-
-                          </div>
-
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[130px]">
-
-                            <p className="text-slate-400 text-sm">
-
-                              Sessions
-
-                            </p>
-
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.totalSessions ||
-                                0
-                              }
-
-                            </h3>
-
-                          </div>
-
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[130px]">
-
-                            <p className="text-slate-400 text-sm">
-
-                              Goals
-
-                            </p>
-
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.completedGoals
-                              }
-                              /
-                              {
-                                student.totalGoals
-                              }
-
-                            </h3>
-
-                          </div>
-
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[140px]">
-
-                            <p className="text-slate-400 text-sm">
-
-                              Completion
-
-                            </p>
-
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.completionRate
-                              }%
-
-                            </h3>
-
-                          </div>
-
-                          <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 rounded-2xl p-4 min-w-[170px]">
-
-                            <p className="text-cyan-300 text-sm">
-
-                              Productivity
-
-                            </p>
-
-                            <h3 className="text-4xl font-black mt-2 text-cyan-400">
-
-                              {
-                                student.productivityScore
-                              }
-
-                            </h3>
-
-                          </div>
+                          </h3>
 
                         </div>
 

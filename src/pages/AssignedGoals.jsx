@@ -21,8 +21,6 @@ export default function AssignedGoals() {
 
   const [loading, setLoading] = useState(true);
 
-  /* LOAD GOALS */
-
   useEffect(() => {
 
     loadGoals();
@@ -68,8 +66,6 @@ export default function AssignedGoals() {
 
     }
   };
-
-  /* COMPLETE */
 
   const completeGoal = async (goal) => {
 
@@ -150,7 +146,7 @@ export default function AssignedGoals() {
 
       </motion.div>
 
-      {/* GOALS */}
+      {/* CONTENT */}
 
       {
         loading ? (
@@ -163,25 +159,31 @@ export default function AssignedGoals() {
 
         ) : goals.length === 0 ? (
 
-          <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
+          <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
 
-            <div className="text-8xl mb-6">
+            <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
 
-              🎯
+            <div className="relative z-10">
+
+              <div className="text-8xl mb-6">
+
+                🎯
+
+              </div>
+
+              <h2 className="text-4xl font-black">
+
+                No Goals Assigned
+
+              </h2>
+
+              <p className="text-slate-400 text-lg mt-4">
+
+                Mentor-assigned goals will appear here.
+
+              </p>
 
             </div>
-
-            <h2 className="text-4xl font-black">
-
-              No Goals Assigned
-
-            </h2>
-
-            <p className="text-slate-400 text-lg mt-4">
-
-              Mentor-assigned goals will appear here.
-
-            </p>
 
           </div>
 
@@ -207,7 +209,7 @@ export default function AssignedGoals() {
                 whileHover={{
                   y: -5,
                 }}
-                className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+                className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
               >
 
                 <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/10 blur-3xl" />
