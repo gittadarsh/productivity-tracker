@@ -1,6 +1,5 @@
 import {
 
-  signInWithPopup,
   signOut,
   onAuthStateChanged,
 
@@ -8,13 +7,11 @@ import {
 
 import {
   auth,
-  provider,
   db,
 } from "./firebase";
 
 import {
   doc,
-  setDoc,
   getDoc,
 } from "firebase/firestore";
 
@@ -27,9 +24,16 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 
 import toast from "react-hot-toast";
+
+/* PAGES */
+
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Onboarding from "./pages/Onboarding";
 
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
@@ -45,6 +49,8 @@ import CreateSheet from "./pages/CreateSheet";
 import StudyPlanner from "./pages/StudyPlanner";
 import Chat from "./pages/Chat";
 
+/* COMPONENTS */
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
 import LoadingSkeleton from "./components/LoadingSkeleton";
@@ -53,18 +59,19 @@ import PageWrapper from "./components/PageWrapper";
 export default function App() {
 
   const [darkMode, setDarkMode] =
-    useState(true);
+    useState(
+
+      localStorage.getItem(
+        "theme"
+      ) === "light"
+
+        ? false
+
+        : true
+    );
 
   const [user, setUser] =
     useState(null);
-
-  const [role, setRole] =
-    useState("");
-
-  const [
-    selectedMentor,
-    setSelectedMentor
-  ] = useState("");
 
   const [
     mobileMenu,
@@ -76,18 +83,22 @@ export default function App() {
     setLoading
   ] = useState(true);
 
-  const mentors = [
+  /* THEME PERSISTENCE */
 
-    {
-      id: "mentor1",
-      name: "Prof. Sharma",
-    },
+  useEffect(() => {
 
-    {
-      id: "mentor2",
-      name: "Prof. Singh",
-    },
-  ];
+    localStorage.setItem(
+
+      "theme",
+
+      darkMode
+        ? "dark"
+        : "light"
+    );
+
+  }, [darkMode]);
+
+  /* AUTH */
 
   useEffect(() => {
 
@@ -100,41 +111,71 @@ export default function App() {
           currentUser
         ) => {
 
-          if (
-            currentUser
-          ) {
-
-            const userRef =
-              doc(
-                db,
-                "users",
-                currentUser.uid
-              );
-
-            const userSnap =
-              await getDoc(
-                userRef
-              );
+          try {
 
             if (
-              userSnap.exists()
+              currentUser
             ) {
 
-              setUser(
-                userSnap.data()
-              );
+              const userRef =
+                doc(
+                  db,
+                  "users",
+                  currentUser.uid
+                );
+
+              const userSnap =
+                await getDoc(
+                  userRef
+                );
+
+              if (
+                userSnap.exists()
+              ) {
+
+                setUser({
+
+                  uid:
+                    currentUser.uid,
+
+                  ...userSnap.data(),
+                });
+
+              } else {
+
+                setUser({
+
+                  uid:
+                    currentUser.uid,
+
+                  name:
+                    currentUser.displayName,
+
+                  email:
+                    currentUser.email,
+
+                  photo:
+                    currentUser.photoURL,
+                });
+              }
 
             } else {
 
               setUser(null);
             }
 
-          } else {
+          } catch (error) {
 
-            setUser(null);
+            console.log(error);
+
+            toast.error(
+              "Authentication failed"
+            );
+
+          } finally {
+
+            setLoading(false);
           }
-
-          setLoading(false);
         }
       );
 
@@ -143,91 +184,7 @@ export default function App() {
 
   }, []);
 
-  const handleGoogleLogin =
-    async () => {
-
-      try {
-
-        if (!role) {
-
-          toast.error(
-            "Please select Student or Mentor first"
-          );
-
-          return;
-        }
-
-        if (
-          role === "student"
-          &&
-          !selectedMentor
-        ) {
-
-          toast.error(
-            "Please select a mentor"
-          );
-
-          return;
-        }
-
-        const result =
-          await signInWithPopup(
-            auth,
-            provider
-          );
-
-        const loggedInUser =
-          result.user;
-
-        const userRef =
-          doc(
-            db,
-            "users",
-            loggedInUser.uid
-          );
-
-        const userSnap =
-          await getDoc(userRef);
-
-        if (!userSnap.exists()) {
-
-          await setDoc(userRef, {
-
-            uid:
-              loggedInUser.uid,
-
-            name:
-              loggedInUser.displayName,
-
-            email:
-              loggedInUser.email,
-
-            photo:
-              loggedInUser.photoURL || "",
-
-            role:
-              role,
-
-            mentorId:
-              role === "student"
-                ? selectedMentor
-                : null,
-          });
-        }
-
-        toast.success(
-          "Login successful 🚀"
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Login failed"
-        );
-      }
-    };
+  /* LOGOUT */
 
   const handleLogout =
     async () => {
@@ -235,8 +192,6 @@ export default function App() {
       try {
 
         await signOut(auth);
-
-        setUser(null);
 
         toast.success(
           "Logged out successfully"
@@ -251,6 +206,8 @@ export default function App() {
         );
       }
     };
+
+  /* LOADING */
 
   if (loading) {
 
@@ -269,199 +226,74 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen flex
+        className={`min-h-screen flex transition duration-300
 
         ${
           darkMode
+
             ? "bg-slate-950 text-white"
+
             : "bg-slate-100 text-black"
         }`}
       >
 
-        <Sidebar
-          user={user}
+        {/* SIDEBAR */}
 
-          mobileMenu={
-            mobileMenu
+        {
+          user && (
+
+            <Sidebar
+              user={user}
+
+              mobileMenu={
+                mobileMenu
+              }
+
+              setMobileMenu={
+                setMobileMenu
+              }
+
+              handleLogout={
+                handleLogout
+              }
+            />
+          )
+        }
+
+        {/* MAIN */}
+
+        <div
+          className={`flex-1
+
+          ${
+            user
+              ? "md:ml-[260px]"
+              : ""
           }
 
-          setMobileMenu={
-            setMobileMenu
-          }
-        />
+          p-4 md:p-8`}
+        >
 
-        <div className="flex-1 md:ml-[260px] p-4 md:p-8">
-
-          {/* HEADER */}
-
-          <div className="flex items-center justify-between mb-8">
-
-            <button
-              onClick={() =>
-                setMobileMenu(
-                  !mobileMenu
-                )
-              }
-
-              className="md:hidden bg-slate-800 px-4 py-2 rounded-xl text-2xl"
-            >
-
-              ☰
-
-            </button>
-
-            <h1 className="text-2xl md:text-4xl font-bold">
-
-              🚀 Productivity Tracker
-
-            </h1>
-
-            <button
-              onClick={() =>
-                setDarkMode(
-                  !darkMode
-                )
-              }
-
-              className="bg-slate-700 hover:bg-slate-600 transition px-4 py-2 rounded-xl"
-            >
-
-              {darkMode
-                ? "☀"
-                : "🌙"}
-
-            </button>
-
-          </div>
-
-          {/* LOGIN */}
-
-          {!user && (
-
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl mb-10">
-
-              <h2 className="text-3xl font-bold mb-6">
-
-                Welcome 🚀
-
-              </h2>
-
-              <div className="flex gap-4 mb-6">
-
-                <button
-                  onClick={() =>
-                    setRole(
-                      "student"
-                    )
-                  }
-
-                  className={`px-5 py-3 rounded-xl font-semibold
-
-                  ${
-                    role ===
-                    "student"
-
-                      ? "bg-cyan-500"
-
-                      : "bg-slate-700"
-                  }`}
-                >
-
-                  🎓 Student
-
-                </button>
-
-                <button
-                  onClick={() =>
-                    setRole(
-                      "mentor"
-                    )
-                  }
-
-                  className={`px-5 py-3 rounded-xl font-semibold
-
-                  ${
-                    role ===
-                    "mentor"
-
-                      ? "bg-green-500"
-
-                      : "bg-slate-700"
-                  }`}
-                >
-
-                  👨‍🏫 Mentor
-
-                </button>
-
-              </div>
-
-              {
-                role ===
-                  "student" && (
-
-                  <select
-                    className="bg-slate-800 px-4 py-3 rounded-xl mb-6"
-
-                    onChange={(e) =>
-                      setSelectedMentor(
-                        e.target.value
-                      )
-                    }
-                  >
-
-                    <option value="">
-                      Select Mentor
-                    </option>
-
-                    {mentors.map(
-                      (
-                        mentor
-                      ) => (
-
-                        <option
-                          key={
-                            mentor.id
-                          }
-
-                          value={
-                            mentor.id
-                          }
-                        >
-
-                          {
-                            mentor.name
-                          }
-
-                        </option>
-                      )
-                    )}
-
-                  </select>
-                )
-              }
-
-              <button
-                onClick={
-                  handleGoogleLogin
-                }
-
-                className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl font-semibold"
-              >
-
-                Sign in with Google
-
-              </button>
-
-            </div>
-          )}
-
-          {/* USER BAR */}
+          {/* TOPBAR */}
 
           {
             user && (
 
-              <div className="flex items-center justify-between flex-wrap gap-4 bg-slate-900 border border-slate-800 p-5 rounded-3xl mb-10">
+              <div className="flex items-center justify-between mb-8">
+
+                <button
+                  onClick={() =>
+                    setMobileMenu(
+                      !mobileMenu
+                    )
+                  }
+
+                  className="md:hidden bg-slate-800 px-4 py-2 rounded-xl text-2xl"
+                >
+
+                  ☰
+
+                </button>
 
                 <div className="flex items-center gap-4">
 
@@ -469,25 +301,25 @@ export default function App() {
                     src={
                       user?.photo ||
 
-                      `https://ui-avatars.com/api/?name=${user?.name}`
+                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
                     }
 
                     alt="profile"
 
-                    className="w-14 h-14 rounded-full border-2 border-cyan-400"
+                    className="w-14 h-14 rounded-full border-2 border-cyan-400 object-cover"
                   />
 
                   <div>
 
                     <h2 className="text-2xl font-bold">
 
-                      {user.name}
+                      {user?.name}
 
                     </h2>
 
                     <p className="text-slate-400 capitalize">
 
-                      {user.role}
+                      {user?.role || "User"}
 
                     </p>
 
@@ -495,17 +327,45 @@ export default function App() {
 
                 </div>
 
-                <button
-                  onClick={
-                    handleLogout
-                  }
+                <div className="flex items-center gap-4">
 
-                  className="bg-red-500 hover:bg-red-600 px-5 py-3 rounded-xl font-semibold"
-                >
+                  {/* THEME */}
 
-                  Logout
+                  <button
+                    onClick={() =>
+                      setDarkMode(
+                        !darkMode
+                      )
+                    }
 
-                </button>
+                    className="bg-slate-800 hover:bg-slate-700 transition px-4 py-3 rounded-xl text-xl"
+                  >
+
+                    {
+                      darkMode
+
+                        ? "☀"
+
+                        : "🌙"
+                    }
+
+                  </button>
+
+                  {/* LOGOUT */}
+
+                  <button
+                    onClick={
+                      handleLogout
+                    }
+
+                    className="bg-red-500 hover:bg-red-600 transition px-5 py-3 rounded-xl font-semibold"
+                  >
+
+                    Logout
+
+                  </button>
+
+                </div>
 
               </div>
             )
@@ -515,21 +375,106 @@ export default function App() {
 
           <Routes>
 
+            {/* LANDING */}
+
             <Route
               path="/"
+
+              element={<Landing />}
+            />
+
+            {/* LOGIN */}
+
+            <Route
+              path="/login"
+
               element={
-                <PageWrapper>
 
-                  <Dashboard />
+                user
 
-                </PageWrapper>
+                  ? <Navigate
+                      to={
+
+                        user.role ===
+                        "mentor"
+
+                          ? "/mentor"
+
+                          : user.role ===
+                            "student"
+
+                            ? "/dashboard"
+
+                            : "/onboarding"
+                      }
+                    />
+
+                  : <Login />
               }
             />
 
+            {/* ONBOARDING */}
+
+            <Route
+              path="/onboarding"
+
+              element={
+
+                user
+
+                  ? user.role
+
+                    ? <Navigate
+                        to={
+
+                          user.role ===
+                          "mentor"
+
+                            ? "/mentor"
+
+                            : "/dashboard"
+                        }
+                      />
+
+                    : <Onboarding />
+
+                  : <Navigate
+                      to="/login"
+                    />
+              }
+            />
+
+            {/* DASHBOARD */}
+
+            <Route
+              path="/dashboard"
+
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <PageWrapper>
+
+                    <Dashboard />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* GOALS */}
+
             <Route
               path="/goals"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -541,10 +486,16 @@ export default function App() {
               }
             />
 
+            {/* ANALYTICS */}
+
             <Route
               path="/analytics"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -556,10 +507,16 @@ export default function App() {
               }
             />
 
+            {/* ACHIEVEMENTS */}
+
             <Route
               path="/achievements"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -571,10 +528,16 @@ export default function App() {
               }
             />
 
+            {/* HEATMAP */}
+
             <Route
               path="/heatmap"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -586,10 +549,16 @@ export default function App() {
               }
             />
 
+            {/* INSIGHTS */}
+
             <Route
               path="/insights"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -601,10 +570,16 @@ export default function App() {
               }
             />
 
+            {/* LEADERBOARD */}
+
             <Route
               path="/leaderboard"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -616,10 +591,16 @@ export default function App() {
               }
             />
 
+            {/* QUESTIONS */}
+
             <Route
               path="/questions"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -631,25 +612,16 @@ export default function App() {
               }
             />
 
-            <Route
-              path="/planner"
-              element={
-                <ProtectedRoute user={user}>
-
-                  <PageWrapper>
-
-                    <StudyPlanner />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
+            {/* CHAT */}
 
             <Route
               path="/chat"
+
               element={
-                <ProtectedRoute user={user}>
+
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -661,9 +633,34 @@ export default function App() {
               }
             />
 
+            {/* PLANNER */}
+
+            <Route
+              path="/planner"
+
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <PageWrapper>
+
+                    <StudyPlanner />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MENTOR */}
+
             <Route
               path="/mentor"
+
               element={
+
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
@@ -679,9 +676,13 @@ export default function App() {
               }
             />
 
+            {/* CREATE SHEET */}
+
             <Route
               path="/create-sheet"
+
               element={
+
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
@@ -697,9 +698,13 @@ export default function App() {
               }
             />
 
+            {/* STUDENT */}
+
             <Route
               path="/student/:uid"
+
               element={
+
                 <ProtectedRoute
                   user={user}
                   requiredRole="mentor"
