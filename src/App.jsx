@@ -48,6 +48,7 @@ import QuestionSheets from "./pages/QuestionSheets";
 import CreateSheet from "./pages/CreateSheet";
 import StudyPlanner from "./pages/StudyPlanner";
 import Chat from "./pages/Chat";
+import Habits from "./pages/Habits";
 
 /* COMPONENTS */
 
@@ -362,6 +363,7 @@ export default function App() {
                             {user?.role}
                             {" "}
                             Dashboard
+
                           </p>
 
                         </div>
@@ -440,10 +442,14 @@ export default function App() {
 
           <Routes>
 
+            {/* LANDING */}
+
             <Route
               path="/"
               element={<Landing />}
             />
+
+            {/* LOGIN */}
 
             <Route
               path="/login"
@@ -472,6 +478,8 @@ export default function App() {
                   : <Login />
               }
             />
+
+            {/* ONBOARDING */}
 
             <Route
               path="/onboarding"
@@ -502,12 +510,16 @@ export default function App() {
               }
             />
 
+            {/* DASHBOARD */}
+
             <Route
               path="/dashboard"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -519,12 +531,37 @@ export default function App() {
               }
             />
 
+            {/* HABITS */}
+
+            <Route
+              path="/habits"
+
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <PageWrapper>
+
+                    <Habits />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* GOALS */}
+
             <Route
               path="/goals"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -536,12 +573,16 @@ export default function App() {
               }
             />
 
+            {/* ANALYTICS */}
+
             <Route
               path="/analytics"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -553,12 +594,16 @@ export default function App() {
               }
             />
 
+            {/* ACHIEVEMENTS */}
+
             <Route
               path="/achievements"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -570,12 +615,16 @@ export default function App() {
               }
             />
 
+            {/* HEATMAP */}
+
             <Route
               path="/heatmap"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -587,12 +636,16 @@ export default function App() {
               }
             />
 
+            {/* INSIGHTS */}
+
             <Route
               path="/insights"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -604,12 +657,16 @@ export default function App() {
               }
             />
 
+            {/* LEADERBOARD */}
+
             <Route
               path="/leaderboard"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -621,12 +678,16 @@ export default function App() {
               }
             />
 
+            {/* QUESTION SHEETS */}
+
             <Route
               path="/questions"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -638,12 +699,37 @@ export default function App() {
               }
             />
 
+            {/* AI PLANNER */}
+
+            <Route
+              path="/planner"
+
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <PageWrapper>
+
+                    <StudyPlanner />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* CHAT */}
+
             <Route
               path="/chat"
 
               element={
 
-                <ProtectedRoute user={user}>
+                <ProtectedRoute
+                  user={user}
+                >
 
                   <PageWrapper>
 
@@ -655,22 +741,7 @@ export default function App() {
               }
             />
 
-            <Route
-              path="/planner"
-
-              element={
-
-                <ProtectedRoute user={user}>
-
-                  <PageWrapper>
-
-                    <StudyPlanner />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
+            {/* MENTOR */}
 
             <Route
               path="/mentor"
@@ -692,6 +763,8 @@ export default function App() {
               }
             />
 
+            {/* CREATE SHEET */}
+
             <Route
               path="/create-sheet"
 
@@ -711,6 +784,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* STUDENT */}
 
             <Route
               path="/student/:uid"
