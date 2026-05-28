@@ -16,6 +16,7 @@ import {
 import {
   useState,
   useEffect,
+  useCallback,
 } from "react";
 
 import {
@@ -94,6 +95,27 @@ export default function App() {
     setSearchOpen
   ] = useState(false);
 
+  /* SEARCH SHORTCUT */
+
+  const openSearch =
+    useCallback((e) => {
+
+      if (
+
+        (e.ctrlKey || e.metaKey)
+
+        &&
+
+        e.key === "k"
+      ) {
+
+        e.preventDefault();
+
+        setSearchOpen(true);
+      }
+
+    }, []);
+
   /* THEME */
 
   useEffect(() => {
@@ -108,6 +130,25 @@ export default function App() {
     );
 
   }, [darkMode]);
+
+  /* SEARCH EVENT */
+
+  useEffect(() => {
+
+    window.addEventListener(
+      "keydown",
+      openSearch
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "keydown",
+        openSearch
+      );
+    };
+
+  }, [openSearch]);
 
   /* AUTH */
 
@@ -262,7 +303,7 @@ export default function App() {
 
         <div className="absolute top-[40%] left-[35%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-        {/* SEARCH MODAL */}
+        {/* SEARCH */}
 
         <SearchModal
           open={searchOpen}
@@ -364,6 +405,19 @@ export default function App() {
 
                     <div className="flex items-center gap-4 flex-wrap">
 
+                      {/* CLOCK */}
+
+                      <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 font-semibold text-slate-300">
+
+                        {
+                          new Date().toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        }
+
+                      </div>
+
                       {/* SEARCH */}
 
                       <button
@@ -426,13 +480,11 @@ export default function App() {
             <Route
               path="/login"
               element={
-
                 user
 
                   ? (
                     <Navigate
                       to={
-
                         user.role ===
                         "mentor"
 
@@ -455,7 +507,6 @@ export default function App() {
             <Route
               path="/onboarding"
               element={
-
                 user
 
                   ? user.role
@@ -463,7 +514,6 @@ export default function App() {
                     ? (
                       <Navigate
                         to={
-
                           user.role ===
                           "mentor"
 
@@ -600,8 +650,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* FALLBACK */}
 
             <Route
               path="*"

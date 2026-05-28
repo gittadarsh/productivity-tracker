@@ -1,485 +1,212 @@
 import {
-
   motion,
-
 } from "framer-motion";
-
-import {
-
-  useEffect,
-  useState,
-
-} from "react";
-
-import FocusSessionModal from "../components/FocusSessionModal";
-
-import {
-
-  auth,
-  db,
-
-} from "../firebase";
-
-import {
-
-  collection,
-  getDocs,
-  query,
-  where,
-
-} from "firebase/firestore";
 
 export default function Dashboard() {
 
-  const [
-    focusOpen,
-    setFocusOpen
-  ] = useState(false);
-
-  const [
-    loading,
-    setLoading
-  ] = useState(true);
-
-  const [
-    stats,
-    setStats
-  ] = useState({
-
-    xp: 0,
-
-    sessions: 0,
-
-    habits: 0,
-
-    completedHabits: 0,
-
-    streak: 0,
-  });
-
-  /* LOAD DATA */
-
-  useEffect(() => {
-
-    loadDashboard();
-
-  }, []);
-
-  const loadDashboard =
-    async () => {
-
-      try {
-
-        const user =
-          auth.currentUser;
-
-        if (!user)
-          return;
-
-        /* FOCUS SESSIONS */
-
-        const sessionQuery =
-          query(
-
-            collection(
-              db,
-              "focusSessions"
-            ),
-
-            where(
-              "uid",
-              "==",
-              user.uid
-            )
-          );
-
-        const sessionSnap =
-          await getDocs(
-            sessionQuery
-          );
-
-        const sessions =
-          sessionSnap.docs.map(
-            (doc) =>
-              doc.data()
-          );
-
-        /* HABITS */
-
-        const habitQuery =
-          query(
-
-            collection(
-              db,
-              "habits"
-            ),
-
-            where(
-              "uid",
-              "==",
-              user.uid
-            )
-          );
-
-        const habitSnap =
-          await getDocs(
-            habitQuery
-          );
-
-        const habits =
-          habitSnap.docs.map(
-            (doc) =>
-              doc.data()
-          );
-
-        /* CALCULATIONS */
-
-        const totalXP =
-          sessions.reduce(
-            (
-              acc,
-              curr
-            ) =>
-
-              acc +
-              (
-                curr.xp ||
-                0
-              ),
-
-            0
-          );
-
-        const totalSessions =
-          sessions.length;
-
-        const totalHabits =
-          habits.length;
-
-        const completedHabits =
-          habits.filter(
-            (h) =>
-              h.completed
-          ).length;
-
-        const highestStreak =
-          habits.reduce(
-            (
-              max,
-              habit
-            ) =>
-
-              Math.max(
-                max,
-                habit.streak ||
-                  0
-              ),
-
-            0
-          );
-
-        setStats({
-
-          xp: totalXP,
-
-          sessions:
-            totalSessions,
-
-          habits:
-            totalHabits,
-
-          completedHabits,
-
-          streak:
-            highestStreak,
-        });
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
-
-  const cards = [
+  const stats = [
 
     {
-      title:
-        "Total XP",
-
-      value:
-        stats.xp,
-
-      icon:
-        "⚡",
-
-      gradient:
-        "from-cyan-500 to-blue-500",
+      title: "Total XP",
+      value: "2,480",
+      icon: "⚡",
     },
 
     {
-      title:
-        "Focus Sessions",
-
-      value:
-        stats.sessions,
-
-      icon:
-        "🧠",
-
-      gradient:
-        "from-purple-500 to-pink-500",
+      title: "Focus Sessions",
+      value: "128",
+      icon: "🧠",
     },
 
     {
-      title:
-        "Habits Completed",
-
-      value:
-        `${stats.completedHabits}/${stats.habits}`,
-
-      icon:
-        "🎯",
-
-      gradient:
-        "from-green-500 to-emerald-500",
+      title: "Current Streak",
+      value: "16 Days",
+      icon: "🔥",
     },
 
     {
-      title:
-        "Highest Streak",
-
-      value:
-        `${stats.streak} Days`,
-
-      icon:
-        "🔥",
-
-      gradient:
-        "from-orange-500 to-red-500",
+      title: "Completed Goals",
+      value: "42",
+      icon: "🎯",
     },
   ];
 
   return (
 
-    <>
+    <div className="space-y-8">
 
-      {/* FOCUS MODAL */}
+      {/* HERO */}
 
-      <FocusSessionModal
-        open={focusOpen}
-        setOpen={setFocusOpen}
-      />
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+      >
 
-      <div className="space-y-8">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
-        {/* HERO */}
+        <div className="relative z-10">
 
-        <motion.div
+          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-          initial={{
-            opacity: 0,
-            y: 30,
-          }}
+            Productivity Intelligence
 
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+          </p>
 
-          className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
-        >
+          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
 
-          <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+            Build
+            {" "}
 
-          <div className="relative z-10">
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-            <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
+              elite consistency
 
-              Live Productivity System
+            </span>
 
-            </p>
+          </h1>
 
-            <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
+          <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
 
-              Build
-              {" "}
+            Track habits, improve focus, complete goals, and level up your productivity system.
 
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-
-                unstoppable
-              </span>
-
-              {" "}
-              productivity consistency.
-            </h1>
-
-            <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
-
-              Your live productivity metrics,
-              focus sessions,
-              habits,
-              streaks,
-              and AI insights all in one place.
-
-            </p>
-
-            <div className="flex flex-wrap gap-4 mt-8">
-
-              <button
-                onClick={() =>
-                  setFocusOpen(
-                    true
-                  )
-                }
-
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-4 rounded-2xl font-bold shadow-2xl"
-              >
-
-                🚀 Start Focus Session
-
-              </button>
-
-            </div>
-
-          </div>
-
-        </motion.div>
-
-        {/* STATS */}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-
-          {cards.map((card, index) => (
-
-            <motion.div
-
-              key={index}
-
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-
-              transition={{
-                delay: index * 0.08,
-              }}
-
-              whileHover={{
-                y: -6,
-              }}
-
-              className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
-            >
-
-              <div
-                className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.gradient} opacity-20 blur-3xl`}
-              />
-
-              <div className="relative z-10">
-
-                <div className="flex items-center justify-between">
-
-                  <div>
-
-                    <p className="text-slate-400 text-sm">
-
-                      {card.title}
-
-                    </p>
-
-                    <h2 className="text-4xl font-black mt-3">
-
-                      {
-                        loading
-
-                          ? "--"
-
-                          : card.value
-                      }
-
-                    </h2>
-
-                  </div>
-
-                  <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${card.gradient} flex items-center justify-center text-3xl shadow-xl`}
-                  >
-
-                    {card.icon}
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </motion.div>
-          ))}
+          </p>
 
         </div>
 
-        {/* LIVE STATUS */}
+      </motion.div>
 
-        <motion.div
+      {/* QUICK ACTIONS */}
 
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
 
-          className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-        >
+          <div className="text-4xl">
 
-          <div className="flex items-center justify-between flex-wrap gap-5">
-
-            <div>
-
-              <h2 className="text-4xl font-black">
-
-                ⚡ Productivity Status
-
-              </h2>
-
-              <p className="text-slate-400 mt-3">
-
-                Real-time productivity overview powered by Firebase data.
-
-              </p>
-
-            </div>
-
-            <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 px-5 py-3 rounded-2xl">
-
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-
-              <span className="font-bold text-green-400">
-
-                Live Tracking Active
-
-              </span>
-
-            </div>
+            ⚡
 
           </div>
 
-        </motion.div>
+          <h3 className="text-xl font-black mt-4">
+
+            Start Focus
+
+          </h3>
+
+        </button>
+
+        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
+
+          <div className="text-4xl">
+
+            🎯
+
+          </div>
+
+          <h3 className="text-xl font-black mt-4">
+
+            Add Goal
+
+          </h3>
+
+        </button>
+
+        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
+
+          <div className="text-4xl">
+
+            📈
+
+          </div>
+
+          <h3 className="text-xl font-black mt-4">
+
+            View Analytics
+
+          </h3>
+
+        </button>
+
+        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
+
+          <div className="text-4xl">
+
+            🧠
+
+          </div>
+
+          <h3 className="text-xl font-black mt-4">
+
+            AI Insights
+
+          </h3>
+
+        </button>
 
       </div>
 
-    </>
+      {/* STATS */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        {stats.map((stat, index) => (
+
+          <motion.div
+            key={index}
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            transition={{
+              delay: index * 0.05,
+            }}
+            whileHover={{
+              y: -5,
+            }}
+            className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
+          >
+
+            <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 blur-3xl" />
+
+            <div className="relative z-10">
+
+              <div className="text-5xl">
+
+                {stat.icon}
+
+              </div>
+
+              <p className="text-slate-400 mt-6">
+
+                {stat.title}
+
+              </p>
+
+              <h2 className="text-5xl font-black mt-3">
+
+                {stat.value}
+
+              </h2>
+
+            </div>
+
+          </motion.div>
+
+        ))}
+
+      </div>
+
+    </div>
   );
 }
