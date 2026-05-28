@@ -43,6 +43,7 @@ import Leaderboard from "./pages/Leaderboard";
 import QuestionSheets from "./pages/QuestionSheets";
 import CreateSheet from "./pages/CreateSheet";
 import StudyPlanner from "./pages/StudyPlanner";
+import Chat from "./pages/Chat";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
@@ -87,8 +88,6 @@ export default function App() {
       name: "Prof. Singh",
     },
   ];
-
-  /* FIREBASE AUTH */
 
   useEffect(() => {
 
@@ -143,8 +142,6 @@ export default function App() {
       unsubscribe();
 
   }, []);
-
-  /* LOGIN */
 
   const handleGoogleLogin =
     async () => {
@@ -232,8 +229,6 @@ export default function App() {
       }
     };
 
-  /* LOGOUT */
-
   const handleLogout =
     async () => {
 
@@ -257,8 +252,6 @@ export default function App() {
       }
     };
 
-  /* LOADING */
-
   if (loading) {
 
     return (
@@ -276,7 +269,7 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen flex transition duration-300
+        className={`min-h-screen flex
 
         ${
           darkMode
@@ -284,8 +277,6 @@ export default function App() {
             : "bg-slate-100 text-black"
         }`}
       >
-
-        {/* SIDEBAR */}
 
         <Sidebar
           user={user}
@@ -298,8 +289,6 @@ export default function App() {
             setMobileMenu
           }
         />
-
-        {/* MAIN CONTENT */}
 
         <div className="flex-1 md:ml-[260px] p-4 md:p-8">
 
@@ -345,7 +334,7 @@ export default function App() {
 
           </div>
 
-          {/* AUTH SECTION */}
+          {/* LOGIN */}
 
           {!user && (
 
@@ -357,7 +346,7 @@ export default function App() {
 
               </h2>
 
-              <div className="flex flex-wrap gap-4 mb-6">
+              <div className="flex gap-4 mb-6">
 
                 <button
                   onClick={() =>
@@ -412,7 +401,7 @@ export default function App() {
                   "student" && (
 
                   <select
-                    className="bg-slate-800 px-4 py-3 rounded-xl mb-6 w-full md:w-[300px]"
+                    className="bg-slate-800 px-4 py-3 rounded-xl mb-6"
 
                     onChange={(e) =>
                       setSelectedMentor(
@@ -452,21 +441,17 @@ export default function App() {
                 )
               }
 
-              <div>
+              <button
+                onClick={
+                  handleGoogleLogin
+                }
 
-                <button
-                  onClick={
-                    handleGoogleLogin
-                  }
+                className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-xl font-semibold"
+              >
 
-                  className="bg-blue-500 hover:bg-blue-600 transition px-6 py-3 rounded-xl font-semibold"
-                >
+                Sign in with Google
 
-                  Sign in with Google
-
-                </button>
-
-              </div>
+              </button>
 
             </div>
           )}
@@ -484,7 +469,7 @@ export default function App() {
                     src={
                       user?.photo ||
 
-                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
+                      `https://ui-avatars.com/api/?name=${user?.name}`
                     }
 
                     alt="profile"
@@ -515,7 +500,7 @@ export default function App() {
                     handleLogout
                   }
 
-                  className="bg-red-500 hover:bg-red-600 transition px-5 py-3 rounded-xl font-semibold"
+                  className="bg-red-500 hover:bg-red-600 px-5 py-3 rounded-xl font-semibold"
                 >
 
                   Logout
@@ -535,9 +520,7 @@ export default function App() {
               element={
                 <PageWrapper>
 
-                  <Dashboard
-                    user={user}
-                  />
+                  <Dashboard />
 
                 </PageWrapper>
               }
@@ -546,9 +529,7 @@ export default function App() {
             <Route
               path="/goals"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -563,9 +544,7 @@ export default function App() {
             <Route
               path="/analytics"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -580,9 +559,7 @@ export default function App() {
             <Route
               path="/achievements"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -597,9 +574,7 @@ export default function App() {
             <Route
               path="/heatmap"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -614,9 +589,7 @@ export default function App() {
             <Route
               path="/insights"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -631,9 +604,7 @@ export default function App() {
             <Route
               path="/leaderboard"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -648,9 +619,7 @@ export default function App() {
             <Route
               path="/questions"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -665,13 +634,26 @@ export default function App() {
             <Route
               path="/planner"
               element={
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
                     <StudyPlanner />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute user={user}>
+
+                  <PageWrapper>
+
+                    <Chat />
 
                   </PageWrapper>
 

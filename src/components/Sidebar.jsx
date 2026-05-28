@@ -10,8 +10,6 @@ export default function Sidebar({
 
   mobileMenu,
 
-  setMobileMenu,
-
 }) {
 
   return (
@@ -21,7 +19,7 @@ export default function Sidebar({
 
       fixed md:static top-0 left-0 z-50
 
-      h-screen md:h-auto
+      h-screen
 
       w-[260px]
 
@@ -41,8 +39,6 @@ export default function Sidebar({
     `}
     >
 
-      {/* LOGO */}
-
       <div className="mb-10">
 
         <h1 className="text-3xl font-bold text-cyan-400">
@@ -58,8 +54,6 @@ export default function Sidebar({
         </p>
 
       </div>
-
-      {/* NAVIGATION */}
 
       <div className="flex flex-col gap-3 text-lg font-semibold">
 
@@ -135,6 +129,14 @@ export default function Sidebar({
           🧠 AI Planner
         </Link>
 
+        <Link
+          to="/chat"
+
+          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
+        >
+          💬 Chat
+        </Link>
+
         {
           user?.role ===
           "mentor" && (
@@ -160,53 +162,6 @@ export default function Sidebar({
         }
 
       </div>
-
-      {/* USER */}
-
-      {
-        user && (
-
-          <div className="absolute bottom-8 left-6 right-6">
-
-            <div className="bg-slate-800 p-4 rounded-2xl">
-
-              <div className="flex items-center gap-3">
-
-                <img
-                  src={
-                    user?.photo ||
-
-                    `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
-                  }
-
-                  alt="profile"
-
-                  className="w-12 h-12 rounded-full border-2 border-cyan-400"
-                />
-
-                <div>
-
-                  <p className="font-bold">
-
-                    {user.name}
-
-                  </p>
-
-                  <p className="text-sm text-slate-400 capitalize">
-
-                    {user.role}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-        )
-      }
 
     </div>
   );
