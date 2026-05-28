@@ -226,16 +226,30 @@ export default function App() {
     <BrowserRouter>
 
       <div
-        className={`min-h-screen transition duration-300
+        className={`
+
+        min-h-screen
+
+        relative overflow-hidden
+
+        transition duration-300
 
         ${
           darkMode
 
-            ? "bg-slate-950 text-white"
+            ? "bg-[#020617] text-white"
 
             : "bg-slate-100 text-black"
         }`}
       >
+
+        {/* BACKGROUND GLOWS */}
+
+        <div className="absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-cyan-500/20 blur-[140px] rounded-full pointer-events-none" />
+
+        <div className="absolute bottom-[-200px] right-[-100px] w-[500px] h-[500px] bg-blue-500/20 blur-[160px] rounded-full pointer-events-none" />
+
+        <div className="absolute top-[40%] left-[35%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
 
         {/* OVERLAY */}
 
@@ -279,24 +293,22 @@ export default function App() {
 
         {/* MAIN */}
 
-        <div className="p-4 md:p-6 xl:p-8">
+        <div className="relative z-10 p-4 md:p-6 xl:p-8">
 
           {/* TOPBAR */}
 
           {
             user?.role && (
 
-              <div className="mb-10">
+              <div className="mb-8">
 
-                <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[28px] px-6 py-5 shadow-2xl">
+                <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[30px] px-6 py-5 shadow-[0_20px_80px_rgba(0,0,0,0.45)]">
 
                   <div className="flex items-center justify-between gap-6 flex-wrap">
 
                     {/* LEFT */}
 
                     <div className="flex items-center gap-5">
-
-                      {/* MENU */}
 
                       <button
                         onClick={() =>
@@ -305,14 +317,12 @@ export default function App() {
                           )
                         }
 
-                        className="bg-white/5 hover:bg-white/10 transition px-4 py-3 rounded-2xl text-2xl border border-white/10"
+                        className="bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
                       >
 
                         ☰
 
                       </button>
-
-                      {/* USER */}
 
                       <div className="flex items-center gap-4">
 
@@ -330,7 +340,7 @@ export default function App() {
 
                         <div>
 
-                          <h2 className="text-2xl font-black leading-tight">
+                          <h2 className="text-2xl md:text-3xl font-black leading-tight">
 
                             Welcome back,
 
@@ -352,7 +362,6 @@ export default function App() {
                             {user?.role}
                             {" "}
                             Dashboard
-
                           </p>
 
                         </div>
@@ -387,7 +396,7 @@ export default function App() {
 
                       {/* NOTIFICATION */}
 
-                      <button className="relative bg-white/5 hover:bg-white/10 transition p-4 rounded-2xl border border-white/10">
+                      <button className="relative bg-white/5 hover:bg-white/10 transition-all duration-300 p-4 rounded-2xl border border-white/10">
 
                         🔔
 
@@ -404,7 +413,7 @@ export default function App() {
                           )
                         }
 
-                        className="bg-white/5 hover:bg-white/10 transition px-5 py-4 rounded-2xl border border-white/10 text-xl"
+                        className="bg-white/5 hover:bg-white/10 transition-all duration-300 px-5 py-4 rounded-2xl border border-white/10 text-xl"
                       >
 
                         {
@@ -433,7 +442,6 @@ export default function App() {
 
             <Route
               path="/"
-
               element={<Landing />}
             />
 
@@ -499,9 +507,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -518,9 +524,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -537,9 +541,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -556,9 +558,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -575,9 +575,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -594,9 +592,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -613,9 +609,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -632,9 +626,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -651,9 +643,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
@@ -670,9 +660,7 @@ export default function App() {
 
               element={
 
-                <ProtectedRoute
-                  user={user}
-                >
+                <ProtectedRoute user={user}>
 
                   <PageWrapper>
 
