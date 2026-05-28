@@ -1,9 +1,15 @@
 import {
-
   signOut,
   onAuthStateChanged,
-
 } from "firebase/auth";
+
+// ONLY ADD THESE IMPORTS IF NOT ALREADY PRESENT
+
+import Notifications from "./pages/Notifications";
+
+import AssignedGoals from "./pages/AssignedGoals";
+
+import AssignGoals from "./pages/AssignGoals";
 
 import {
   auth,
@@ -41,20 +47,33 @@ import Analytics from "./pages/Analytics";
 import Achievements from "./pages/Achievements";
 import Heatmap from "./pages/Heatmap";
 import Insights from "./pages/Insights";
+
 import MentorDashboard from "./pages/MentorDashboard";
 import StudentProgress from "./pages/StudentProgress";
+
 import Leaderboard from "./pages/Leaderboard";
+
 import QuestionSheets from "./pages/QuestionSheets";
 import CreateSheet from "./pages/CreateSheet";
+
 import StudyPlanner from "./pages/StudyPlanner";
+
 import Chat from "./pages/Chat";
+
 import Habits from "./pages/Habits";
+
+import AssignGoals from "./pages/AssignGoals";
+
+import AssignedGoals from "./pages/AssignedGoals";
 
 /* COMPONENTS */
 
 import ProtectedRoute from "./components/ProtectedRoute";
+
 import Sidebar from "./components/Sidebar";
+
 import LoadingSkeleton from "./components/LoadingSkeleton";
+
 import PageWrapper from "./components/PageWrapper";
 
 export default function App() {
@@ -252,7 +271,7 @@ export default function App() {
 
         <div className="absolute top-[40%] left-[35%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-        {/* OVERLAY */}
+        {/* MOBILE OVERLAY */}
 
         {
           mobileMenu && (
@@ -263,7 +282,6 @@ export default function App() {
                   false
                 )
               }
-
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             />
           )
@@ -276,18 +294,9 @@ export default function App() {
 
             <Sidebar
               user={user}
-
-              mobileMenu={
-                mobileMenu
-              }
-
-              setMobileMenu={
-                setMobileMenu
-              }
-
-              handleLogout={
-                handleLogout
-              }
+              mobileMenu={mobileMenu}
+              setMobileMenu={setMobileMenu}
+              handleLogout={handleLogout}
             />
           )
         }
@@ -317,7 +326,6 @@ export default function App() {
                             !mobileMenu
                           )
                         }
-
                         className="bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
                       >
 
@@ -333,9 +341,7 @@ export default function App() {
 
                             `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
                           }
-
                           alt="profile"
-
                           className="w-14 h-14 rounded-2xl border-2 border-cyan-400 object-cover shadow-xl"
                         />
 
@@ -388,9 +394,7 @@ export default function App() {
 
                         <input
                           type="text"
-
                           placeholder="Search..."
-
                           className="bg-transparent outline-none text-white placeholder:text-slate-500 w-full"
                         />
 
@@ -414,15 +418,12 @@ export default function App() {
                             !darkMode
                           )
                         }
-
                         className="bg-white/5 hover:bg-white/10 transition-all duration-300 px-5 py-4 rounded-2xl border border-white/10 text-xl"
                       >
 
                         {
                           darkMode
-
                             ? "☀"
-
                             : "🌙"
                         }
 
@@ -453,12 +454,12 @@ export default function App() {
 
             <Route
               path="/login"
-
               element={
 
                 user
 
-                  ? <Navigate
+                  ? (
+                    <Navigate
                       to={
 
                         user.role ===
@@ -474,6 +475,7 @@ export default function App() {
                             : "/onboarding"
                       }
                     />
+                  )
 
                   : <Login />
               }
@@ -483,14 +485,14 @@ export default function App() {
 
             <Route
               path="/onboarding"
-
               element={
 
                 user
 
                   ? user.role
 
-                    ? <Navigate
+                    ? (
+                      <Navigate
                         to={
 
                           user.role ===
@@ -501,12 +503,13 @@ export default function App() {
                             : "/dashboard"
                         }
                       />
+                    )
 
                     : <Onboarding />
 
-                  : <Navigate
-                      to="/login"
-                    />
+                  : (
+                    <Navigate to="/login" />
+                  )
               }
             />
 
@@ -514,7 +517,6 @@ export default function App() {
 
             <Route
               path="/dashboard"
-
               element={
 
                 <ProtectedRoute
@@ -535,7 +537,6 @@ export default function App() {
 
             <Route
               path="/habits"
-
               element={
 
                 <ProtectedRoute
@@ -552,11 +553,30 @@ export default function App() {
               }
             />
 
+            {/* ASSIGNED GOALS */}
+
+            <Route
+              path="/assigned-goals"
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                >
+
+                  <PageWrapper>
+
+                    <AssignedGoals />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
             {/* GOALS */}
 
             <Route
               path="/goals"
-
               element={
 
                 <ProtectedRoute
@@ -577,7 +597,6 @@ export default function App() {
 
             <Route
               path="/analytics"
-
               element={
 
                 <ProtectedRoute
@@ -598,7 +617,6 @@ export default function App() {
 
             <Route
               path="/achievements"
-
               element={
 
                 <ProtectedRoute
@@ -619,7 +637,6 @@ export default function App() {
 
             <Route
               path="/heatmap"
-
               element={
 
                 <ProtectedRoute
@@ -640,7 +657,6 @@ export default function App() {
 
             <Route
               path="/insights"
-
               element={
 
                 <ProtectedRoute
@@ -661,7 +677,6 @@ export default function App() {
 
             <Route
               path="/leaderboard"
-
               element={
 
                 <ProtectedRoute
@@ -682,7 +697,6 @@ export default function App() {
 
             <Route
               path="/questions"
-
               element={
 
                 <ProtectedRoute
@@ -699,11 +713,94 @@ export default function App() {
               }
             />
 
+            {/* CREATE SHEET */}
+
+            <Route
+              path="/create-sheet"
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <PageWrapper>
+
+                    <CreateSheet />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ASSIGN GOALS */}
+
+            <Route
+              path="/assign-goals"
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <PageWrapper>
+
+                    <AssignGoals />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* MENTOR */}
+
+            <Route
+              path="/mentor"
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <PageWrapper>
+
+                    <MentorDashboard />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
+            {/* STUDENT ANALYTICS */}
+
+            <Route
+              path="/student/:uid"
+              element={
+
+                <ProtectedRoute
+                  user={user}
+                  requiredRole="mentor"
+                >
+
+                  <PageWrapper>
+
+                    <StudentProgress />
+
+                  </PageWrapper>
+
+                </ProtectedRoute>
+              }
+            />
+
             {/* AI PLANNER */}
 
             <Route
               path="/planner"
-
               element={
 
                 <ProtectedRoute
@@ -723,8 +820,65 @@ export default function App() {
             {/* CHAT */}
 
             <Route
-              path="/chat"
+  path="/notifications"
 
+  element={
+
+    <ProtectedRoute
+      user={user}
+    >
+
+      <PageWrapper>
+
+        <Notifications />
+
+      </PageWrapper>
+
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/assigned-goals"
+
+  element={
+
+    <ProtectedRoute
+      user={user}
+    >
+
+      <PageWrapper>
+
+        <AssignedGoals />
+
+      </PageWrapper>
+
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/assign-goals"
+
+  element={
+
+    <ProtectedRoute
+      user={user}
+      requiredRole="mentor"
+    >
+
+      <PageWrapper>
+
+        <AssignGoals />
+
+      </PageWrapper>
+
+    </ProtectedRoute>
+  }
+/>
+
+            <Route
+              path="/chat"
               element={
 
                 <ProtectedRoute
@@ -734,72 +888,6 @@ export default function App() {
                   <PageWrapper>
 
                     <Chat />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* MENTOR */}
-
-            <Route
-              path="/mentor"
-
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                  requiredRole="mentor"
-                >
-
-                  <PageWrapper>
-
-                    <MentorDashboard />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* CREATE SHEET */}
-
-            <Route
-              path="/create-sheet"
-
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                  requiredRole="mentor"
-                >
-
-                  <PageWrapper>
-
-                    <CreateSheet />
-
-                  </PageWrapper>
-
-                </ProtectedRoute>
-              }
-            />
-
-            {/* STUDENT */}
-
-            <Route
-              path="/student/:uid"
-
-              element={
-
-                <ProtectedRoute
-                  user={user}
-                  requiredRole="mentor"
-                >
-
-                  <PageWrapper>
-
-                    <StudentProgress />
 
                   </PageWrapper>
 

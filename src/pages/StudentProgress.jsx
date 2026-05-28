@@ -1,65 +1,63 @@
 import {
-
   useEffect,
   useState,
-
 } from "react";
 
 import {
-
   useParams,
-
 } from "react-router-dom";
 
 import {
-
   motion,
-
 } from "framer-motion";
 
 import {
-
   db,
-
 } from "../firebase";
 
 import {
-
   collection,
   doc,
   getDoc,
   getDocs,
   query,
   where,
-
 } from "firebase/firestore";
+
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from "recharts";
 
 export default function StudentProgress() {
 
   const { uid } =
     useParams();
 
-  const [
-    student,
-    setStudent
-  ] = useState(null);
+  const [student, setStudent] =
+    useState(null);
 
-  const [
-    habits,
-    setHabits
-  ] = useState([]);
+  const [habits, setHabits] =
+    useState([]);
 
-  const [
-    sessions,
-    setSessions
-  ] = useState([]);
+  const [sessions, setSessions] =
+    useState([]);
 
-  const [
-    loading,
-    setLoading
-  ] = useState(true);
+  const [goals, setGoals] =
+    useState([]);
 
-  /* LOAD */
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
 
@@ -99,12 +97,10 @@ export default function StudentProgress() {
 
         const habitQuery =
           query(
-
             collection(
               db,
               "habits"
             ),
-
             where(
               "uid",
               "==",
@@ -120,10 +116,7 @@ export default function StudentProgress() {
         const habitData =
           habitSnap.docs.map(
             (doc) => ({
-
-              id:
-                doc.id,
-
+              id: doc.id,
               ...doc.data(),
             })
           );
@@ -136,12 +129,10 @@ export default function StudentProgress() {
 
         const sessionQuery =
           query(
-
             collection(
               db,
               "focusSessions"
             ),
-
             where(
               "uid",
               "==",
@@ -157,10 +148,7 @@ export default function StudentProgress() {
         const sessionData =
           sessionSnap.docs.map(
             (doc) => ({
-
-              id:
-                doc.id,
-
+              id: doc.id,
               ...doc.data(),
             })
           );
@@ -169,6 +157,36 @@ export default function StudentProgress() {
           sessionData
         );
 
+        /* GOALS */
+
+        const goalQuery =
+          query(
+            collection(
+              db,
+              "assignedGoals"
+            ),
+            where(
+              "studentUid",
+              "==",
+              uid
+            )
+          );
+
+        const goalSnap =
+          await getDocs(
+            goalQuery
+          );
+
+        const goalData =
+          goalSnap.docs.map(
+            (doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })
+          );
+
+        setGoals(goalData);
+
       } catch (error) {
 
         console.log(error);
@@ -176,6 +194,7 @@ export default function StudentProgress() {
       } finally {
 
         setLoading(false);
+
       }
     };
 
@@ -185,6 +204,12 @@ export default function StudentProgress() {
     habits.filter(
       (h) =>
         h.completed
+    ).length;
+
+  const completedGoals =
+    goals.filter(
+      (g) =>
+        g.completed
     ).length;
 
   const highestStreak =
@@ -203,10 +228,99 @@ export default function StudentProgress() {
     );
 
   const productivityScore =
-    sessions.length *
-      10 +
-    completedHabits *
-      5;
+
+    (
+      student?.xp || 0
+    ) +
+
+    sessions.length * 10 +
+
+    completedHabits * 20 +
+
+    completedGoals * 30;
+
+  /* CHART DATA */
+
+  const barData = [
+
+    {
+      name: "XP",
+      value:
+        student?.xp || 0,
+    },
+
+    {
+      name: "Sessions",
+      value:
+        sessions.length,
+    },
+
+    {
+      name: "Habits",
+      value:
+        completedHabits,
+    },
+
+    {
+      name: "Goals",
+      value:
+        completedGoals,
+    },
+  ];
+
+  const pieData = [
+
+    {
+      name: "Completed",
+      value:
+        completedGoals,
+    },
+
+    {
+      name: "Pending",
+      value:
+        goals.length -
+        completedGoals,
+    },
+  ];
+
+  const trendData = [
+
+    {
+      day: "Mon",
+      score: 25,
+    },
+
+    {
+      day: "Tue",
+      score: 40,
+    },
+
+    {
+      day: "Wed",
+      score: 55,
+    },
+
+    {
+      day: "Thu",
+      score: 60,
+    },
+
+    {
+      day: "Fri",
+      score: 80,
+    },
+
+    {
+      day: "Sat",
+      score: 95,
+    },
+  ];
+
+  const COLORS = [
+    "#22c55e",
+    "#ef4444",
+  ];
 
   if (loading) {
 
@@ -214,7 +328,7 @@ export default function StudentProgress() {
 
       <div className="text-center text-slate-400 py-20">
 
-        Loading student analytics...
+        Loading analytics...
 
       </div>
     );
@@ -227,17 +341,14 @@ export default function StudentProgress() {
       {/* HERO */}
 
       <motion.div
-
         initial={{
           opacity: 0,
           y: 20,
         }}
-
         animate={{
           opacity: 1,
           y: 0,
         }}
-
         className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
       >
 
@@ -253,9 +364,7 @@ export default function StudentProgress() {
 
                 `https://ui-avatars.com/api/?name=${student?.name}`
               }
-
               alt="student"
-
               className="w-28 h-28 rounded-[32px] border border-white/10 object-cover shadow-2xl"
             />
 
@@ -263,7 +372,7 @@ export default function StudentProgress() {
 
               <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-                Student Analytics
+                Student Intelligence
 
               </p>
 
@@ -291,7 +400,7 @@ export default function StudentProgress() {
 
               <span className="font-bold text-green-400 text-lg">
 
-                Live Tracking Active
+                Live Monitoring
 
               </span>
 
@@ -309,90 +418,80 @@ export default function StudentProgress() {
 
         {[
           {
-            title: "XP",
-            value: student?.xp || 0,
-            icon: "⚡",
-            color: "from-cyan-500 to-blue-500",
+            title:
+              "Productivity Score",
+            value:
+              productivityScore,
+            icon:
+              "📈",
           },
 
           {
-            title: "Focus Sessions",
-            value: sessions.length,
-            icon: "🧠",
-            color: "from-purple-500 to-pink-500",
+            title:
+              "Focus Sessions",
+            value:
+              sessions.length,
+            icon:
+              "🧠",
           },
 
           {
-            title: "Highest Streak",
-            value: highestStreak,
-            icon: "🔥",
-            color: "from-orange-500 to-red-500",
+            title:
+              "Highest Streak",
+            value:
+              highestStreak,
+            icon:
+              "🔥",
           },
 
           {
-            title: "Productivity Score",
-            value: productivityScore,
-            icon: "📈",
-            color: "from-green-500 to-emerald-500",
+            title:
+              "Goal Completion",
+            value:
+              `${completedGoals}/${goals.length}`,
+            icon:
+              "🎯",
           },
         ].map((card, index) => (
 
           <motion.div
-
             key={index}
-
             initial={{
               opacity: 0,
               y: 20,
             }}
-
             animate={{
               opacity: 1,
               y: 0,
             }}
-
             transition={{
-              delay: index * 0.08,
+              delay:
+                index * 0.08,
             }}
-
-            whileHover={{
-              y: -6,
-            }}
-
-            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
+            className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
           >
 
-            <div
-              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.color} opacity-20 blur-3xl`}
-            />
+            <div className="flex items-center justify-between">
 
-            <div className="relative z-10">
+              <div>
 
-              <div className="flex items-center justify-between">
+                <p className="text-slate-400 text-sm">
 
-                <div>
+                  {card.title}
 
-                  <p className="text-slate-400 text-sm">
+                </p>
 
-                    {card.title}
+                <h2 className="text-4xl font-black mt-4">
 
-                  </p>
+                  {card.value}
 
-                  <h2 className="text-4xl font-black mt-3">
+                </h2>
 
-                    {card.value}
+              </div>
 
-                  </h2>
+              <div className="text-5xl">
 
-                </div>
-
-                <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${card.color} flex items-center justify-center text-3xl shadow-xl`}
-                >
-
-                  {card.icon}
-
-                </div>
+                {card.icon}
 
               </div>
 
@@ -403,280 +502,174 @@ export default function StudentProgress() {
 
       </div>
 
-      {/* HABITS */}
+      {/* CHARTS */}
 
-      <motion.div
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
+        {/* BAR */}
 
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-        className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-      >
+          <h2 className="text-3xl font-black mb-8">
 
-        <div className="flex items-center justify-between mb-10">
+            📊 Productivity Breakdown
 
-          <div>
+          </h2>
 
-            <h2 className="text-4xl font-black">
+          <div className="h-[350px]">
 
-              ⚡ Habit Performance
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
 
-            </h2>
+              <BarChart
+                data={barData}
+              >
 
-            <p className="text-slate-400 mt-2">
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#334155"
+                />
 
-              Live student habit consistency
+                <XAxis
+                  dataKey="name"
+                  stroke="#94a3b8"
+                />
 
-            </p>
+                <YAxis
+                  stroke="#94a3b8"
+                />
+
+                <Tooltip />
+
+                <Bar
+                  dataKey="value"
+                  radius={[
+                    12,
+                    12,
+                    0,
+                    0,
+                  ]}
+                />
+
+              </BarChart>
+
+            </ResponsiveContainer>
 
           </div>
 
         </div>
 
-        {
-          habits.length === 0
+        {/* PIE */}
 
-            ? (
+        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-              <div className="text-center py-16 text-slate-400">
+          <h2 className="text-3xl font-black mb-8">
 
-                No habits tracked yet.
+            🎯 Goal Completion
 
-              </div>
-            )
+          </h2>
 
-            : (
+          <div className="h-[350px]">
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
 
-                {habits.map(
-                  (
-                    habit,
-                    index
-                  ) => (
+              <PieChart>
 
-                    <motion.div
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                  dataKey="value"
+                  label
+                >
 
-                      key={
-                        habit.id
-                      }
+                  {pieData.map(
+                    (
+                      entry,
+                      index
+                    ) => (
 
-                      initial={{
-                        opacity: 0,
-                        y: 20,
-                      }}
+                      <Cell
+                        key={index}
+                        fill={
+                          COLORS[
+                            index
+                          ]
+                        }
+                      />
+                    )
+                  )}
 
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
+                </Pie>
 
-                      transition={{
-                        delay:
-                          index *
-                          0.05,
-                      }}
+                <Tooltip />
 
-                      className="rounded-[30px] border border-white/10 bg-white/5 p-6"
-                    >
+              </PieChart>
 
-                      <div className="flex items-center justify-between">
-
-                        <div>
-
-                          <h3 className="text-2xl font-black">
-
-                            {
-                              habit.title
-                            }
-
-                          </h3>
-
-                          <p className="text-slate-400 mt-2">
-
-                            Habit consistency tracking
-
-                          </p>
-
-                        </div>
-
-                        <div className="text-4xl">
-
-                          {
-                            habit.completed
-
-                              ? "✅"
-
-                              : "⚡"
-                          }
-
-                        </div>
-
-                      </div>
-
-                      <div className="mt-8">
-
-                        <div className="flex items-center justify-between mb-3">
-
-                          <span className="text-slate-400">
-
-                            Streak
-
-                          </span>
-
-                          <span className="font-bold text-2xl">
-
-                            🔥
-                            {" "}
-                            {
-                              habit.streak
-                            }
-
-                          </span>
-
-                        </div>
-
-                        <div className="h-4 bg-white/5 rounded-full overflow-hidden">
-
-                          <motion.div
-
-                            initial={{
-                              width: 0,
-                            }}
-
-                            animate={{
-                              width:
-                                `${
-                                  Math.min(
-                                    habit.streak *
-                                      10,
-                                    100
-                                  )
-                                }%`,
-                            }}
-
-                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
-                          />
-
-                        </div>
-
-                      </div>
-
-                    </motion.div>
-                  )
-                )}
-
-              </div>
-            )
-        }
-
-      </motion.div>
-
-      {/* FOCUS SESSIONS */}
-
-      <motion.div
-
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-
-        transition={{
-          delay: 0.1,
-        }}
-
-        className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-      >
-
-        <div className="flex items-center justify-between mb-10">
-
-          <div>
-
-            <h2 className="text-4xl font-black">
-
-              🧠 Focus Session Analytics
-
-            </h2>
-
-            <p className="text-slate-400 mt-2">
-
-              Deep work consistency tracking
-
-            </p>
+            </ResponsiveContainer>
 
           </div>
 
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      </div>
 
-          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
+      {/* TREND */}
 
-            <p className="text-slate-400">
+      <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-              Total Sessions
+        <h2 className="text-4xl font-black mb-8">
 
-            </p>
+          📈 Weekly Productivity Trend
 
-            <h2 className="text-5xl font-black mt-4">
+        </h2>
 
-              {sessions.length}
+        <div className="h-[350px]">
 
-            </h2>
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
 
-          </div>
+            <LineChart
+              data={trendData}
+            >
 
-          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#334155"
+              />
 
-            <p className="text-slate-400">
+              <XAxis
+                dataKey="day"
+                stroke="#94a3b8"
+              />
 
-              Total Focus Time
+              <YAxis
+                stroke="#94a3b8"
+              />
 
-            </p>
+              <Tooltip />
 
-            <h2 className="text-5xl font-black mt-4">
+              <Line
+                type="monotone"
+                dataKey="score"
+                strokeWidth={4}
+              />
 
-              {
-                sessions.length *
-                25
-              }
-              m
+            </LineChart>
 
-            </h2>
-
-          </div>
-
-          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
-
-            <p className="text-slate-400">
-
-              Productivity Rating
-
-            </p>
-
-            <h2 className="text-5xl font-black mt-4">
-
-              Elite
-
-            </h2>
-
-          </div>
+          </ResponsiveContainer>
 
         </div>
 
-      </motion.div>
+      </div>
 
     </div>
   );

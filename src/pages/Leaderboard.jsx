@@ -1,419 +1,218 @@
 import {
-
   useEffect,
   useState,
-
 } from "react";
 
 import {
-
-  collection,
-  getDocs,
-
-} from "firebase/firestore";
+  motion,
+} from "framer-motion";
 
 import {
-
   db,
-
 } from "../firebase";
+
+import {
+  collection,
+  onSnapshot,
+} from "firebase/firestore";
 
 export default function Leaderboard() {
 
-  const [
-    students,
-    setStudents
-  ] = useState([]);
+  const [students, setStudents] =
+    useState([]);
 
-  const [
-    topPerformer,
-    setTopPerformer
-  ] = useState(null);
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
-
-    const loadLeaderboard =
-      async () => {
-
-        try {
-
-          const usersSnapshot =
-            await getDocs(
-
-              collection(
-                db,
-                "users"
-              )
-            );
-
-          const habitsSnapshot =
-            await getDocs(
-
-              collection(
-                db,
-                "habits"
-              )
-            );
-
-          const questionsSnapshot =
-            await getDocs(
-
-              collection(
-                db,
-                "questions"
-              )
-            );
-
-          const habitsMap = {};
-
-          habitsSnapshot.forEach(
-            (doc) => {
-
-              habitsMap[
-                doc.id
-              ] = doc.data();
-            }
-          );
-
-          /* QUESTION SCORE */
-
-          let solvedQuestions =
-            0;
-
-          questionsSnapshot.forEach(
-            (doc) => {
-
-              if (
-                doc.data()
-                  .solved
-              ) {
-
-                solvedQuestions += 1;
-              }
-            }
-          );
-
-          const leaderboard =
-            [];
-
-          usersSnapshot.forEach(
-            (doc) => {
-
-              const user =
-                doc.data();
-
-              if (
-                user.role ===
-                "student"
-              ) {
-
-                const userHabits =
-                  habitsMap[
-                    user.uid
-                  ];
-
-                let productivityScore =
-                  0;
-
-                let streakScore =
-                  0;
-
-                let completedHabits =
-                  0;
-
-                if (
-                  userHabits?.habits
-                ) {
-
-                  Object.values(
-                    userHabits.habits
-                  ).forEach(
-                    (day) => {
-
-                      Object.values(
-                        day
-                      ).forEach(
-                        (
-                          completed
-                        ) => {
-
-                          if (
-                            completed
-                          ) {
-
-                            productivityScore +=
-                              10;
-
-                            completedHabits += 1;
-                          }
-                        }
-                      );
-                    }
-                  );
-
-                  streakScore =
-                    Math.floor(
-                      completedHabits
-                      / 5
-                    );
-                }
-
-                const totalScore =
-
-                  productivityScore
-                  +
-                  streakScore
-                  +
-                  (
-                    solvedQuestions
-                    * 5
-                  );
-
-                leaderboard.push({
-
-                  ...user,
-
-                  productivityScore,
-
-                  streakScore,
-
-                  solvedQuestions,
-
-                  totalScore,
-                });
-              }
-            }
-          );
-
-          leaderboard.sort(
-            (a, b) =>
-
-              b.totalScore
-              -
-              a.totalScore
-          );
-
-          setStudents(
-            leaderboard
-          );
-
-          if (
-            leaderboard.length >
-            0
-          ) {
-
-            setTopPerformer(
-              leaderboard[0]
-            );
-          }
-
-        } catch (error) {
-
-          console.log(error);
-
-          alert(
-            "Failed to load leaderboard"
-          );
-        }
-      };
 
     loadLeaderboard();
 
   }, []);
 
+  const loadLeaderboard =
+    async () => {
+
+      try {
+
+        onSnapshot(
+
+          collection(
+            db,
+            "users"
+          ),
+
+          (snapshot) => {
+
+            const users =
+              snapshot.docs
+
+                .map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }))
+
+                .filter(
+                  (user) =>
+                    user.role ===
+                    "student"
+                )
+
+                .sort(
+                  (a, b) =>
+
+                    (
+                      b.xp || 0
+                    ) -
+
+                    (
+                      a.xp || 0
+                    )
+                );
+
+            setStudents(users);
+
+            setLoading(false);
+
+          }
+        );
+
+      } catch (error) {
+
+        console.log(error);
+
+        setLoading(false);
+
+      }
+    };
+
   return (
 
-    <div>
+    <div className="space-y-8">
 
-      <h1 className="text-5xl font-bold mb-10">
+      <div className="rounded-[36px] border border-white/10 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 backdrop-blur-xl p-10 shadow-2xl">
 
-        🏆 Advanced Leaderboard
+        <p className="text-yellow-400 uppercase tracking-[6px] text-sm font-semibold">
 
-      </h1>
+          Productivity Rankings
 
-      {/* TOP PERFORMER */}
+        </p>
 
-      {
-        topPerformer && (
+        <h1 className="text-6xl font-black mt-5">
 
-          <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-8 rounded-3xl shadow-2xl mb-10 text-black">
+          🏆 Global Leaderboard
 
-            <h2 className="text-4xl font-bold mb-4">
+        </h1>
 
-              👑 Top Performer
+        <p className="text-slate-400 text-lg mt-5">
 
-            </h2>
+          Ranked by real productivity activity and consistency.
 
-            <div className="flex items-center gap-6">
+        </p>
 
-              <img
-                src={
-                  topPerformer.photo
-                }
+      </div>
 
-                alt="profile"
+      <div className="space-y-5">
 
-                className="w-24 h-24 rounded-full border-4 border-white"
-              />
+        {
+          loading
 
-              <div>
+            ? (
 
-                <h3 className="text-3xl font-bold">
+              <div className="text-center py-20 text-slate-400">
 
-                  {
-                    topPerformer.name
-                  }
-
-                </h3>
-
-                <p className="text-xl mt-2">
-
-                  {
-                    topPerformer.totalScore
-                  }
-                  {" "}
-                  pts
-
-                </p>
+                Loading rankings...
 
               </div>
+            )
 
-            </div>
+            : students.map(
+                (
+                  student,
+                  index
+                ) => (
 
-          </div>
-        )
-      }
+                  <motion.div
+                    key={student.id}
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      delay:
+                        index * 0.05,
+                    }}
+                    className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+                  >
 
-      {/* LEADERBOARD */}
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-      <div className="space-y-6">
+                      <div className="flex items-center gap-5">
 
-        {students.map(
-          (
-            student,
-            index
-          ) => (
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-black">
 
-            <div
-              key={index}
+                          #
+                          {index + 1}
 
-              className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-6 rounded-3xl shadow-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
-            >
+                        </div>
 
-              <div className="flex items-center gap-5">
+                        <img
+                          src={
+                            student.photo ||
 
-                <div className="text-4xl font-bold text-cyan-400">
+                            `https://ui-avatars.com/api/?name=${student.name}`
+                          }
+                          alt="student"
+                          className="w-16 h-16 rounded-2xl object-cover border border-white/10"
+                        />
 
-                  #{index + 1}
+                        <div>
 
-                </div>
+                          <h2 className="text-3xl font-black">
 
-                <img
-                  src={student.photo}
-                  alt="profile"
+                            {student.name}
 
-                  className="w-16 h-16 rounded-full"
-                />
+                          </h2>
 
-                <div>
+                          <p className="text-slate-400 mt-2">
 
-                  <h2 className="text-2xl font-bold">
+                            {student.email}
 
-                    {student.name}
+                          </p>
 
-                  </h2>
+                        </div>
 
-                  <p className="text-slate-300">
+                      </div>
 
-                    {student.email}
+                      <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 rounded-2xl px-8 py-5">
 
-                  </p>
+                        <p className="text-cyan-300 text-sm">
 
-                </div>
+                          Total XP
 
-              </div>
+                        </p>
 
-              {/* STATS */}
+                        <h3 className="text-5xl font-black text-cyan-400 mt-2">
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {
+                            student.xp ||
+                            0
+                          }
 
-                <div className="bg-slate-900 p-4 rounded-2xl text-center">
+                        </h3>
 
-                  <p className="text-sm text-slate-400">
+                      </div>
 
-                    Productivity
+                    </div>
 
-                  </p>
-
-                  <p className="text-xl font-bold text-cyan-400">
-
-                    {
-                      student.productivityScore
-                    }
-
-                  </p>
-
-                </div>
-
-                <div className="bg-slate-900 p-4 rounded-2xl text-center">
-
-                  <p className="text-sm text-slate-400">
-
-                    Streak
-
-                  </p>
-
-                  <p className="text-xl font-bold text-orange-400">
-
-                    {
-                      student.streakScore
-                    }
-
-                  </p>
-
-                </div>
-
-                <div className="bg-slate-900 p-4 rounded-2xl text-center">
-
-                  <p className="text-sm text-slate-400">
-
-                    Questions
-
-                  </p>
-
-                  <p className="text-xl font-bold text-green-400">
-
-                    {
-                      student.solvedQuestions
-                    }
-
-                  </p>
-
-                </div>
-
-                <div className="bg-slate-900 p-4 rounded-2xl text-center">
-
-                  <p className="text-sm text-slate-400">
-
-                    Total Score
-
-                  </p>
-
-                  <p className="text-xl font-bold text-yellow-400">
-
-                    {
-                      student.totalScore
-                    }
-
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-          )
-        )}
+                  </motion.div>
+                )
+              )
+        }
 
       </div>
 

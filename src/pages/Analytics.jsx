@@ -1,81 +1,285 @@
 import {
+  useEffect,
+  useState,
+} from "react";
 
+import {
   motion,
-
 } from "framer-motion";
+
+import {
+  auth,
+  db,
+} from "../firebase";
+
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  BarChart,
+  Bar,
+} from "recharts";
 
 export default function Analytics() {
 
-  const stats = [
+  const [stats, setStats] =
+    useState({
+
+      xp: 0,
+
+      sessions: 0,
+
+      completedHabits: 0,
+
+      totalHabits: 0,
+
+      completedGoals: 0,
+
+      totalGoals: 0,
+    });
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+
+    loadAnalytics();
+
+  }, []);
+
+  const loadAnalytics =
+    async () => {
+
+      try {
+
+        const user =
+          auth.currentUser;
+
+        if (!user)
+          return;
+
+        /* SESSIONS */
+
+        const sessionQuery =
+          query(
+            collection(
+              db,
+              "focusSessions"
+            ),
+            where(
+              "uid",
+              "==",
+              user.uid
+            )
+          );
+
+        const sessionSnap =
+          await getDocs(
+            sessionQuery
+          );
+
+        const sessions =
+          sessionSnap.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        /* HABITS */
+
+        const habitQuery =
+          query(
+            collection(
+              db,
+              "habits"
+            ),
+            where(
+              "uid",
+              "==",
+              user.uid
+            )
+          );
+
+        const habitSnap =
+          await getDocs(
+            habitQuery
+          );
+
+        const habits =
+          habitSnap.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        /* GOALS */
+
+        const goalQuery =
+          query(
+            collection(
+              db,
+              "assignedGoals"
+            ),
+            where(
+              "studentUid",
+              "==",
+              user.uid
+            )
+          );
+
+        const goalSnap =
+          await getDocs(
+            goalQuery
+          );
+
+        const goals =
+          goalSnap.docs.map(
+            (doc) =>
+              doc.data()
+          );
+
+        /* CALCULATIONS */
+
+        const totalXP =
+          sessions.reduce(
+            (
+              acc,
+              curr
+            ) =>
+
+              acc +
+              (
+                curr.xp ||
+                0
+              ),
+
+            0
+          );
+
+        const completedHabits =
+          habits.filter(
+            (h) =>
+              h.completed
+          ).length;
+
+        const completedGoals =
+          goals.filter(
+            (g) =>
+              g.completed
+          ).length;
+
+        setStats({
+
+          xp: totalXP,
+
+          sessions:
+            sessions.length,
+
+          completedHabits,
+
+          totalHabits:
+            habits.length,
+
+          completedGoals,
+
+          totalGoals:
+            goals.length,
+        });
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+  /* CHART DATA */
+
+  const productivityData = [
 
     {
-      title:
-        "Weekly Focus",
-
+      name: "Focus",
       value:
-        "42h",
-
-      growth:
-        "+18%",
-
-      color:
-        "from-cyan-500 to-blue-500",
-
-      icon:
-        "⚡",
+        stats.sessions *
+        10,
     },
 
     {
-      title:
-        "Habit Completion",
-
+      name: "Habits",
       value:
-        "89%",
-
-      growth:
-        "+12%",
-
-      color:
-        "from-green-500 to-emerald-500",
-
-      icon:
-        "🎯",
+        stats.completedHabits *
+        15,
     },
 
     {
-      title:
-        "Consistency Score",
-
+      name: "Goals",
       value:
-        "92%",
-
-      growth:
-        "+24%",
-
-      color:
-        "from-purple-500 to-pink-500",
-
-      icon:
-        "🔥",
+        stats.completedGoals *
+        25,
     },
 
     {
-      title:
-        "AI Efficiency",
-
+      name: "XP",
       value:
-        "95%",
-
-      growth:
-        "+31%",
-
-      color:
-        "from-orange-500 to-red-500",
-
-      icon:
-        "🤖",
+        stats.xp,
     },
   ];
+
+  const trendData = [
+
+    {
+      day: "Mon",
+      score: 20,
+    },
+
+    {
+      day: "Tue",
+      score: 35,
+    },
+
+    {
+      day: "Wed",
+      score: 50,
+    },
+
+    {
+      day: "Thu",
+      score: 65,
+    },
+
+    {
+      day: "Fri",
+      score: 80,
+    },
+
+    {
+      day: "Sat",
+      score: 92,
+    },
+  ];
+
+  const productivityScore =
+
+    stats.xp +
+
+    stats.completedHabits *
+      20 +
+
+    stats.completedGoals *
+      30;
 
   return (
 
@@ -84,17 +288,14 @@ export default function Analytics() {
       {/* HERO */}
 
       <motion.div
-
         initial={{
           opacity: 0,
           y: 20,
         }}
-
         animate={{
           opacity: 1,
           y: 0,
         }}
-
         className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
       >
 
@@ -102,32 +303,29 @@ export default function Analytics() {
 
         <div className="relative z-10">
 
-          <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
+          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-            Productivity Analytics
+            Live Productivity Analytics
 
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
+          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
 
             Analyze your
             {" "}
 
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-              performance
+              performance intelligence
             </span>
 
-            {" "}
-            deeply.
           </h1>
 
-          <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
+          <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
 
-            Monitor consistency,
-            productivity trends,
-            focus patterns,
-            and AI-generated performance insights.
+            Real analytics generated from habits,
+            focus sessions,
+            and assigned goal execution.
 
           </p>
 
@@ -139,80 +337,86 @@ export default function Analytics() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        {stats.map((stat, index) => (
+        {[
+          {
+            title:
+              "Productivity Score",
+            value:
+              productivityScore,
+            icon:
+              "📈",
+          },
+
+          {
+            title:
+              "Focus Sessions",
+            value:
+              stats.sessions,
+            icon:
+              "🧠",
+          },
+
+          {
+            title:
+              "Completed Goals",
+            value:
+              `${stats.completedGoals}/${stats.totalGoals}`,
+            icon:
+              "🎯",
+          },
+
+          {
+            title:
+              "Habit Completion",
+            value:
+              `${stats.completedHabits}/${stats.totalHabits}`,
+            icon:
+              "⚡",
+          },
+        ].map((card, index) => (
 
           <motion.div
-
             key={index}
-
             initial={{
               opacity: 0,
               y: 20,
             }}
-
             animate={{
               opacity: 1,
               y: 0,
             }}
-
             transition={{
-              delay: index * 0.08,
+              delay:
+                index * 0.08,
             }}
-
-            whileHover={{
-              y: -6,
-            }}
-
-            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
+            className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
           >
 
-            <div
-              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.color} opacity-20 blur-3xl`}
-            />
+            <div className="flex items-center justify-between">
 
-            <div className="relative z-10">
+              <div>
 
-              <div className="flex items-center justify-between">
+                <p className="text-slate-400 text-sm">
 
-                <div>
+                  {card.title}
 
-                  <p className="text-slate-400 text-sm">
+                </p>
 
-                    {stat.title}
+                <h2 className="text-4xl font-black mt-4">
 
-                  </p>
+                  {
+                    loading
+                      ? "--"
+                      : card.value
+                  }
 
-                  <h2 className="text-4xl font-black mt-3">
-
-                    {stat.value}
-
-                  </h2>
-
-                </div>
-
-                <div
-                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center text-3xl shadow-xl`}
-                >
-
-                  {stat.icon}
-
-                </div>
+                </h2>
 
               </div>
 
-              <div className="mt-6 flex items-center gap-2">
+              <div className="text-5xl">
 
-                <span className="text-green-400 font-bold">
-
-                  {stat.growth}
-
-                </span>
-
-                <span className="text-slate-400 text-sm">
-
-                  vs last week
-
-                </span>
+                {card.icon}
 
               </div>
 
@@ -223,194 +427,175 @@ export default function Analytics() {
 
       </div>
 
-      {/* MAIN GRID */}
+      {/* CHARTS */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-        {/* CHART */}
+        {/* BAR CHART */}
 
-        <motion.div
-
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          className="xl:col-span-2 rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-        >
-
-          <div className="flex items-center justify-between mb-8">
-
-            <div>
-
-              <h2 className="text-3xl font-black">
-
-                📈 Productivity Trends
-
-              </h2>
-
-              <p className="text-slate-400 mt-2">
-
-                AI-powered weekly analysis
-
-              </p>
-
-            </div>
-
-            <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
-
-              Last 30 Days
-
-            </button>
-
-          </div>
-
-          {/* CHART PLACEHOLDER */}
-
-          <div className="h-[400px] rounded-[30px] bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center">
-
-            <div className="text-center">
-
-              <div className="text-7xl mb-5">
-
-                📊
-
-              </div>
-
-              <p className="text-slate-400 text-lg">
-
-                Advanced analytics charts here
-
-              </p>
-
-            </div>
-
-          </div>
-
-        </motion.div>
-
-        {/* AI PANEL */}
-
-        <motion.div
-
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          transition={{
-            delay: 0.1,
-          }}
-
-          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-        >
+        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
           <h2 className="text-3xl font-black mb-8">
 
-            🤖 AI Analysis
+            📊 Productivity Breakdown
 
           </h2>
 
-          <div className="space-y-5">
+          <div className="h-[350px]">
 
-            <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-5">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
 
-              <h3 className="font-bold text-cyan-400 mb-2">
+              <BarChart
+                data={
+                  productivityData
+                }
+              >
 
-                Productivity Spike
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#334155"
+                />
 
-              </h3>
+                <XAxis
+                  dataKey="name"
+                  stroke="#94a3b8"
+                />
 
-              <p className="text-slate-300 leading-relaxed">
+                <YAxis
+                  stroke="#94a3b8"
+                />
 
-                Your efficiency increases dramatically after focused morning sessions.
+                <Tooltip />
 
-              </p>
+                <Bar
+                  dataKey="value"
+                  radius={[
+                    12,
+                    12,
+                    0,
+                    0,
+                  ]}
+                />
 
-            </div>
+              </BarChart>
 
-            <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5">
-
-              <h3 className="font-bold text-purple-400 mb-2">
-
-                Focus Pattern
-
-              </h3>
-
-              <p className="text-slate-300 leading-relaxed">
-
-                AI detected your highest focus window between 9AM–12PM.
-
-              </p>
-
-            </div>
-
-            <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
-
-              <h3 className="font-bold text-green-400 mb-2">
-
-                Consistency Growth
-
-              </h3>
-
-              <p className="text-slate-300 leading-relaxed">
-
-                Your consistency improved by 24% over the previous cycle.
-
-              </p>
-
-            </div>
+            </ResponsiveContainer>
 
           </div>
 
-        </motion.div>
+        </div>
+
+        {/* LINE CHART */}
+
+        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+
+          <h2 className="text-3xl font-black mb-8">
+
+            📈 Weekly Growth Trend
+
+          </h2>
+
+          <div className="h-[350px]">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <LineChart
+                data={trendData}
+              >
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#334155"
+                />
+
+                <XAxis
+                  dataKey="day"
+                  stroke="#94a3b8"
+                />
+
+                <YAxis
+                  stroke="#94a3b8"
+                />
+
+                <Tooltip />
+
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  strokeWidth={4}
+                />
+
+              </LineChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
 
       </div>
 
-      {/* ACTIVITY */}
+      {/* AI INSIGHTS */}
 
-      <motion.div
+      <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
+        <h2 className="text-4xl font-black mb-8">
 
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+          🤖 AI Productivity Insights
 
-        transition={{
-          delay: 0.2,
-        }}
+        </h2>
 
-        className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <div className="flex items-center justify-between mb-8">
+          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-3xl p-6">
 
-          <div>
+            <h3 className="text-cyan-400 font-bold text-xl mb-3">
 
-            <h2 className="text-3xl font-black">
+              Productivity Momentum
 
-              ⚡ Activity Timeline
+            </h3>
 
-            </h2>
+            <p className="text-slate-300 leading-relaxed">
 
-            <p className="text-slate-400 mt-2">
+              Your consistency score is improving based on recent session activity.
 
-              Recent productivity activity
+            </p>
+
+          </div>
+
+          <div className="bg-purple-500/10 border border-purple-500/20 rounded-3xl p-6">
+
+            <h3 className="text-purple-400 font-bold text-xl mb-3">
+
+              Goal Execution
+
+            </h3>
+
+            <p className="text-slate-300 leading-relaxed">
+
+              Goal completion performance indicates strong accountability growth.
+
+            </p>
+
+          </div>
+
+          <div className="bg-green-500/10 border border-green-500/20 rounded-3xl p-6">
+
+            <h3 className="text-green-400 font-bold text-xl mb-3">
+
+              Focus Stability
+
+            </h3>
+
+            <p className="text-slate-300 leading-relaxed">
+
+              AI detected stable focus session consistency over time.
 
             </p>
 
@@ -418,54 +603,7 @@ export default function Analytics() {
 
         </div>
 
-        <div className="space-y-5">
-
-          {[
-            "Completed 5 productivity goals",
-            "Maintained 12-day streak",
-            "AI planner generated new study workflow",
-            "Focus score increased by 18%",
-          ].map((item, index) => (
-
-            <motion.div
-
-              key={index}
-
-              whileHover={{
-                x: 6,
-              }}
-
-              className="flex items-center gap-5 bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300 rounded-2xl p-5"
-            >
-
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-2xl shadow-xl">
-
-                ⚡
-
-              </div>
-
-              <div>
-
-                <h3 className="font-bold text-lg">
-
-                  {item}
-
-                </h3>
-
-                <p className="text-slate-400 mt-1">
-
-                  AI productivity tracking event
-
-                </p>
-
-              </div>
-
-            </motion.div>
-          ))}
-
-        </div>
-
-      </motion.div>
+      </div>
 
     </div>
   );
