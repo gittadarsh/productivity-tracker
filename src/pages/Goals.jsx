@@ -1,150 +1,376 @@
-import { useState, useEffect } from "react";
+import {
+
+  useState,
+
+} from "react";
+
+import {
+
+  motion,
+
+} from "framer-motion";
 
 export default function Goals() {
 
-  const [goalInput, setGoalInput] =
-    useState("");
+  const [
+    goals,
+    setGoals
+  ] = useState([
 
-  const [goals, setGoals] = useState(() => {
+    {
+      title:
+        "Complete DSA Practice",
 
-    const saved =
-      localStorage.getItem("goals");
+      progress:
+        75,
 
-    return saved ? JSON.parse(saved) : [];
+      color:
+        "from-cyan-500 to-blue-500",
+    },
 
-  });
+    {
+      title:
+        "Workout Consistency",
 
-  useEffect(() => {
+      progress:
+        58,
 
-    localStorage.setItem(
-      "goals",
-      JSON.stringify(goals)
-    );
+      color:
+        "from-orange-500 to-red-500",
+    },
 
-  }, [goals]);
+    {
+      title:
+        "Study 5 Hours Daily",
 
-  const addGoal = () => {
+      progress:
+        90,
 
-    if (!goalInput.trim()) return;
+      color:
+        "from-green-500 to-emerald-500",
+    },
+  ]);
 
-    const newGoal = {
-      id: Date.now(),
+  const [
+    newGoal,
+    setNewGoal
+  ] = useState("");
 
-      title: goalInput,
+  /* ADD GOAL */
 
-      progress: 0,
+  const addGoal =
+    () => {
+
+      if (!newGoal.trim())
+        return;
+
+      setGoals([
+
+        ...goals,
+
+        {
+          title:
+            newGoal,
+
+          progress:
+            0,
+
+          color:
+            "from-purple-500 to-pink-500",
+        },
+      ]);
+
+      setNewGoal("");
     };
-
-    setGoals([...goals, newGoal]);
-
-    setGoalInput("");
-  };
-
-  const increaseProgress = (id) => {
-
-    setGoals(
-      goals.map((goal) =>
-
-        goal.id === id
-          ? {
-              ...goal,
-
-              progress:
-                goal.progress >= 100
-                  ? 100
-                  : goal.progress + 10,
-            }
-          : goal
-      )
-    );
-  };
 
   return (
 
-    <div>
+    <div className="space-y-8">
 
-      {/* TITLE */}
+      {/* HERO */}
 
-      <h1 className="text-5xl font-bold mb-10">
-        🎯 Goals
-      </h1>
+      <motion.div
+
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+      >
+
+        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
+
+        <div className="relative z-10">
+
+          <p className="text-purple-400 font-semibold tracking-widest uppercase mb-3">
+
+            Goal Management System
+
+          </p>
+
+          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
+
+            Build
+            {" "}
+
+            <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+
+              long-term
+            </span>
+
+            {" "}
+            consistency.
+          </h1>
+
+          <p className="text-slate-400 text-lg mt-6 max-w-2xl leading-relaxed">
+
+            Set meaningful goals,
+            track progress,
+            and stay consistent with AI-powered productivity workflows.
+
+          </p>
+
+        </div>
+
+      </motion.div>
 
       {/* ADD GOAL */}
 
-      <div className="flex gap-4 mb-10">
+      <motion.div
 
-        <input
-          type="text"
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
 
-          placeholder="Enter your goal..."
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-          value={goalInput}
+        transition={{
+          delay: 0.1,
+        }}
 
-          onChange={(e) =>
-            setGoalInput(e.target.value)
-          }
+        className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+      >
 
-          className="flex-1 p-4 rounded-2xl bg-slate-800 text-white outline-none"
-        />
+        <div className="flex flex-col lg:flex-row gap-4">
 
-        <button
-          onClick={addGoal}
+          <input
+            type="text"
 
-          className="bg-cyan-500 px-8 py-4 rounded-2xl font-bold hover:bg-cyan-400 transition"
-        >
-          Add Goal
-        </button>
+            value={newGoal}
 
-      </div>
+            onChange={(e) =>
+              setNewGoal(
+                e.target.value
+              )
+            }
 
-      {/* GOALS LIST */}
+            placeholder="Enter your new productivity goal..."
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            className="flex-1 bg-white/5 border border-white/10 focus:border-cyan-400 transition-all duration-300 outline-none px-6 py-5 rounded-2xl text-lg placeholder:text-slate-500"
+          />
 
-        {goals.map((goal) => (
+          <button
+            onClick={addGoal}
 
-          <div
-            key={goal.id}
-
-            className="bg-slate-800 p-8 rounded-3xl shadow-xl"
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-5 rounded-2xl font-bold shadow-2xl"
           >
 
-            <h2 className="text-3xl font-bold mb-6">
-              {goal.title}
-            </h2>
+            ➕ Add Goal
 
-            {/* PROGRESS BAR */}
+          </button>
 
-            <div className="w-full bg-slate-700 h-5 rounded-full mb-4">
+        </div>
 
-              <div
-                className="bg-green-500 h-5 rounded-full transition-all duration-300"
+      </motion.div>
 
-                style={{
-                  width: `${goal.progress}%`,
-                }}
-              />
+      {/* GOALS GRID */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+
+        {goals.map((goal, index) => (
+
+          <motion.div
+
+            key={index}
+
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
+
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+
+            transition={{
+              delay: index * 0.08,
+            }}
+
+            whileHover={{
+              y: -6,
+            }}
+
+            className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+          >
+
+            {/* GLOW */}
+
+            <div
+              className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-br ${goal.color} opacity-20 blur-3xl`}
+            />
+
+            <div className="relative z-10">
+
+              {/* HEADER */}
+
+              <div className="flex items-start justify-between gap-4">
+
+                <div>
+
+                  <h2 className="text-2xl font-black leading-snug">
+
+                    {goal.title}
+
+                  </h2>
+
+                  <p className="text-slate-400 mt-2">
+
+                    Goal Progress Tracking
+
+                  </p>
+
+                </div>
+
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${goal.color} flex items-center justify-center text-2xl shadow-xl`}
+                >
+
+                  🎯
+
+                </div>
+
+              </div>
+
+              {/* PROGRESS */}
+
+              <div className="mt-10">
+
+                <div className="flex items-center justify-between mb-3">
+
+                  <span className="text-slate-400">
+
+                    Completion
+
+                  </span>
+
+                  <span className="font-bold text-xl">
+
+                    {goal.progress}%
+
+                  </span>
+
+                </div>
+
+                <div className="h-4 bg-white/5 rounded-full overflow-hidden">
+
+                  <motion.div
+
+                    initial={{
+                      width: 0,
+                    }}
+
+                    animate={{
+                      width:
+                        `${goal.progress}%`,
+                    }}
+
+                    transition={{
+                      duration: 1,
+                    }}
+
+                    className={`h-full bg-gradient-to-r ${goal.color} rounded-full shadow-lg`}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* FOOTER */}
+
+              <div className="flex items-center justify-between mt-10">
+
+                <button className="bg-white/5 hover:bg-white/10 border border-white/10 transition px-5 py-3 rounded-2xl">
+
+                  ✏ Edit
+
+                </button>
+
+                <button className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition px-5 py-3 rounded-2xl text-red-400">
+
+                  🗑 Delete
+
+                </button>
+
+              </div>
 
             </div>
 
-            <p className="text-xl mb-6">
-              {goal.progress}% Completed
-            </p>
-
-            <button
-              onClick={() =>
-                increaseProgress(goal.id)
-              }
-
-              className="bg-green-500 px-6 py-3 rounded-xl font-semibold hover:bg-green-400 transition"
-            >
-              Increase Progress
-            </button>
-
-          </div>
+          </motion.div>
         ))}
 
       </div>
+
+      {/* EMPTY STATE */}
+
+      {
+        goals.length === 0 && (
+
+          <motion.div
+
+            initial={{
+              opacity: 0,
+            }}
+
+            animate={{
+              opacity: 1,
+            }}
+
+            className="rounded-[36px] border border-dashed border-white/10 bg-white/5 backdrop-blur-xl p-16 text-center"
+          >
+
+            <div className="text-8xl mb-6">
+
+              🎯
+
+            </div>
+
+            <h2 className="text-4xl font-black mb-4">
+
+              No Goals Yet
+
+            </h2>
+
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+
+              Create your first productivity goal
+              and start building unstoppable consistency.
+
+            </p>
+
+          </motion.div>
+        )
+      }
 
     </div>
   );
