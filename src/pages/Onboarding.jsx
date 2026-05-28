@@ -6,10 +6,9 @@ import {
 
 import {
 
-  doc,
-  setDoc,
+  motion,
 
-} from "firebase/firestore";
+} from "framer-motion";
 
 import {
 
@@ -20,17 +19,18 @@ import {
 
 import {
 
+  doc,
+  setDoc,
+
+} from "firebase/firestore";
+
+import {
+
   useNavigate,
 
 } from "react-router-dom";
 
 import toast from "react-hot-toast";
-
-import {
-
-  motion,
-
-} from "framer-motion";
 
 export default function Onboarding() {
 
@@ -52,19 +52,15 @@ export default function Onboarding() {
   const navigate =
     useNavigate();
 
-  /* CONTINUE */
+  /* SAVE */
 
   const handleContinue =
     async () => {
 
-      if (!role) {
-
-        toast.error(
-          "Please select a role"
+      if (!role)
+        return toast.error(
+          "Select a role"
         );
-
-        return;
-      }
 
       try {
 
@@ -72,6 +68,23 @@ export default function Onboarding() {
 
         const user =
           auth.currentUser;
+
+        if (!user)
+          return;
+
+        const generatedMentorId =
+          role ===
+          "mentor"
+
+            ? Math.random()
+                .toString(36)
+                .substring(
+                  2,
+                  8
+                )
+                .toUpperCase()
+
+            : null;
 
         await setDoc(
 
@@ -82,7 +95,6 @@ export default function Onboarding() {
           ),
 
           {
-
             uid:
               user.uid,
 
@@ -93,49 +105,48 @@ export default function Onboarding() {
               user.email,
 
             photo:
-              user.photoURL || "",
+              user.photoURL,
 
             role,
 
             mentorId:
-              mentorId || null,
+              role ===
+              "student"
+
+                ? mentorId ||
+                  null
+
+                : generatedMentorId,
+
+            xp: 0,
+
+            totalSessions: 0,
 
             createdAt:
               new Date(),
-          },
-
-          {
-            merge: true,
           }
         );
 
         toast.success(
-          "Profile setup complete 🚀"
+          "Profile setup complete"
         );
 
-        /* REDIRECT */
+        navigate(
 
-        if (
-          role === "mentor"
-        ) {
+          role ===
+          "mentor"
 
-          navigate(
-            "/mentor"
-          );
+            ? "/mentor"
 
-        } else {
-
-          navigate(
-            "/dashboard"
-          );
-        }
+            : "/dashboard"
+        );
 
       } catch (error) {
 
         console.log(error);
 
         toast.error(
-          "Onboarding failed"
+          "Failed to save profile"
         );
 
       } finally {
@@ -146,162 +157,186 @@ export default function Onboarding() {
 
   return (
 
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6 overflow-hidden">
-
-      {/* BACKGROUND BLUR */}
-
-      <div className="absolute w-[500px] h-[500px] bg-cyan-500/20 blur-[120px] rounded-full top-[-100px] left-[-100px]" />
-
-      <div className="absolute w-[500px] h-[500px] bg-blue-500/20 blur-[120px] rounded-full bottom-[-100px] right-[-100px]" />
+    <div className="min-h-screen flex items-center justify-center px-4">
 
       <motion.div
 
         initial={{
-
           opacity: 0,
-
-          scale: 0.95,
+          y: 30,
         }}
 
         animate={{
-
           opacity: 1,
-
-          scale: 1,
+          y: 0,
         }}
 
-        transition={{
-
-          duration: 0.5,
-        }}
-
-        className="relative z-10 w-full max-w-2xl"
+        className="w-full max-w-3xl rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-2xl p-10 shadow-[0_20px_120px_rgba(0,0,0,0.55)] relative overflow-hidden"
       >
 
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl rounded-[40px] p-10 md:p-14">
+        {/* GLOW */}
 
-          {/* HEADER */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
-          <div className="text-center mb-12">
+        <div className="relative z-10">
 
-            <h1 className="text-5xl md:text-6xl font-black leading-tight">
+          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-              Welcome 🚀
+            Productivity Platform Setup
 
-            </h1>
+          </p>
 
-            <p className="text-slate-400 text-xl mt-5 leading-relaxed">
+          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
 
-              Let’s personalize your
-              productivity experience.
+            Choose your
+            {" "}
 
-            </p>
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-          </div>
+              workspace role
+            </span>
 
-          {/* ROLE */}
+          </h1>
 
-          <div className="mb-10">
+          <p className="text-slate-400 text-lg mt-6 leading-relaxed">
 
-            <h2 className="text-2xl font-bold mb-6">
+            Join as a student to track productivity,
+            or as a mentor to monitor and guide students.
 
-              Select Your Role
+          </p>
 
-            </h2>
+          {/* ROLE CARDS */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 mt-10">
 
-              <button
-                onClick={() =>
-                  setRole(
-                    "student"
-                  )
-                }
+            {/* STUDENT */}
 
-                className={`p-8 rounded-3xl border transition-all duration-300 text-left
+            <motion.button
 
-                ${
-                  role ===
+              whileHover={{
+                y: -6,
+              }}
+
+              onClick={() =>
+                setRole(
                   "student"
+                )
+              }
 
-                    ? "border-cyan-400 bg-cyan-500/10 scale-[1.02]"
+              className={`
 
-                    : "border-slate-700 hover:border-cyan-500"
-                }`}
-              >
+              rounded-[32px]
 
-                <h3 className="text-3xl font-bold mb-3">
+              border
 
-                  🎓 Student
+              p-8
 
-                </h3>
+              text-left
 
-                <p className="text-slate-400 text-lg">
+              transition-all duration-300
 
-                  Track habits,
-                  improve productivity,
-                  and collaborate
-                  with mentors.
+              ${
+                role ===
+                "student"
 
-                </p>
+                  ? "border-cyan-400 bg-cyan-500/10"
 
-              </button>
+                  : "border-white/10 bg-white/5 hover:bg-white/10"
+              }`}
+            >
 
-              <button
-                onClick={() =>
-                  setRole(
-                    "mentor"
-                  )
-                }
+              <div className="text-6xl">
 
-                className={`p-8 rounded-3xl border transition-all duration-300 text-left
+                🎓
 
-                ${
-                  role ===
+              </div>
+
+              <h2 className="text-3xl font-black mt-6">
+
+                Student
+
+              </h2>
+
+              <p className="text-slate-400 mt-4 leading-relaxed">
+
+                Track habits, focus sessions,
+                goals, streaks, and productivity analytics.
+
+              </p>
+
+            </motion.button>
+
+            {/* MENTOR */}
+
+            <motion.button
+
+              whileHover={{
+                y: -6,
+              }}
+
+              onClick={() =>
+                setRole(
                   "mentor"
+                )
+              }
 
-                    ? "border-cyan-400 bg-cyan-500/10 scale-[1.02]"
+              className={`
 
-                    : "border-slate-700 hover:border-cyan-500"
-                }`}
-              >
+              rounded-[32px]
 
-                <h3 className="text-3xl font-bold mb-3">
+              border
 
-                  👨‍🏫 Mentor
+              p-8
 
-                </h3>
+              text-left
 
-                <p className="text-slate-400 text-lg">
+              transition-all duration-300
 
-                  Guide students,
-                  monitor productivity,
-                  and manage progress.
+              ${
+                role ===
+                "mentor"
 
-                </p>
+                  ? "border-purple-400 bg-purple-500/10"
 
-              </button>
+                  : "border-white/10 bg-white/5 hover:bg-white/10"
+              }`}
+            >
 
-            </div>
+              <div className="text-6xl">
+
+                🧠
+
+              </div>
+
+              <h2 className="text-3xl font-black mt-6">
+
+                Mentor
+
+              </h2>
+
+              <p className="text-slate-400 mt-4 leading-relaxed">
+
+                Monitor student performance,
+                analytics, focus consistency,
+                and productivity growth.
+
+              </p>
+
+            </motion.button>
 
           </div>
 
-          {/* OPTIONAL MENTOR ID */}
+          {/* STUDENT MENTOR ID */}
 
           {
             role ===
             "student" && (
 
-              <div className="mb-10">
+              <div className="mt-10">
 
-                <label className="block text-2xl font-bold mb-4">
+                <label className="block text-slate-300 mb-4 font-semibold">
 
-                  Mentor ID
-                  {" "}
-                  <span className="text-slate-400 text-lg">
-
-                    (Optional)
-                  </span>
+                  Mentor ID (Optional)
 
                 </label>
 
@@ -312,36 +347,31 @@ export default function Onboarding() {
 
                   onChange={(e) =>
                     setMentorId(
-                      e.target.value
+                      e.target.value.toUpperCase()
                     )
                   }
 
                   placeholder="Enter mentor ID"
 
-                  className="w-full bg-slate-900/80 border border-slate-700 focus:border-cyan-400 outline-none transition p-5 rounded-2xl text-lg"
+                  className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 transition-all duration-300 outline-none px-6 py-5 rounded-2xl text-lg placeholder:text-slate-500"
                 />
-
-                <p className="text-slate-500 mt-3">
-
-                  You can also add or
-                  change mentor later.
-
-                </p>
 
               </div>
             )
           }
 
-          {/* BUTTON */}
+          {/* CONTINUE */}
 
           <button
             onClick={
               handleContinue
             }
 
-            disabled={loading}
+            disabled={
+              loading
+            }
 
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.01] transition-all duration-300 py-5 rounded-2xl text-black font-black text-xl shadow-2xl disabled:opacity-50"
+            className="w-full mt-12 bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.01] transition-all duration-300 py-5 rounded-2xl font-bold text-lg shadow-2xl"
           >
 
             {
@@ -349,7 +379,7 @@ export default function Onboarding() {
 
                 ? "Setting up..."
 
-                : "Continue 🚀"
+                : "Continue"
             }
 
           </button>
