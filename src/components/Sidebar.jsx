@@ -1,8 +1,15 @@
 import {
 
   Link,
+  useLocation,
 
 } from "react-router-dom";
+
+import {
+
+  motion,
+
+} from "framer-motion";
 
 export default function Sidebar({
 
@@ -10,20 +17,164 @@ export default function Sidebar({
 
   mobileMenu,
 
+  setMobileMenu,
+
+  handleLogout,
+
 }) {
+
+  const location =
+    useLocation();
+
+  const links = [
+
+    {
+      name:
+        "Dashboard",
+
+      path:
+        "/dashboard",
+
+      icon:
+        "🏠",
+    },
+
+    {
+      name:
+        "Goals",
+
+      path:
+        "/goals",
+
+      icon:
+        "🎯",
+    },
+
+    {
+      name:
+        "Analytics",
+
+      path:
+        "/analytics",
+
+      icon:
+        "📊",
+    },
+
+    {
+      name:
+        "Achievements",
+
+      path:
+        "/achievements",
+
+      icon:
+        "🏆",
+    },
+
+    {
+      name:
+        "Heatmap",
+
+      path:
+        "/heatmap",
+
+      icon:
+        "🔥",
+    },
+
+    {
+      name:
+        "AI Insights",
+
+      path:
+        "/insights",
+
+      icon:
+        "🤖",
+    },
+
+    {
+      name:
+        "Leaderboard",
+
+      path:
+        "/leaderboard",
+
+      icon:
+        "🥇",
+    },
+
+    {
+      name:
+        "Question Sheets",
+
+      path:
+        "/questions",
+
+      icon:
+        "📚",
+    },
+
+    {
+      name:
+        "AI Planner",
+
+      path:
+        "/planner",
+
+      icon:
+        "🧠",
+    },
+
+    {
+      name:
+        "Chat",
+
+      path:
+        "/chat",
+
+      icon:
+        "💬",
+    },
+  ];
 
   return (
 
-    <div
+    <motion.div
+
+      initial={{
+
+        x: -100,
+
+        opacity: 0,
+      }}
+
+      animate={{
+
+        x: 0,
+
+        opacity: 1,
+      }}
+
+      transition={{
+
+        duration: 0.4,
+      }}
+
       className={`
 
-      fixed md:static top-0 left-0 z-50
+      fixed top-0 left-0 z-50
 
-      h-screen
+      h-screen w-[290px]
 
-      w-[260px]
+      backdrop-blur-2xl
 
-      bg-slate-900 border-r border-slate-800
+      bg-slate-900/80
+
+      border-r border-white/10
+
+      shadow-2xl
 
       p-6
 
@@ -39,130 +190,213 @@ export default function Sidebar({
     `}
     >
 
+      {/* LOGO */}
+
       <div className="mb-10">
 
-        <h1 className="text-3xl font-bold text-cyan-400">
+        <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
           🚀 Tracker
 
         </h1>
 
-        <p className="text-slate-400 mt-2">
+        <p className="text-slate-400 mt-3 text-lg">
 
-          AI Productivity Platform
+          AI Productivity SaaS
 
         </p>
 
       </div>
 
-      <div className="flex flex-col gap-3 text-lg font-semibold">
+      {/* USER */}
 
-        <Link
-          to="/"
+      <div className="bg-white/5 border border-white/10 rounded-3xl p-5 mb-8">
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🏠 Dashboard
-        </Link>
+        <div className="flex items-center gap-4">
 
-        <Link
-          to="/goals"
+          <img
+            src={
+              user?.photo ||
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🎯 Goals
-        </Link>
+              `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
+            }
 
-        <Link
-          to="/analytics"
+            alt="profile"
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          📈 Analytics
-        </Link>
+            className="w-16 h-16 rounded-2xl border-2 border-cyan-400 object-cover"
+          />
 
-        <Link
-          to="/achievements"
+          <div>
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🏆 Achievements
-        </Link>
+            <h2 className="font-bold text-xl">
 
-        <Link
-          to="/heatmap"
+              {user?.name}
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🔥 Heatmap
-        </Link>
+            </h2>
 
-        <Link
-          to="/insights"
+            <p className="text-slate-400 capitalize">
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🤖 AI Insights
-        </Link>
+              {user?.role}
 
-        <Link
-          to="/leaderboard"
+            </p>
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🥇 Leaderboard
-        </Link>
+          </div>
 
-        <Link
-          to="/questions"
+        </div>
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          📚 Question Sheets
-        </Link>
+      </div>
 
-        <Link
-          to="/planner"
+      {/* NAVIGATION */}
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          🧠 AI Planner
-        </Link>
+      <div className="space-y-3">
 
-        <Link
-          to="/chat"
+        {links.map((link) => {
 
-          className="hover:bg-slate-800 px-4 py-3 rounded-xl transition"
-        >
-          💬 Chat
-        </Link>
+          const active =
+            location.pathname ===
+            link.path;
 
-        {
-          user?.role ===
-          "mentor" && (
+          return (
 
-            <>
+            <Link
+              key={link.path}
+
+              to={link.path}
+
+              onClick={() =>
+                setMobileMenu(
+                  false
+                )
+              }
+            >
+
+              <motion.div
+
+                whileHover={{
+
+                  scale: 1.02,
+                }}
+
+                whileTap={{
+
+                  scale: 0.98,
+                }}
+
+                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300
+
+                ${
+                  active
+
+                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-black shadow-xl"
+
+                    : "hover:bg-white/5 text-white"
+                }`}
+              >
+
+                <span className="text-2xl">
+
+                  {link.icon}
+
+                </span>
+
+                <span className="font-semibold text-lg">
+
+                  {link.name}
+
+                </span>
+
+              </motion.div>
+
+            </Link>
+          );
+        })}
+
+      </div>
+
+      {/* MENTOR LINKS */}
+
+      {
+        user?.role ===
+        "mentor" && (
+
+          <div className="mt-10">
+
+            <h3 className="text-slate-400 uppercase text-sm tracking-widest mb-4">
+
+              Mentor Tools
+
+            </h3>
+
+            <div className="space-y-3">
+
               <Link
                 to="/mentor"
-
-                className="hover:bg-cyan-500/20 text-cyan-400 px-4 py-3 rounded-xl transition"
               >
-                👨‍🏫 Mentor Dashboard
+
+                <div className="px-5 py-4 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
+
+                  <span className="text-2xl">
+
+                    👨‍🏫
+
+                  </span>
+
+                  <span className="font-semibold text-lg">
+
+                    Mentor Dashboard
+
+                  </span>
+
+                </div>
+
               </Link>
 
               <Link
                 to="/create-sheet"
-
-                className="hover:bg-cyan-500/20 text-cyan-400 px-4 py-3 rounded-xl transition"
               >
-                📝 Create Sheet
+
+                <div className="px-5 py-4 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
+
+                  <span className="text-2xl">
+
+                    📝
+
+                  </span>
+
+                  <span className="font-semibold text-lg">
+
+                    Create Sheet
+
+                  </span>
+
+                </div>
+
               </Link>
-            </>
-          )
-        }
+
+            </div>
+
+          </div>
+        )
+      }
+
+      {/* LOGOUT */}
+
+      <div className="absolute bottom-6 left-6 right-6">
+
+        <button
+          onClick={
+            handleLogout
+          }
+
+          className="w-full bg-red-500/90 hover:bg-red-500 transition py-4 rounded-2xl font-bold text-lg shadow-xl"
+        >
+
+          Logout
+
+        </button>
 
       </div>
 
-    </div>
+    </motion.div>
   );
 }

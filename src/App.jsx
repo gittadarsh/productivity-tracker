@@ -240,7 +240,7 @@ export default function App() {
         {/* SIDEBAR */}
 
         {
-          user && (
+          user?.role && (
 
             <Sidebar
               user={user}
@@ -266,7 +266,7 @@ export default function App() {
           className={`flex-1
 
           ${
-            user
+            user?.role
               ? "md:ml-[260px]"
               : ""
           }
@@ -277,7 +277,7 @@ export default function App() {
           {/* TOPBAR */}
 
           {
-            user && (
+            user?.role && (
 
               <div className="flex items-center justify-between mb-8">
 
