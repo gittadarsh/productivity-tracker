@@ -12,6 +12,26 @@ import {
 
 } from "framer-motion";
 
+import {
+
+  auth,
+  db,
+
+} from "../firebase";
+
+import {
+
+  addDoc,
+  collection,
+  serverTimestamp,
+  doc,
+  updateDoc,
+  increment,
+
+} from "firebase/firestore";
+
+import toast from "react-hot-toast";
+
 export default function FocusSessionModal({
 
   open,
@@ -28,6 +48,11 @@ export default function FocusSessionModal({
   const [
     running,
     setRunning
+  ] = useState(false);
+
+  const [
+    saving,
+    setSaving
   ] = useState(false);
 
   /* TIMER */
@@ -71,14 +96,96 @@ export default function FocusSessionModal({
       seconds === 0
     ) {
 
-      setRunning(false);
-
-      alert(
-        "🔥 Focus Session Completed! +120 XP"
-      );
+      completeSession();
     }
 
   }, [seconds]);
+
+  /* COMPLETE SESSION */
+
+  const completeSession =
+    async () => {
+
+      try {
+
+        setSaving(true);
+
+        setRunning(false);
+
+        const user =
+          auth.currentUser;
+
+        if (!user)
+          return;
+
+        /* SAVE SESSION */
+
+        await addDoc(
+
+          collection(
+            db,
+            "focusSessions"
+          ),
+
+          {
+            uid:
+              user.uid,
+
+            duration:
+              25,
+
+            xp:
+              120,
+
+            createdAt:
+              serverTimestamp(),
+          }
+        );
+
+        /* UPDATE USER XP */
+
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
+          );
+
+        await updateDoc(
+          userRef,
+
+          {
+            xp:
+              increment(
+                120
+              ),
+
+            totalSessions:
+              increment(
+                1
+              ),
+          }
+        );
+
+        toast.success(
+          "🔥 Focus Session Completed! +120 XP"
+        );
+
+        setSeconds(1500);
+
+      } catch (error) {
+
+        console.log(error);
+
+        toast.error(
+          "Failed to save session"
+        );
+
+      } finally {
+
+        setSaving(false);
+      }
+    };
 
   /* FORMAT */
 
@@ -232,6 +339,10 @@ export default function FocusSessionModal({
                       setRunning(
                         !running
                       )
+                    }
+
+                    disabled={
+                      saving
                     }
 
                     className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-4 rounded-2xl font-bold shadow-2xl text-lg"
