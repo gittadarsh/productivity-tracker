@@ -1,148 +1,86 @@
-import {
+import { useEffect, useState } from "react";
 
-  useEffect,
-  useState,
+import { motion } from "framer-motion";
 
-} from "react";
+import { Link } from "react-router-dom";
 
-import {
-
-  motion,
-
-} from "framer-motion";
+import { auth, db } from "../firebase";
 
 import {
-
-  auth,
-  db,
-
-} from "../firebase";
-
-import {
-
   collection,
   getDocs,
   query,
   where,
-
 } from "firebase/firestore";
 
 export default function MentorDashboard() {
 
-  const [
-    students,
-    setStudents
-  ] = useState([]);
+  const [students, setStudents] = useState([]);
 
-  const [
-    mentorId,
-    setMentorId
-  ] = useState("");
+  const [mentorId, setMentorId] = useState("");
 
-  const [
-    loading,
-    setLoading
-  ] = useState(true);
-
-  /* LOAD */
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     loadStudents();
-
   }, []);
 
-  const loadStudents =
-    async () => {
+  const loadStudents = async () => {
 
-      try {
+    try {
 
-        const mentor =
-          auth.currentUser;
+      const mentor = auth.currentUser;
 
-        if (!mentor)
-          return;
+      if (!mentor) return;
 
-        /* GET MENTOR PROFILE */
+      /* GET MENTOR */
 
-        const mentorQuery =
-          query(
+      const mentorQuery = query(
+        collection(db, "users"),
+        where("uid", "==", mentor.uid)
+      );
 
-            collection(
-              db,
-              "users"
-            ),
+      const mentorSnap = await getDocs(mentorQuery);
 
-            where(
-              "uid",
-              "==",
-              mentor.uid
-            )
-          );
+      const mentorData =
+        mentorSnap.docs[0]?.data();
 
-        const mentorSnap =
-          await getDocs(
-            mentorQuery
-          );
+      if (!mentorData) return;
 
-        const mentorData =
-          mentorSnap.docs[0]?.data();
+      setMentorId(mentorData.mentorId);
 
-        if (
-          !mentorData
-        )
-          return;
+      /* GET STUDENTS */
 
-        setMentorId(
+      const studentQuery = query(
+        collection(db, "users"),
+        where(
+          "mentorId",
+          "==",
           mentorData.mentorId
-        );
+        )
+      );
 
-        /* GET STUDENTS */
+      const studentSnap =
+        await getDocs(studentQuery);
 
-        const studentQuery =
-          query(
+      const studentData =
+        studentSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-            collection(
-              db,
-              "users"
-            ),
+      setStudents(studentData);
 
-            where(
-              "mentorId",
-              "==",
-              mentorData.mentorId
-            )
-          );
+    } catch (error) {
 
-        const studentSnap =
-          await getDocs(
-            studentQuery
-          );
+      console.log(error);
 
-        const studentData =
-          studentSnap.docs.map(
-            (doc) => ({
+    } finally {
 
-              id:
-                doc.id,
+      setLoading(false);
 
-              ...doc.data(),
-            })
-          );
-
-        setStudents(
-          studentData
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
+    }
+  };
 
   return (
 
@@ -151,17 +89,14 @@ export default function MentorDashboard() {
       {/* HERO */}
 
       <motion.div
-
         initial={{
           opacity: 0,
           y: 20,
         }}
-
         animate={{
           opacity: 1,
           y: 0,
         }}
-
         className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
       >
 
@@ -169,32 +104,31 @@ export default function MentorDashboard() {
 
         <div className="relative z-10">
 
-          <p className="text-purple-400 font-semibold tracking-widest uppercase mb-3">
+          <p className="text-purple-400 uppercase tracking-[6px] text-sm font-semibold">
 
             Mentor Control Center
 
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-5xl">
+          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
 
             Monitor
             {" "}
-
             <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
 
               student productivity
+
             </span>
 
-            {" "}
-            in real time.
           </h1>
 
           <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
 
-            Track student consistency,
+            Live analytics,
+            habits,
             focus sessions,
             streaks,
-            and productivity growth through live Firebase analytics.
+            and productivity monitoring.
 
           </p>
 
@@ -204,24 +138,7 @@ export default function MentorDashboard() {
 
       {/* MENTOR ID */}
 
-      <motion.div
-
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-
-        transition={{
-          delay: 0.1,
-        }}
-
-        className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-      >
+      <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 
@@ -239,12 +156,6 @@ export default function MentorDashboard() {
 
             </h2>
 
-            <p className="text-slate-400 mt-4">
-
-              Share this ID with students so they can join your workspace.
-
-            </p>
-
           </div>
 
           <button
@@ -253,24 +164,24 @@ export default function MentorDashboard() {
               navigator.clipboard.writeText(
                 mentorId
               );
-            }}
 
+            }}
             className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-5 rounded-2xl font-bold shadow-2xl"
           >
 
-            📋 Copy Mentor ID
+            📋 Copy ID
 
           </button>
 
         </div>
 
-      </motion.div>
+      </div>
 
       {/* STATS */}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
 
           <p className="text-slate-400">
 
@@ -282,9 +193,7 @@ export default function MentorDashboard() {
 
             {
               loading
-
                 ? "--"
-
                 : students.length
             }
 
@@ -292,11 +201,11 @@ export default function MentorDashboard() {
 
         </div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
 
           <p className="text-slate-400">
 
-            Active Tracking
+            Tracking Status
 
           </p>
 
@@ -308,11 +217,11 @@ export default function MentorDashboard() {
 
         </div>
 
-        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
+        <div className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6">
 
           <p className="text-slate-400">
 
-            Workspace Status
+            Workspace
 
           </p>
 
@@ -328,24 +237,7 @@ export default function MentorDashboard() {
 
       {/* STUDENTS */}
 
-      <motion.div
-
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-
-        transition={{
-          delay: 0.2,
-        }}
-
-        className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-      >
+      <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
         <div className="flex items-center justify-between mb-10">
 
@@ -359,198 +251,164 @@ export default function MentorDashboard() {
 
             <p className="text-slate-400 mt-2">
 
-              Live student productivity monitoring
+              Click a student to open full analytics
 
             </p>
-
-          </div>
-
-          <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 px-5 py-3 rounded-2xl">
-
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-
-            <span className="font-bold text-green-400">
-
-              Live
-
-            </span>
 
           </div>
 
         </div>
 
         {
-          students.length === 0
+          students.length === 0 ? (
 
-            ? (
+            <div className="text-center py-20">
 
-              <div className="text-center py-20">
+              <div className="text-8xl mb-6">
 
-                <div className="text-8xl mb-6">
-
-                  🎓
-
-                </div>
-
-                <h3 className="text-4xl font-black mb-4">
-
-                  No Students Yet
-
-                </h3>
-
-                <p className="text-slate-400 text-lg">
-
-                  Share your mentor ID to start tracking students.
-
-                </p>
+                🎓
 
               </div>
-            )
 
-            : (
+              <h3 className="text-4xl font-black mb-4">
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                No Students Yet
 
-                {students.map(
-                  (
-                    student,
-                    index
-                  ) => (
+              </h3>
 
-                    <motion.div
+              <p className="text-slate-400 text-lg">
 
-                      key={
-                        student.id
-                      }
+                Share your mentor ID to connect students.
 
-                      initial={{
-                        opacity: 0,
-                        y: 20,
-                      }}
+              </p>
 
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
+            </div>
 
-                      transition={{
-                        delay:
-                          index *
-                          0.08,
-                      }}
+          ) : (
 
-                      whileHover={{
-                        y: -5,
-                      }}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                      className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
-                    >
+              {students.map((student, index) => (
 
-                      <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 blur-3xl" />
+                <Link
+                  key={student.id}
+                  to={`/student/${student.uid}`}
+                >
 
-                      <div className="relative z-10">
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      delay: index * 0.08,
+                    }}
+                    whileHover={{
+                      y: -6,
+                    }}
+                    className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl cursor-pointer"
+                  >
 
-                        <div className="flex items-start justify-between gap-5">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 blur-3xl" />
 
-                          <div className="flex items-center gap-5">
+                    <div className="relative z-10">
 
-                            <img
-                              src={
-                                student.photo ||
+                      <div className="flex items-start justify-between gap-5">
 
-                                `https://ui-avatars.com/api/?name=${student.name}`
-                              }
+                        <div className="flex items-center gap-5">
 
-                              alt="student"
+                          <img
+                            src={
+                              student.photo ||
 
-                              className="w-16 h-16 rounded-2xl object-cover border border-white/10"
-                            />
+                              `https://ui-avatars.com/api/?name=${student.name}`
+                            }
+                            alt="student"
+                            className="w-16 h-16 rounded-2xl object-cover border border-white/10"
+                          />
 
-                            <div>
+                          <div>
 
-                              <h2 className="text-2xl font-black">
+                            <h2 className="text-2xl font-black">
 
-                                {
-                                  student.name
-                                }
+                              {student.name}
 
-                              </h2>
+                            </h2>
 
-                              <p className="text-slate-400 mt-1">
+                            <p className="text-slate-400 mt-1">
 
-                                {
-                                  student.email
-                                }
+                              {student.email}
 
-                              </p>
-
-                            </div>
-
-                          </div>
-
-                          <div className="text-4xl">
-
-                            🚀
+                            </p>
 
                           </div>
 
                         </div>
 
-                        {/* METRICS */}
+                        <div className="text-4xl">
 
-                        <div className="grid grid-cols-2 gap-4 mt-8">
-
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-
-                            <p className="text-slate-400 text-sm">
-
-                              XP
-
-                            </p>
-
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.xp ||
-                                0
-                              }
-
-                            </h3>
-
-                          </div>
-
-                          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-
-                            <p className="text-slate-400 text-sm">
-
-                              Sessions
-
-                            </p>
-
-                            <h3 className="text-3xl font-black mt-2">
-
-                              {
-                                student.totalSessions ||
-                                0
-                              }
-
-                            </h3>
-
-                          </div>
+                          🚀
 
                         </div>
 
                       </div>
 
-                    </motion.div>
-                  )
-                )}
+                      {/* METRICS */}
 
-              </div>
-            )
+                      <div className="grid grid-cols-2 gap-4 mt-8">
+
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+
+                          <p className="text-slate-400 text-sm">
+
+                            XP
+
+                          </p>
+
+                          <h3 className="text-3xl font-black mt-2">
+
+                            {student.xp || 0}
+
+                          </h3>
+
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+
+                          <p className="text-slate-400 text-sm">
+
+                            Sessions
+
+                          </p>
+
+                          <h3 className="text-3xl font-black mt-2">
+
+                            {student.totalSessions || 0}
+
+                          </h3>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </motion.div>
+
+                </Link>
+
+              ))}
+
+            </div>
+
+          )
         }
 
-      </motion.div>
+      </div>
 
     </div>
   );

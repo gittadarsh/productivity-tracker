@@ -1,376 +1,682 @@
-import { useEffect, useState } from "react";
+import {
 
-import { useParams } from "react-router-dom";
-import FeedbackChat from "../components/FeedbackChat";
+  useEffect,
+  useState,
+
+} from "react";
 
 import {
+
+  useParams,
+
+} from "react-router-dom";
+
+import {
+
+  motion,
+
+} from "framer-motion";
+
+import {
+
+  db,
+
+} from "../firebase";
+
+import {
+
+  collection,
   doc,
   getDoc,
+  getDocs,
+  query,
+  where,
+
 } from "firebase/firestore";
-
-import { db } from "../firebase";
-
-import FeedbackBox from "../components/FeedbackBox";
 
 export default function StudentProgress() {
 
-  const { uid } = useParams();
+  const { uid } =
+    useParams();
 
-  const [studentData,
-    setStudentData] =
-    useState(null);
+  const [
+    student,
+    setStudent
+  ] = useState(null);
 
-  const [habitsData,
-    setHabitsData] =
-    useState({});
+  const [
+    habits,
+    setHabits
+  ] = useState([]);
 
-  const [habitsList,
-    setHabitsList] =
-    useState([]);
+  const [
+    sessions,
+    setSessions
+  ] = useState([]);
+
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  /* LOAD */
 
   useEffect(() => {
 
-    const loadStudentData =
-      async () => {
+    loadStudent();
 
-        try {
+  }, []);
 
-          /* LOAD USER INFO */
+  const loadStudent =
+    async () => {
 
-          const userRef =
-            doc(
-              db,
-              "users",
-              uid
-            );
+      try {
 
-          const userSnap =
-            await getDoc(
-              userRef
-            );
+        /* USER */
 
-          if (
-            userSnap.exists()
-          ) {
+        const userRef =
+          doc(
+            db,
+            "users",
+            uid
+          );
 
-            setStudentData(
-              userSnap.data()
-            );
-          }
-
-          /* LOAD HABITS */
-
-          const habitsRef =
-            doc(
-              db,
-              "habits",
-              uid
-            );
-
-          const habitsSnap =
-            await getDoc(
-              habitsRef
-            );
-
-          if (
-            habitsSnap.exists()
-          ) {
-
-            const data =
-              habitsSnap.data();
-
-            setHabitsData(
-              data.habits || {}
-            );
-
-            setHabitsList(
-              data.habitsList || []
-            );
-          }
-
-        } catch (error) {
-
-          console.log(error);
-
-        }
-      };
-
-    loadStudentData();
-
-  }, [uid]);
-
-  const calculateStreak =
-    (habit) => {
-
-      let streak = 0;
-
-      for (
-        let i = 0;
-        i < 30;
-        i++
-      ) {
-
-        const date =
-          new Date();
-
-        date.setDate(
-          date.getDate() - i
-        );
-
-        const formatted =
-          date
-            .toISOString()
-            .split("T")[0];
+        const userSnap =
+          await getDoc(
+            userRef
+          );
 
         if (
-          habitsData[
-            formatted
-          ]?.[habit]
+          userSnap.exists()
         ) {
 
-          streak++;
-
-        } else {
-
-          break;
+          setStudent(
+            userSnap.data()
+          );
         }
-      }
 
-      return streak;
+        /* HABITS */
+
+        const habitQuery =
+          query(
+
+            collection(
+              db,
+              "habits"
+            ),
+
+            where(
+              "uid",
+              "==",
+              uid
+            )
+          );
+
+        const habitSnap =
+          await getDocs(
+            habitQuery
+          );
+
+        const habitData =
+          habitSnap.docs.map(
+            (doc) => ({
+
+              id:
+                doc.id,
+
+              ...doc.data(),
+            })
+          );
+
+        setHabits(
+          habitData
+        );
+
+        /* SESSIONS */
+
+        const sessionQuery =
+          query(
+
+            collection(
+              db,
+              "focusSessions"
+            ),
+
+            where(
+              "uid",
+              "==",
+              uid
+            )
+          );
+
+        const sessionSnap =
+          await getDocs(
+            sessionQuery
+          );
+
+        const sessionData =
+          sessionSnap.docs.map(
+            (doc) => ({
+
+              id:
+                doc.id,
+
+              ...doc.data(),
+            })
+          );
+
+        setSessions(
+          sessionData
+        );
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+      }
     };
 
-  const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
+  /* CALCULATIONS */
 
-  const completedToday =
-    habitsList.filter(
-      (habit) =>
-        habitsData[today]?.[
-          habit
-        ]
+  const completedHabits =
+    habits.filter(
+      (h) =>
+        h.completed
     ).length;
+
+  const highestStreak =
+    habits.reduce(
+      (
+        max,
+        habit
+      ) =>
+
+        Math.max(
+          max,
+          habit.streak || 0
+        ),
+
+      0
+    );
+
+  const productivityScore =
+    sessions.length *
+      10 +
+    completedHabits *
+      5;
+
+  if (loading) {
+
+    return (
+
+      <div className="text-center text-slate-400 py-20">
+
+        Loading student analytics...
+
+      </div>
+    );
+  }
 
   return (
 
-    <div className="max-w-7xl mx-auto">
+    <div className="space-y-8">
 
-      {/* HEADER */}
+      {/* HERO */}
 
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl mb-10">
+      <motion.div
 
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
 
-          👨‍🎓 Student Progress
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-        </h1>
+        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+      >
 
-        {studentData ? (
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
 
-          <div className="space-y-3 text-lg">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
 
-            <p>
+          <div className="flex items-center gap-6">
 
-              <span className="font-bold text-cyan-400">
-                Name:
-              </span>
+            <img
+              src={
+                student?.photo ||
 
-              {" "}
+                `https://ui-avatars.com/api/?name=${student?.name}`
+              }
 
-              {studentData.name}
+              alt="student"
 
-            </p>
+              className="w-28 h-28 rounded-[32px] border border-white/10 object-cover shadow-2xl"
+            />
 
-            <p>
+            <div>
 
-              <span className="font-bold text-cyan-400">
-                Email:
-              </span>
+              <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-              {" "}
+                Student Analytics
 
-              {studentData.email}
+              </p>
 
-            </p>
+              <h1 className="text-5xl font-black mt-4">
 
-            <p>
+                {student?.name}
 
-              <span className="font-bold text-cyan-400">
-                Role:
-              </span>
+              </h1>
 
-              {" "}
+              <p className="text-slate-400 text-lg mt-3">
 
-              {studentData.role}
+                {student?.email}
 
-            </p>
+              </p>
 
-            <p className="break-all">
-
-              <span className="font-bold text-cyan-400">
-                UID:
-              </span>
-
-              {" "}
-
-              {uid}
-
-            </p>
+            </div>
 
           </div>
 
-        ) : (
+          <div className="bg-green-500/10 border border-green-500/20 px-6 py-4 rounded-3xl">
 
-          <p>
-            Loading student...
-          </p>
+            <div className="flex items-center gap-3">
 
-        )}
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
 
-      </div>
+              <span className="font-bold text-green-400 text-lg">
+
+                Live Tracking Active
+
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </motion.div>
 
       {/* STATS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        <div className="bg-gradient-to-br from-green-500 to-emerald-700 p-8 rounded-3xl shadow-2xl">
+        {[
+          {
+            title: "XP",
+            value: student?.xp || 0,
+            icon: "⚡",
+            color: "from-cyan-500 to-blue-500",
+          },
 
-          <h2 className="text-2xl font-bold mb-4">
+          {
+            title: "Focus Sessions",
+            value: sessions.length,
+            icon: "🧠",
+            color: "from-purple-500 to-pink-500",
+          },
 
-            ✅ Completed Today
+          {
+            title: "Highest Streak",
+            value: highestStreak,
+            icon: "🔥",
+            color: "from-orange-500 to-red-500",
+          },
 
-          </h2>
+          {
+            title: "Productivity Score",
+            value: productivityScore,
+            icon: "📈",
+            color: "from-green-500 to-emerald-500",
+          },
+        ].map((card, index) => (
 
-          <p className="text-5xl font-bold">
+          <motion.div
 
-            {completedToday}/
-            {habitsList.length}
+            key={index}
 
-          </p>
+            initial={{
+              opacity: 0,
+              y: 20,
+            }}
 
-        </div>
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
 
-        <div className="bg-gradient-to-br from-cyan-500 to-blue-700 p-8 rounded-3xl shadow-2xl">
+            transition={{
+              delay: index * 0.08,
+            }}
 
-          <h2 className="text-2xl font-bold mb-4">
+            whileHover={{
+              y: -6,
+            }}
 
-            📅 Current Date
+            className="relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
+          >
 
-          </h2>
+            <div
+              className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.color} opacity-20 blur-3xl`}
+            />
 
-          <p className="text-4xl font-bold">
+            <div className="relative z-10">
 
-            {today}
+              <div className="flex items-center justify-between">
 
-          </p>
+                <div>
 
-        </div>
+                  <p className="text-slate-400 text-sm">
 
-        <div className="bg-gradient-to-br from-purple-500 to-pink-700 p-8 rounded-3xl shadow-2xl">
+                    {card.title}
 
-          <h2 className="text-2xl font-bold mb-4">
+                  </p>
 
-            🎯 Total Habits
+                  <h2 className="text-4xl font-black mt-3">
 
-          </h2>
+                    {card.value}
 
-          <p className="text-5xl font-bold">
+                  </h2>
 
-            {habitsList.length}
+                </div>
 
-          </p>
+                <div
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${card.color} flex items-center justify-center text-3xl shadow-xl`}
+                >
 
-        </div>
+                  {card.icon}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </motion.div>
+        ))}
 
       </div>
 
       {/* HABITS */}
 
-      <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+      <motion.div
 
-        📈 Habit Performance
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
 
-      </h2>
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+      >
 
-        {habitsList.map(
-          (habit) => {
+        <div className="flex items-center justify-between mb-10">
 
-            const completed =
-              habitsData[
-                today
-              ]?.[habit];
+          <div>
 
-            return (
+            <h2 className="text-4xl font-black">
 
-              <div
-                key={habit}
+              ⚡ Habit Performance
 
-                className={`p-8 rounded-3xl shadow-2xl border transition duration-300 hover:scale-105
+            </h2>
 
-                ${
-                  completed
+            <p className="text-slate-400 mt-2">
 
-                    ? "bg-gradient-to-br from-green-500 to-emerald-700 border-green-400"
+              Live student habit consistency
 
-                    : "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700"
-                }`}
-              >
+            </p>
 
-                <h2 className="text-3xl font-bold mb-5">
+          </div>
 
-                  {completed
-                    ? "✅"
-                    : "⬜"}
+        </div>
 
-                  {" "}
+        {
+          habits.length === 0
 
-                  {habit}
+            ? (
 
-                </h2>
+              <div className="text-center py-16 text-slate-400">
 
-                <p className="text-lg text-slate-200 mb-4">
-
-                  {completed
-
-                    ? "Completed Today 🎉"
-
-                    : "Not Completed Today"}
-
-                </p>
-
-                <p className="text-lg text-slate-300">
-
-                  🔥 Streak:
-                  {" "}
-
-                  {calculateStreak(
-                    habit
-                  )}
-
-                  {" "}
-
-                  days
-
-                </p>
+                No habits tracked yet.
 
               </div>
-            );
-          }
-        )}
+            )
 
-      </div>
+            : (
 
-      {/* FEEDBACK */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-      <FeedbackBox
-        studentId={uid}
-      />
-      <FeedbackChat
-  studentUID={uid}
-/>
+                {habits.map(
+                  (
+                    habit,
+                    index
+                  ) => (
+
+                    <motion.div
+
+                      key={
+                        habit.id
+                      }
+
+                      initial={{
+                        opacity: 0,
+                        y: 20,
+                      }}
+
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
+
+                      transition={{
+                        delay:
+                          index *
+                          0.05,
+                      }}
+
+                      className="rounded-[30px] border border-white/10 bg-white/5 p-6"
+                    >
+
+                      <div className="flex items-center justify-between">
+
+                        <div>
+
+                          <h3 className="text-2xl font-black">
+
+                            {
+                              habit.title
+                            }
+
+                          </h3>
+
+                          <p className="text-slate-400 mt-2">
+
+                            Habit consistency tracking
+
+                          </p>
+
+                        </div>
+
+                        <div className="text-4xl">
+
+                          {
+                            habit.completed
+
+                              ? "✅"
+
+                              : "⚡"
+                          }
+
+                        </div>
+
+                      </div>
+
+                      <div className="mt-8">
+
+                        <div className="flex items-center justify-between mb-3">
+
+                          <span className="text-slate-400">
+
+                            Streak
+
+                          </span>
+
+                          <span className="font-bold text-2xl">
+
+                            🔥
+                            {" "}
+                            {
+                              habit.streak
+                            }
+
+                          </span>
+
+                        </div>
+
+                        <div className="h-4 bg-white/5 rounded-full overflow-hidden">
+
+                          <motion.div
+
+                            initial={{
+                              width: 0,
+                            }}
+
+                            animate={{
+                              width:
+                                `${
+                                  Math.min(
+                                    habit.streak *
+                                      10,
+                                    100
+                                  )
+                                }%`,
+                            }}
+
+                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                          />
+
+                        </div>
+
+                      </div>
+
+                    </motion.div>
+                  )
+                )}
+
+              </div>
+            )
+        }
+
+      </motion.div>
+
+      {/* FOCUS SESSIONS */}
+
+      <motion.div
+
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+
+        transition={{
+          delay: 0.1,
+        }}
+
+        className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+      >
+
+        <div className="flex items-center justify-between mb-10">
+
+          <div>
+
+            <h2 className="text-4xl font-black">
+
+              🧠 Focus Session Analytics
+
+            </h2>
+
+            <p className="text-slate-400 mt-2">
+
+              Deep work consistency tracking
+
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
+
+            <p className="text-slate-400">
+
+              Total Sessions
+
+            </p>
+
+            <h2 className="text-5xl font-black mt-4">
+
+              {sessions.length}
+
+            </h2>
+
+          </div>
+
+          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
+
+            <p className="text-slate-400">
+
+              Total Focus Time
+
+            </p>
+
+            <h2 className="text-5xl font-black mt-4">
+
+              {
+                sessions.length *
+                25
+              }
+              m
+
+            </h2>
+
+          </div>
+
+          <div className="rounded-[30px] border border-white/10 bg-white/5 p-6">
+
+            <p className="text-slate-400">
+
+              Productivity Rating
+
+            </p>
+
+            <h2 className="text-5xl font-black mt-4">
+
+              Elite
+
+            </h2>
+
+          </div>
+
+        </div>
+
+      </motion.div>
 
     </div>
   );
