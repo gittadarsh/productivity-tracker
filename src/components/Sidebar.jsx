@@ -4,6 +4,7 @@ import {
 
 import {
   motion,
+  AnimatePresence,
 } from "framer-motion";
 
 export default function Sidebar({
@@ -14,8 +15,6 @@ export default function Sidebar({
   handleLogout,
 
 }) {
-
-  /* STUDENT LINKS */
 
   const studentLinks = [
 
@@ -62,8 +61,6 @@ export default function Sidebar({
     },
   ];
 
-  /* MENTOR LINKS */
-
   const mentorLinks = [
 
     {
@@ -101,320 +98,221 @@ export default function Sidebar({
 
   return (
 
-    <>
+    <AnimatePresence>
 
-      {/* MOBILE SIDEBAR */}
+      {mobileMenu && (
 
-      <motion.div
+        <>
 
-        initial={false}
+          {/* OVERLAY */}
 
-        animate={{
-          x: mobileMenu
-            ? 0
-            : "-100%",
-        }}
+          <motion.div
 
-        transition={{
-          type: "spring",
-          stiffness: 260,
-          damping: 26,
-        }}
+            initial={{
+              opacity: 0,
+            }}
 
-        className="fixed top-0 left-0 z-50 h-screen w-[290px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-2xl lg:hidden"
-      >
+            animate={{
+              opacity: 1,
+            }}
 
-        <div className="flex flex-col h-full">
+            exit={{
+              opacity: 0,
+            }}
 
-          {/* TOP */}
+            onClick={() =>
+              setMobileMenu(false)
+            }
 
-          <div className="p-6 border-b border-white/10">
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
 
-            <div className="flex items-center justify-between">
+          {/* SIDEBAR */}
 
-              <div>
+          <motion.div
 
-                <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            initial={{
+              x: -320,
+            }}
 
-                  ProductivityOS
+            animate={{
+              x: 0,
+            }}
 
-                </h1>
+            exit={{
+              x: -320,
+            }}
 
-                <p className="text-slate-400 text-sm mt-2">
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 26,
+            }}
 
-                  Elite Productivity Platform
+            className="fixed top-0 left-0 z-50 h-screen w-[300px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.7)]"
+          >
 
-                </p>
+            <div className="flex flex-col h-full">
 
-              </div>
+              {/* TOP */}
 
-              <button
-                onClick={() =>
-                  setMobileMenu(
-                    false
-                  )
-                }
-                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl"
-              >
+              <div className="p-7 border-b border-white/10">
 
-                ✕
+                <div className="flex items-center justify-between">
 
-              </button>
+                  <div>
 
-            </div>
+                    <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-          </div>
+                      ProductivityOS
 
-          {/* USER */}
+                    </h1>
 
-          <div className="p-6 border-b border-white/10">
+                    <p className="text-slate-400 text-sm mt-2">
 
-            <div className="flex items-center gap-4">
+                      Elite Productivity Platform
 
-              <img
-                src={
-                  user?.photo ||
+                    </p>
 
-                  `https://ui-avatars.com/api/?name=${user?.name}`
-                }
-                alt="profile"
-                className="w-14 h-14 rounded-2xl object-cover border border-white/10"
-              />
+                  </div>
 
-              <div>
+                  <button
+                    onClick={() =>
+                      setMobileMenu(false)
+                    }
+                    className="w-11 h-11 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 flex items-center justify-center text-xl"
+                  >
 
-                <h2 className="font-bold text-lg">
+                    ✕
 
-                  {user?.name}
+                  </button>
 
-                </h2>
-
-                <p className="text-slate-400 capitalize text-sm mt-1">
-
-                  {user?.role}
-
-                </p>
+                </div>
 
               </div>
 
-            </div>
+              {/* USER */}
 
-          </div>
+              <div className="p-6 border-b border-white/10">
 
-          {/* LINKS */}
+                <div className="flex items-center gap-4">
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                  <img
+                    src={
+                      user?.photo ||
 
-            {links.map((link) => (
+                      `https://ui-avatars.com/api/?name=${user?.name}`
+                    }
+                    alt="profile"
+                    className="w-16 h-16 rounded-2xl object-cover border border-white/10"
+                  />
 
-              <NavLink
-                key={link.path}
-                to={link.path}
+                  <div>
 
-                onClick={() => {
+                    <h2 className="font-black text-xl">
 
-                  setMobileMenu(false);
+                      {user?.name}
 
-                  window.scrollTo({
-                    top: 0,
-                    behavior: "smooth",
-                  });
+                    </h2>
 
-                }}
+                    <p className="text-slate-400 capitalize mt-1">
 
-                className={({ isActive }) =>
+                      {user?.role}
 
-                  `
+                    </p>
 
-                  flex items-center gap-4
+                  </div>
 
-                  px-5 py-4
+                </div>
 
-                  rounded-2xl
+              </div>
 
-                  transition-all duration-300
+              {/* LINKS */}
 
-                  border
+              <div className="flex-1 overflow-y-auto p-5 space-y-3">
 
-                  ${
-                    isActive
+                {links.map((link) => (
 
-                      ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300"
+                  <NavLink
+                    key={link.path}
+                    to={link.path}
 
-                      : "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300"
-                  }`
-                }
-              >
+                    onClick={() => {
 
-                <span className="text-2xl">
+                      setMobileMenu(false);
 
-                  {link.icon}
+                      window.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                      });
 
-                </span>
+                    }}
 
-                <span className="font-semibold">
+                    className={({ isActive }) =>
 
-                  {link.name}
+                      `
 
-                </span>
+                      flex items-center gap-4
 
-              </NavLink>
+                      px-5 py-4
 
-            ))}
+                      rounded-2xl
 
-          </div>
+                      transition-all duration-300
 
-          {/* LOGOUT */}
+                      border
 
-          <div className="p-4 border-t border-white/10">
+                      ${
+                        isActive
 
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 py-4 rounded-2xl font-bold transition-all duration-300"
-            >
+                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300"
 
-              Logout
+                          : "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300"
+                      }`
+                    }
+                  >
 
-            </button>
+                    <span className="text-2xl">
 
-          </div>
+                      {link.icon}
 
-        </div>
+                    </span>
 
-      </motion.div>
+                    <span className="font-semibold">
 
-      {/* DESKTOP SIDEBAR */}
+                      {link.name}
 
-      <div className="hidden lg:flex fixed top-0 left-0 h-screen w-[290px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-2xl z-40">
+                    </span>
 
-        <div className="flex flex-col w-full">
+                  </NavLink>
 
-          {/* TOP */}
+                ))}
 
-          <div className="p-8 border-b border-white/10">
+              </div>
 
-            <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              {/* LOGOUT */}
 
-              ProductivityOS
+              <div className="p-5 border-t border-white/10">
 
-            </h1>
+                <button
+                  onClick={handleLogout}
+                  className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 py-4 rounded-2xl font-bold transition-all duration-300"
+                >
 
-            <p className="text-slate-400 mt-3">
+                  Logout
 
-              Elite Productivity Platform
-
-            </p>
-
-          </div>
-
-          {/* USER */}
-
-          <div className="p-6 border-b border-white/10">
-
-            <div className="flex items-center gap-4">
-
-              <img
-                src={
-                  user?.photo ||
-
-                  `https://ui-avatars.com/api/?name=${user?.name}`
-                }
-                alt="profile"
-                className="w-16 h-16 rounded-2xl object-cover border border-white/10"
-              />
-
-              <div>
-
-                <h2 className="font-black text-xl">
-
-                  {user?.name}
-
-                </h2>
-
-                <p className="text-slate-400 capitalize mt-1">
-
-                  {user?.role}
-
-                </p>
+                </button>
 
               </div>
 
             </div>
 
-          </div>
+          </motion.div>
 
-          {/* LINKS */}
+        </>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-3">
+      )}
 
-            {links.map((link) => (
-
-              <NavLink
-                key={link.path}
-                to={link.path}
-
-                className={({ isActive }) =>
-
-                  `
-
-                  flex items-center gap-4
-
-                  px-5 py-4
-
-                  rounded-2xl
-
-                  transition-all duration-300
-
-                  border
-
-                  ${
-                    isActive
-
-                      ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300"
-
-                      : "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300"
-                  }`
-                }
-              >
-
-                <span className="text-2xl">
-
-                  {link.icon}
-
-                </span>
-
-                <span className="font-semibold">
-
-                  {link.name}
-
-                </span>
-
-              </NavLink>
-
-            ))}
-
-          </div>
-
-          {/* LOGOUT */}
-
-          <div className="p-5 border-t border-white/10">
-
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 py-4 rounded-2xl font-bold transition-all duration-300"
-            >
-
-              Logout
-
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </>
-
+    </AnimatePresence>
   );
 }

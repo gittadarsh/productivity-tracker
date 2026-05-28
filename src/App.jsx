@@ -255,22 +255,6 @@ export default function App() {
 
         <div className="absolute top-[40%] left-[35%] w-[300px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-        {/* MOBILE OVERLAY */}
-
-        {
-          mobileMenu && (
-
-            <div
-              onClick={() =>
-                setMobileMenu(
-                  false
-                )
-              }
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-            />
-          )
-        }
-
         {/* SIDEBAR */}
 
         {
@@ -287,7 +271,7 @@ export default function App() {
 
         {/* MAIN */}
 
-        <div className="relative z-10 p-4 md:p-6 xl:p-8 lg:ml-[290px]">
+        <div className="relative z-10 p-4 md:p-6 xl:p-8">
 
           {/* TOPBAR */}
 
@@ -310,7 +294,7 @@ export default function App() {
                             !mobileMenu
                           )
                         }
-                        className="lg:hidden bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
+                        className="bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
                       >
 
                         ☰
