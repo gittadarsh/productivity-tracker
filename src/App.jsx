@@ -83,7 +83,7 @@ export default function App() {
     setLoading
   ] = useState(true);
 
-  /* THEME PERSISTENCE */
+  /* THEME */
 
   useEffect(() => {
 
@@ -267,11 +267,11 @@ export default function App() {
 
           ${
             user?.role
-              ? "md:ml-[260px]"
+              ? "md:ml-[250px]"
               : ""
           }
 
-          p-4 md:p-8`}
+          p-4 md:p-6 xl:p-8`}
         >
 
           {/* TOPBAR */}
@@ -279,91 +279,154 @@ export default function App() {
           {
             user?.role && (
 
-              <div className="flex items-center justify-between mb-8">
+              <div className="mb-10">
 
-                <button
-                  onClick={() =>
-                    setMobileMenu(
-                      !mobileMenu
-                    )
-                  }
+                <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-[28px] px-6 py-5 shadow-2xl">
 
-                  className="md:hidden bg-slate-800 px-4 py-2 rounded-xl text-2xl"
-                >
+                  <div className="flex items-center justify-between gap-6 flex-wrap">
 
-                  ☰
+                    {/* LEFT */}
 
-                </button>
+                    <div className="flex items-center gap-5">
 
-                <div className="flex items-center gap-4">
+                      {/* MOBILE MENU */}
 
-                  <img
-                    src={
-                      user?.photo ||
+                      <button
+                        onClick={() =>
+                          setMobileMenu(
+                            !mobileMenu
+                          )
+                        }
 
-                      `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
-                    }
+                        className="md:hidden bg-white/5 hover:bg-white/10 transition px-4 py-3 rounded-2xl text-2xl"
+                      >
 
-                    alt="profile"
+                        ☰
 
-                    className="w-14 h-14 rounded-full border-2 border-cyan-400 object-cover"
-                  />
+                      </button>
 
-                  <div>
+                      {/* USER */}
 
-                    <h2 className="text-2xl font-bold">
+                      <div className="flex items-center gap-4">
 
-                      {user?.name}
+                        <img
+                          src={
+                            user?.photo ||
 
-                    </h2>
+                            `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
+                          }
 
-                    <p className="text-slate-400 capitalize">
+                          alt="profile"
 
-                      {user?.role || "User"}
+                          className="w-14 h-14 rounded-2xl border-2 border-cyan-400 object-cover shadow-xl"
+                        />
 
-                    </p>
+                        <div>
+
+                          <h2 className="text-2xl font-black leading-tight">
+
+                            Welcome back,
+
+                            <span className="text-cyan-400">
+
+                              {" "}
+                              {
+                                user?.name?.split(
+                                  " "
+                                )[0]
+                              }
+
+                            </span>
+
+                          </h2>
+
+                          <p className="text-slate-400 capitalize mt-1">
+
+                            {user?.role}
+                            {" "}
+                            Dashboard
+
+                          </p>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* RIGHT */}
+
+                    <div className="flex items-center gap-4 flex-wrap">
+
+                      {/* SEARCH */}
+
+                      <div className="hidden lg:flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl min-w-[260px]">
+
+                        <span className="text-slate-400">
+
+                          🔍
+
+                        </span>
+
+                        <input
+                          type="text"
+
+                          placeholder="Search..."
+
+                          className="bg-transparent outline-none text-white placeholder:text-slate-500 w-full"
+                        />
+
+                      </div>
+
+                      {/* NOTIFICATION */}
+
+                      <button className="relative bg-white/5 hover:bg-white/10 transition p-4 rounded-2xl border border-white/10">
+
+                        🔔
+
+                        <span className="absolute top-2 right-2 w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
+
+                      </button>
+
+                      {/* THEME */}
+
+                      <button
+                        onClick={() =>
+                          setDarkMode(
+                            !darkMode
+                          )
+                        }
+
+                        className="bg-white/5 hover:bg-white/10 transition px-5 py-4 rounded-2xl border border-white/10 text-xl"
+                      >
+
+                        {
+                          darkMode
+
+                            ? "☀"
+
+                            : "🌙"
+                        }
+
+                      </button>
+
+                      {/* LOGOUT */}
+
+                      <button
+                        onClick={
+                          handleLogout
+                        }
+
+                        className="bg-gradient-to-r from-red-500 to-red-600 hover:scale-[1.03] transition-all duration-300 px-6 py-4 rounded-2xl font-bold shadow-xl"
+                      >
+
+                        Logout
+
+                      </button>
+
+                    </div>
 
                   </div>
-
-                </div>
-
-                <div className="flex items-center gap-4">
-
-                  {/* THEME */}
-
-                  <button
-                    onClick={() =>
-                      setDarkMode(
-                        !darkMode
-                      )
-                    }
-
-                    className="bg-slate-800 hover:bg-slate-700 transition px-4 py-3 rounded-xl text-xl"
-                  >
-
-                    {
-                      darkMode
-
-                        ? "☀"
-
-                        : "🌙"
-                    }
-
-                  </button>
-
-                  {/* LOGOUT */}
-
-                  <button
-                    onClick={
-                      handleLogout
-                    }
-
-                    className="bg-red-500 hover:bg-red-600 transition px-5 py-3 rounded-xl font-semibold"
-                  >
-
-                    Logout
-
-                  </button>
 
                 </div>
 
