@@ -159,26 +159,26 @@ export default function Sidebar({
 
       transition={{
 
-        duration: 0.4,
+        duration: 0.35,
       }}
 
       className={`
 
       fixed top-0 left-0 z-50
 
-      h-screen w-[290px]
+      h-screen w-[250px]
 
       backdrop-blur-2xl
 
-      bg-slate-900/80
+      bg-slate-900/85
 
       border-r border-white/10
 
       shadow-2xl
 
-      p-6
-
       transition-transform duration-300
+
+      flex flex-col
 
       ${
         mobileMenu
@@ -190,55 +190,61 @@ export default function Sidebar({
     `}
     >
 
-      {/* LOGO */}
+      {/* TOP */}
 
-      <div className="mb-10">
+      <div className="p-5 border-b border-white/5">
 
-        <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        {/* LOGO */}
 
-          🚀 Tracker
+        <div className="mb-8">
 
-        </h1>
+          <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
-        <p className="text-slate-400 mt-3 text-lg">
+            🚀 Tracker
 
-          AI Productivity SaaS
+          </h1>
 
-        </p>
+          <p className="text-slate-400 mt-2 text-sm">
 
-      </div>
+            AI Productivity SaaS
 
-      {/* USER */}
+          </p>
 
-      <div className="bg-white/5 border border-white/10 rounded-3xl p-5 mb-8">
+        </div>
 
-        <div className="flex items-center gap-4">
+        {/* USER */}
 
-          <img
-            src={
-              user?.photo ||
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-4">
 
-              `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
-            }
+          <div className="flex items-center gap-3">
 
-            alt="profile"
+            <img
+              src={
+                user?.photo ||
 
-            className="w-16 h-16 rounded-2xl border-2 border-cyan-400 object-cover"
-          />
+                `https://ui-avatars.com/api/?name=${user?.name}&background=06b6d4&color=fff`
+              }
 
-          <div>
+              alt="profile"
 
-            <h2 className="font-bold text-xl">
+              className="w-14 h-14 rounded-2xl border-2 border-cyan-400 object-cover"
+            />
 
-              {user?.name}
+            <div className="min-w-0">
 
-            </h2>
+              <h2 className="font-bold text-lg truncate">
 
-            <p className="text-slate-400 capitalize">
+                {user?.name}
 
-              {user?.role}
+              </h2>
 
-            </p>
+              <p className="text-slate-400 capitalize text-sm">
+
+                {user?.role}
+
+              </p>
+
+            </div>
 
           </div>
 
@@ -248,147 +254,159 @@ export default function Sidebar({
 
       {/* NAVIGATION */}
 
-      <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
 
-        {links.map((link) => {
+        <div className="space-y-2">
 
-          const active =
-            location.pathname ===
-            link.path;
+          {links.map((link) => {
 
-          return (
+            const active =
+              location.pathname ===
+              link.path;
 
-            <Link
-              key={link.path}
+            return (
 
-              to={link.path}
+              <Link
+                key={link.path}
 
-              onClick={() =>
-                setMobileMenu(
-                  false
-                )
-              }
-            >
+                to={link.path}
 
-              <motion.div
-
-                whileHover={{
-
-                  scale: 1.02,
-                }}
-
-                whileTap={{
-
-                  scale: 0.98,
-                }}
-
-                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300
-
-                ${
-                  active
-
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-black shadow-xl"
-
-                    : "hover:bg-white/5 text-white"
-                }`}
+                onClick={() =>
+                  setMobileMenu(
+                    false
+                  )
+                }
               >
 
-                <span className="text-2xl">
+                <motion.div
 
-                  {link.icon}
+                  whileHover={{
 
-                </span>
+                    scale: 1.015,
+                  }}
 
-                <span className="font-semibold text-lg">
+                  whileTap={{
 
-                  {link.name}
+                    scale: 0.98,
+                  }}
 
-                </span>
+                  className={`
 
-              </motion.div>
+                  flex items-center gap-4
 
-            </Link>
-          );
-        })}
+                  px-4 py-3
+
+                  rounded-2xl
+
+                  transition-all duration-300
+
+                  ${
+                    active
+
+                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-black shadow-lg"
+
+                      : "hover:bg-white/5 text-white"
+                  }`}
+                >
+
+                  <span className="text-xl">
+
+                    {link.icon}
+
+                  </span>
+
+                  <span className="font-semibold text-[15px]">
+
+                    {link.name}
+
+                  </span>
+
+                </motion.div>
+
+              </Link>
+            );
+          })}
+
+        </div>
+
+        {/* MENTOR */}
+
+        {
+          user?.role ===
+          "mentor" && (
+
+            <div className="mt-8">
+
+              <h3 className="text-slate-500 uppercase text-xs tracking-[3px] mb-4">
+
+                Mentor Tools
+
+              </h3>
+
+              <div className="space-y-2">
+
+                <Link
+                  to="/mentor"
+                >
+
+                  <div className="px-4 py-3 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
+
+                    <span className="text-xl">
+
+                      👨‍🏫
+
+                    </span>
+
+                    <span className="font-semibold text-[15px]">
+
+                      Mentor Dashboard
+
+                    </span>
+
+                  </div>
+
+                </Link>
+
+                <Link
+                  to="/create-sheet"
+                >
+
+                  <div className="px-4 py-3 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
+
+                    <span className="text-xl">
+
+                      📝
+
+                    </span>
+
+                    <span className="font-semibold text-[15px]">
+
+                      Create Sheet
+
+                    </span>
+
+                  </div>
+
+                </Link>
+
+              </div>
+
+            </div>
+          )
+        }
 
       </div>
 
-      {/* MENTOR LINKS */}
-
-      {
-        user?.role ===
-        "mentor" && (
-
-          <div className="mt-10">
-
-            <h3 className="text-slate-400 uppercase text-sm tracking-widest mb-4">
-
-              Mentor Tools
-
-            </h3>
-
-            <div className="space-y-3">
-
-              <Link
-                to="/mentor"
-              >
-
-                <div className="px-5 py-4 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
-
-                  <span className="text-2xl">
-
-                    👨‍🏫
-
-                  </span>
-
-                  <span className="font-semibold text-lg">
-
-                    Mentor Dashboard
-
-                  </span>
-
-                </div>
-
-              </Link>
-
-              <Link
-                to="/create-sheet"
-              >
-
-                <div className="px-5 py-4 rounded-2xl hover:bg-cyan-500/10 transition flex items-center gap-4">
-
-                  <span className="text-2xl">
-
-                    📝
-
-                  </span>
-
-                  <span className="font-semibold text-lg">
-
-                    Create Sheet
-
-                  </span>
-
-                </div>
-
-              </Link>
-
-            </div>
-
-          </div>
-        )
-      }
-
       {/* LOGOUT */}
 
-      <div className="absolute bottom-6 left-6 right-6">
+      <div className="p-4 border-t border-white/5 bg-slate-900/90">
 
         <button
           onClick={
             handleLogout
           }
 
-          className="w-full bg-red-500/90 hover:bg-red-500 transition py-4 rounded-2xl font-bold text-lg shadow-xl"
+          className="w-full bg-red-500 hover:bg-red-600 transition py-3 rounded-2xl font-bold shadow-xl"
         >
 
           Logout
