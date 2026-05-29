@@ -35,6 +35,18 @@ import {
 
 } from "recharts";
 
+import {
+  generateInsights,
+} from "../utils/insightEngine";
+
+import {
+  getPerformanceStatus,
+} from "../utils/performanceEngine";
+
+import {
+  getLevelData,
+} from "../utils/levelEngine";
+
 export default function Analytics() {
 
   const [data, setData] =
@@ -53,6 +65,9 @@ export default function Analytics() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [insights, setInsights] =
+    useState([]);
 
   useEffect(() => {
 
@@ -153,6 +168,20 @@ export default function Analytics() {
           score,
         });
 
+        setInsights(
+
+          generateInsights({
+
+            xp,
+
+            sessions,
+
+            streak,
+
+            score,
+          })
+        );
+
       } catch (error) {
 
         console.log(error);
@@ -164,7 +193,7 @@ export default function Analytics() {
       }
     };
 
-  /* MOCK VISUAL DATA */
+  /* CHART DATA */
 
   const xpData = [
 
@@ -204,7 +233,7 @@ export default function Analytics() {
     },
   ];
 
-  const focusData = [
+  const focusChartData = [
 
     {
       day: "Mon",
@@ -241,6 +270,21 @@ export default function Analytics() {
       sessions: data.sessions,
     },
   ];
+
+  const performance =
+    getPerformanceStatus({
+
+      score:
+        data.score,
+
+      streak:
+        data.streak,
+    });
+
+  const levelData =
+    getLevelData(
+      data.xp
+    );
 
   if (loading) {
 
@@ -288,8 +332,7 @@ export default function Analytics() {
 
           <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
 
-            Performance
-            {" "}
+            Performance{" "}
 
             <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
 
@@ -303,7 +346,7 @@ export default function Analytics() {
 
       </motion.div>
 
-      {/* SCORE */}
+      {/* PRODUCTIVITY SCORE */}
 
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 shadow-2xl">
 
@@ -323,13 +366,97 @@ export default function Analytics() {
 
         </div>
 
+        {/* PERFORMANCE */}
+
+        <div className="mt-10 space-y-6">
+
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+
+            <p className="text-slate-400">
+
+              Performance Status
+
+            </p>
+
+            <h2 className={`
+
+            text-4xl font-black mt-3
+
+            ${performance.color}`}
+            >
+
+              {performance.label}
+
+            </h2>
+
+          </div>
+
+          {/* LEVEL */}
+
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+
+            <div className="flex items-center justify-between flex-wrap gap-5">
+
+              <div>
+
+                <p className="text-slate-400">
+
+                  Current Level
+
+                </p>
+
+                <h2 className="text-4xl font-black mt-3">
+
+                  Level {levelData.level}
+
+                </h2>
+
+              </div>
+
+              <div className="text-right">
+
+                <p className="text-slate-400">
+
+                  Next Level
+
+                </p>
+
+                <h2 className="text-2xl font-black mt-3 text-cyan-400">
+
+                  {levelData.nextLevelXP} XP
+
+                </h2>
+
+              </div>
+
+            </div>
+
+            <div className="w-full h-4 rounded-full bg-white/5 overflow-hidden mt-6">
+
+              <motion.div
+                initial={{
+                  width: 0,
+                }}
+                animate={{
+                  width:
+                    `${levelData.progress}%`,
+                }}
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
       {/* CHARTS */}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-        {/* XP GRAPH */}
+        {/* XP CHART */}
 
         <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
@@ -408,7 +535,7 @@ export default function Analytics() {
 
         </div>
 
-        {/* FOCUS GRAPH */}
+        {/* FOCUS CHART */}
 
         <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
@@ -426,7 +553,7 @@ export default function Analytics() {
             >
 
               <LineChart
-                data={focusData}
+                data={focusChartData}
               >
 
                 <CartesianGrid
@@ -464,41 +591,11 @@ export default function Analytics() {
 
       {/* INSIGHTS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {[
-          {
-            title:
-              "Peak Momentum",
-
-            desc:
-              "Your consistency is accelerating rapidly.",
-
-            icon: "🚀",
-          },
-
-          {
-            title:
-              "Deep Focus",
-
-            desc:
-              "Focus sessions increased strongly this week.",
-
-            icon: "🧠",
-          },
-
-          {
-            title:
-              "Execution Quality",
-
-            desc:
-              "Your productivity score is outperforming average users.",
-
-            icon: "⚡",
-          },
-        ].map(
+        {insights.map(
           (
-            item,
+            insight,
             index
           ) => (
 
@@ -510,21 +607,15 @@ export default function Analytics() {
               className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
             >
 
-              <div className="text-6xl">
+              <h2 className="text-3xl font-black">
 
-                {item.icon}
+                {insight.title}
 
-              </div>
-
-              <h3 className="text-3xl font-black mt-6">
-
-                {item.title}
-
-              </h3>
+              </h2>
 
               <p className="text-slate-400 text-lg mt-4 leading-relaxed">
 
-                {item.desc}
+                {insight.description}
 
               </p>
 
