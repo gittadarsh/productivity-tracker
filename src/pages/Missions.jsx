@@ -1,224 +1,167 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   motion,
 } from "framer-motion";
 
+import {
+  auth,
+  db,
+} from "../firebase";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
+
+import {
+  generateMissions,
+} from "../utils/missionEngine";
+
 export default function Missions() {
 
-  const missions = [
+  const [missions, setMissions] =
+    useState([]);
 
-    {
-      title:
-        "Complete 2 Focus Sessions",
+  useEffect(() => {
 
-      reward:
-        "+100 XP",
+    loadMissions();
 
-      progress:
-        50,
+  }, []);
 
-      icon: "🧠",
-    },
+  const loadMissions =
+    async () => {
 
-    {
-      title:
-        "Finish 3 Tasks",
+      const user =
+        auth.currentUser;
 
-      reward:
-        "+80 XP",
+      if (!user)
+        return;
 
-      progress:
-        75,
+      const userSnap =
+        await getDoc(
 
-      icon: "🎯",
-    },
+          doc(
+            db,
+            "users",
+            user.uid
+          )
+        );
 
-    {
-      title:
-        "Maintain Streak",
+      const focusSnap =
+        await getDoc(
 
-      reward:
-        "+120 XP",
+          doc(
+            db,
+            "focusSessions",
+            user.uid
+          )
+        );
 
-      progress:
-        90,
+      const userData =
+        userSnap.exists()
 
-      icon: "🔥",
-    },
+          ? userSnap.data()
 
-    {
-      title:
-        "Review Analytics",
+          : {};
 
-      reward:
-        "+40 XP",
+      const focusData =
+        focusSnap.exists()
 
-      progress:
-        100,
+          ? focusSnap.data()
 
-      icon: "📈",
-    },
-  ];
+          : {};
+
+      setMissions(
+
+        generateMissions({
+
+          xp:
+            userData.xp || 0,
+
+          sessions:
+            focusData.sessions || 0,
+
+          streak:
+            Math.floor(
+              (
+                focusData.sessions ||
+                0
+              ) / 3
+            ),
+        })
+      );
+    };
 
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-6">
 
-      {/* HERO */}
+      {missions.map(
+        (
+          mission,
+          index
+        ) => (
 
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-orange-500/10 to-red-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
-      >
+          <motion.div
+            key={index}
+            whileHover={{
+              y: -5,
+            }}
+            className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
+          >
 
-        <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/20 blur-[120px]" />
+            <div className="flex items-center justify-between">
 
-        <div className="relative z-10">
+              <div>
 
-          <p className="text-orange-400 uppercase tracking-[6px] text-sm font-semibold">
+                <h2 className="text-3xl font-black">
 
-            Retention Engine
+                  {mission.title}
 
-          </p>
+                </h2>
 
-          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
+                <p className="text-orange-400 mt-3 font-bold">
 
-            Daily
-            {" "}
+                  {mission.reward}
 
-            <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-
-              Missions
-
-            </span>
-
-          </h1>
-
-          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
-
-            Complete missions, earn rewards, and maintain elite productivity consistency.
-
-          </p>
-
-        </div>
-
-      </motion.div>
-
-      {/* MISSIONS */}
-
-      <div className="space-y-6">
-
-        {missions.map(
-          (
-            mission,
-            index
-          ) => (
-
-            <motion.div
-              key={index}
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                delay:
-                  index * 0.08,
-              }}
-              whileHover={{
-                y: -5,
-              }}
-              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-orange-500/20 bg-white/5 backdrop-blur-xl p-8 shadow-2xl transition-all duration-300 hover:scale-[1.01]"
-            >
-
-              <div className="absolute top-0 right-0 w-60 h-60 bg-orange-500/10 blur-[120px]" />
-
-              <div className="relative z-10">
-
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-
-                  <div className="flex items-center gap-6">
-
-                    <div className="text-6xl">
-
-                      {mission.icon}
-
-                    </div>
-
-                    <div>
-
-                      <h2 className="text-3xl font-black">
-
-                        {mission.title}
-
-                      </h2>
-
-                      <p className="text-orange-400 text-lg font-bold mt-2">
-
-                        Reward:
-                        {" "}
-                        {mission.reward}
-
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <div className="text-right">
-
-                    <p className="text-slate-400 mb-3">
-
-                      Progress
-
-                    </p>
-
-                    <h3 className="text-4xl font-black">
-
-                      {mission.progress}%
-
-                    </h3>
-
-                  </div>
-
-                </div>
-
-                {/* PROGRESS */}
-
-                <div className="w-full h-5 rounded-full bg-white/5 overflow-hidden mt-8">
-
-                  <motion.div
-                    initial={{
-                      width: 0,
-                    }}
-                    animate={{
-                      width:
-                        `${mission.progress}%`,
-                    }}
-                    transition={{
-                      duration: 1,
-                    }}
-                    className="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500"
-                  />
-
-                </div>
+                </p>
 
               </div>
 
-            </motion.div>
-          )
-        )}
+              <h3 className="text-4xl font-black">
 
-      </div>
+                {
+                  Math.floor(
+                    mission.progress
+                  )
+                }%
+
+              </h3>
+
+            </div>
+
+            <div className="w-full h-5 rounded-full bg-white/5 overflow-hidden mt-8">
+
+              <motion.div
+                initial={{
+                  width: 0,
+                }}
+                animate={{
+                  width:
+                    `${mission.progress}%`,
+                }}
+                className="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500"
+              />
+
+            </div>
+
+          </motion.div>
+        )
+      )}
 
     </div>
   );

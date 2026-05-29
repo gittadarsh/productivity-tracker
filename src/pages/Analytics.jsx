@@ -17,6 +17,24 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+import {
+
+  LineChart,
+  Line,
+
+  XAxis,
+  YAxis,
+
+  Tooltip,
+  ResponsiveContainer,
+
+  AreaChart,
+  Area,
+
+  CartesianGrid,
+
+} from "recharts";
+
 export default function Analytics() {
 
   const [data, setData] =
@@ -53,8 +71,6 @@ export default function Analytics() {
         if (!user)
           return;
 
-        /* USER */
-
         const userRef =
           doc(
             db,
@@ -66,8 +82,6 @@ export default function Analytics() {
           await getDoc(
             userRef
           );
-
-        /* FOCUS */
 
         const focusRef =
           doc(
@@ -108,8 +122,6 @@ export default function Analytics() {
           Math.floor(
             sessions / 3
           );
-
-        /* PRODUCTIVITY SCORE */
 
         const score =
           Math.min(
@@ -152,36 +164,81 @@ export default function Analytics() {
       }
     };
 
-  const insights = [
+  /* MOCK VISUAL DATA */
+
+  const xpData = [
 
     {
-      title:
-        "Peak Productivity",
-
-      description:
-        "Your productivity is improving rapidly through focus consistency.",
-
-      icon: "🚀",
+      day: "Mon",
+      xp: 120,
     },
 
     {
-      title:
-        "Focus Intelligence",
-
-      description:
-        "You perform best when completing multiple focus sessions daily.",
-
-      icon: "🧠",
+      day: "Tue",
+      xp: 220,
     },
 
     {
-      title:
-        "Streak Momentum",
+      day: "Wed",
+      xp: 380,
+    },
 
-      description:
-        "Maintaining your streak is dramatically improving execution consistency.",
+    {
+      day: "Thu",
+      xp: 520,
+    },
 
-      icon: "🔥",
+    {
+      day: "Fri",
+      xp: 740,
+    },
+
+    {
+      day: "Sat",
+      xp: 900,
+    },
+
+    {
+      day: "Sun",
+      xp: data.xp,
+    },
+  ];
+
+  const focusData = [
+
+    {
+      day: "Mon",
+      sessions: 1,
+    },
+
+    {
+      day: "Tue",
+      sessions: 2,
+    },
+
+    {
+      day: "Wed",
+      sessions: 3,
+    },
+
+    {
+      day: "Thu",
+      sessions: 2,
+    },
+
+    {
+      day: "Fri",
+      sessions: 4,
+    },
+
+    {
+      day: "Sat",
+      sessions: 5,
+    },
+
+    {
+      day: "Sun",
+      sessions: data.sessions,
     },
   ];
 
@@ -242,12 +299,6 @@ export default function Analytics() {
 
           </h1>
 
-          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
-
-            AI-powered productivity insights and behavioral performance tracking.
-
-          </p>
-
         </div>
 
       </motion.div>
@@ -256,9 +307,7 @@ export default function Analytics() {
 
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 shadow-2xl">
 
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[120px]" />
-
-        <div className="relative z-10 text-center">
+        <div className="text-center">
 
           <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
@@ -272,32 +321,140 @@ export default function Analytics() {
 
           </h1>
 
-          <p className="text-2xl text-slate-400 mt-4">
+        </div>
 
-            Elite Productivity Level
+      </div>
 
-          </p>
+      {/* CHARTS */}
 
-          {/* PROGRESS */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-          <div className="max-w-3xl mx-auto mt-10">
+        {/* XP GRAPH */}
 
-            <div className="w-full h-6 rounded-full bg-white/5 overflow-hidden">
+        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-              <motion.div
-                initial={{
-                  width: 0,
-                }}
-                animate={{
-                  width: `${data.score}%`,
-                }}
-                transition={{
-                  duration: 1.5,
-                }}
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
-              />
+          <h2 className="text-3xl font-black mb-8">
 
-            </div>
+            ⚡ XP Growth
+
+          </h2>
+
+          <div className="h-[320px]">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <AreaChart
+                data={xpData}
+              >
+
+                <defs>
+
+                  <linearGradient
+                    id="xp"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+
+                    <stop
+                      offset="5%"
+                      stopColor="#06b6d4"
+                      stopOpacity={0.8}
+                    />
+
+                    <stop
+                      offset="95%"
+                      stopColor="#06b6d4"
+                      stopOpacity={0}
+                    />
+
+                  </linearGradient>
+
+                </defs>
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#1e293b"
+                />
+
+                <XAxis
+                  dataKey="day"
+                  stroke="#94a3b8"
+                />
+
+                <YAxis
+                  stroke="#94a3b8"
+                />
+
+                <Tooltip />
+
+                <Area
+                  type="monotone"
+                  dataKey="xp"
+                  stroke="#06b6d4"
+                  fillOpacity={1}
+                  fill="url(#xp)"
+                />
+
+              </AreaChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+
+        {/* FOCUS GRAPH */}
+
+        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+
+          <h2 className="text-3xl font-black mb-8">
+
+            🧠 Focus Sessions
+
+          </h2>
+
+          <div className="h-[320px]">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <LineChart
+                data={focusData}
+              >
+
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#1e293b"
+                />
+
+                <XAxis
+                  dataKey="day"
+                  stroke="#94a3b8"
+                />
+
+                <YAxis
+                  stroke="#94a3b8"
+                />
+
+                <Tooltip />
+
+                <Line
+                  type="monotone"
+                  dataKey="sessions"
+                  stroke="#a855f7"
+                  strokeWidth={4}
+                />
+
+              </LineChart>
+
+            </ResponsiveContainer>
 
           </div>
 
@@ -305,49 +462,39 @@ export default function Analytics() {
 
       </div>
 
-      {/* METRICS */}
+      {/* INSIGHTS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {[
           {
             title:
-              "Total XP",
+              "Peak Momentum",
 
-            value:
-              data.xp,
+            desc:
+              "Your consistency is accelerating rapidly.",
 
-            icon: "⚡",
+            icon: "🚀",
           },
 
           {
             title:
-              "Focus Sessions",
+              "Deep Focus",
 
-            value:
-              data.sessions,
+            desc:
+              "Focus sessions increased strongly this week.",
 
             icon: "🧠",
           },
 
           {
             title:
-              "Current Streak",
+              "Execution Quality",
 
-            value:
-              data.streak,
+            desc:
+              "Your productivity score is outperforming average users.",
 
-            icon: "🔥",
-          },
-
-          {
-            title:
-              "Goals Completed",
-
-            value:
-              data.goals,
-
-            icon: "🎯",
+            icon: "⚡",
           },
         ].map(
           (
@@ -358,104 +505,28 @@ export default function Analytics() {
             <motion.div
               key={index}
               whileHover={{
-                y: -6,
-              }}
-              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
-            >
-
-              <div className="absolute top-0 right-0 w-52 h-52 bg-cyan-500/10 blur-[110px]" />
-
-              <div className="relative z-10">
-
-                <div className="text-5xl">
-
-                  {item.icon}
-
-                </div>
-
-                <p className="text-slate-400 mt-7 text-lg">
-
-                  {item.title}
-
-                </p>
-
-                <h2 className="text-5xl md:text-6xl font-black mt-4">
-
-                  {item.value}
-
-                </h2>
-
-              </div>
-
-            </motion.div>
-          )
-        )}
-
-      </div>
-
-      {/* AI INSIGHTS */}
-
-      <div className="space-y-5">
-
-        <h2 className="text-4xl font-black">
-
-          🧠 AI Productivity Insights
-
-        </h2>
-
-        {insights.map(
-          (
-            insight,
-            index
-          ) => (
-
-            <motion.div
-              key={index}
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                delay:
-                  index * 0.08,
-              }}
-              whileHover={{
                 y: -5,
               }}
-              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-8 shadow-2xl transition-all duration-300 hover:scale-[1.01]"
+              className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
             >
 
-              <div className="absolute top-0 right-0 w-52 h-52 bg-purple-500/10 blur-[120px]" />
+              <div className="text-6xl">
 
-              <div className="relative z-10 flex items-start gap-6">
-
-                <div className="text-6xl">
-
-                  {insight.icon}
-
-                </div>
-
-                <div>
-
-                  <h3 className="text-3xl font-black">
-
-                    {insight.title}
-
-                  </h3>
-
-                  <p className="text-slate-400 text-lg mt-4 leading-relaxed">
-
-                    {insight.description}
-
-                  </p>
-
-                </div>
+                {item.icon}
 
               </div>
+
+              <h3 className="text-3xl font-black mt-6">
+
+                {item.title}
+
+              </h3>
+
+              <p className="text-slate-400 text-lg mt-4 leading-relaxed">
+
+                {item.desc}
+
+              </p>
 
             </motion.div>
           )

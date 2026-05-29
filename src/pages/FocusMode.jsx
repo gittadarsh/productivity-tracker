@@ -22,6 +22,10 @@ import {
 
 import toast from "react-hot-toast";
 
+import {
+  updateActivityHistory,
+} from "../utils/activityEngine";
+
 export default function FocusMode() {
 
   const [minutes, setMinutes] =
@@ -37,6 +41,9 @@ export default function FocusMode() {
     useState(0);
 
   const [xp, setXp] =
+    useState(0);
+
+  const [score, setScore] =
     useState(0);
 
   /* LOAD DATA */
@@ -58,25 +65,48 @@ export default function FocusMode() {
         if (!user)
           return;
 
-        const ref = doc(
-          db,
-          "focusSessions",
-          user.uid
-        );
+        const focusRef =
+          doc(
+            db,
+            "focusSessions",
+            user.uid
+          );
 
-        const snap =
-          await getDoc(ref);
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
+          );
+
+        const focusSnap =
+          await getDoc(
+            focusRef
+          );
+
+        const userSnap =
+          await getDoc(
+            userRef
+          );
 
         if (
-          snap.exists()
+          focusSnap.exists()
         ) {
 
           const data =
-            snap.data();
+            focusSnap.data();
 
           setSessions(
             data.sessions || 0
           );
+        }
+
+        if (
+          userSnap.exists()
+        ) {
+
+          const data =
+            userSnap.data();
 
           setXp(
             data.xp || 0
@@ -89,28 +119,6 @@ export default function FocusMode() {
 
       }
     };
-
-  /* SAVE LOCAL TIMER */
-
-  useEffect(() => {
-
-    localStorage.setItem(
-
-      "focusTimer",
-
-      JSON.stringify({
-
-        minutes,
-        seconds,
-        running,
-      })
-    );
-
-  }, [
-    minutes,
-    seconds,
-    running,
-  ]);
 
   /* RESTORE TIMER */
 
@@ -140,6 +148,54 @@ export default function FocusMode() {
     }
 
   }, []);
+
+  /* SAVE TIMER */
+
+  useEffect(() => {
+
+    localStorage.setItem(
+
+      "focusTimer",
+
+      JSON.stringify({
+
+        minutes,
+        seconds,
+        running,
+      })
+    );
+
+  }, [
+    minutes,
+    seconds,
+    running,
+  ]);
+
+  /* PRODUCTIVITY SCORE */
+
+  useEffect(() => {
+
+    const calculatedScore =
+      Math.min(
+
+        100,
+
+        Math.floor(
+
+          xp * 0.02 +
+
+          sessions * 2
+        )
+      );
+
+    setScore(
+      calculatedScore
+    );
+
+  }, [
+    xp,
+    sessions,
+  ]);
 
   /* TIMER */
 
@@ -194,7 +250,7 @@ export default function FocusMode() {
     minutes,
   ]);
 
-  /* COMPLETE */
+  /* COMPLETE SESSION */
 
   const completeSession =
     async () => {
@@ -217,11 +273,30 @@ export default function FocusMode() {
         const newXP =
           xp + gainedXP;
 
+        const productivityScore =
+          Math.min(
+
+            100,
+
+            Math.floor(
+
+              newXP * 0.02 +
+
+              newSessions * 2
+            )
+          );
+
         setSessions(
           newSessions
         );
 
-        setXp(newXP);
+        setXp(
+          newXP
+        );
+
+        setScore(
+          productivityScore
+        );
 
         /* SAVE FOCUS */
 
@@ -236,8 +311,6 @@ export default function FocusMode() {
           {
             sessions:
               newSessions,
-
-            xp: newXP,
           },
 
           {
@@ -262,6 +335,23 @@ export default function FocusMode() {
           }
         );
 
+        /* ACTIVITY HISTORY */
+
+        await updateActivityHistory(
+
+          user.uid,
+
+          {
+
+            xp: newXP,
+
+            sessions:
+              newSessions,
+
+            productivityScore,
+          }
+        );
+
         toast.success(
           "+50 XP Earned 🚀"
         );
@@ -272,6 +362,9 @@ export default function FocusMode() {
 
         console.log(error);
 
+        toast.error(
+          "Session failed"
+        );
       }
     };
 
@@ -291,6 +384,12 @@ export default function FocusMode() {
       setRunning(true);
     };
 
+  const pauseTimer =
+    () => {
+
+      setRunning(false);
+    };
+
   const resetTimer =
     () => {
 
@@ -308,31 +407,33 @@ export default function FocusMode() {
       {/* HERO */}
 
       <motion.div
+
         initial={{
           opacity: 0,
           y: 20,
         }}
+
         animate={{
           opacity: 1,
           y: 0,
         }}
-        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+
+        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
       >
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/20 blur-[120px]" />
 
         <div className="relative z-10">
 
           <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
 
-            Deep Work System
+            Deep Work Engine
 
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
 
-            Enter
-            {" "}
+            Enter{" "}
 
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
@@ -342,9 +443,9 @@ export default function FocusMode() {
 
           </h1>
 
-          <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
+          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
 
-            Eliminate distractions and maximize deep work performance.
+            Train deep work, eliminate distractions, and compound productivity through focused execution.
 
           </p>
 
@@ -356,19 +457,23 @@ export default function FocusMode() {
 
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 md:p-16 shadow-2xl text-center">
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/10 blur-[120px]" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[120px]" />
 
         <div className="relative z-10">
 
           <motion.div
+
             key={`${minutes}:${seconds}`}
+
             initial={{
-              scale: 0.95,
+              scale: 0.96,
             }}
+
             animate={{
               scale: 1,
             }}
-            className="text-[90px] md:text-[140px] font-black tracking-tight"
+
+            className="text-[90px] md:text-[150px] font-black tracking-tight"
           >
 
             {String(minutes).padStart(2, "0")}
@@ -377,14 +482,14 @@ export default function FocusMode() {
 
           </motion.div>
 
-          <p className="text-slate-400 text-xl mt-4">
+          <p className="text-slate-400 text-xl mt-5">
 
             {
               running
 
-                ? "Focus session active"
+                ? "Deep work session active"
 
-                : "Ready for deep work"
+                : "Ready to focus"
             }
 
           </p>
@@ -400,16 +505,16 @@ export default function FocusMode() {
 
               {
                 running
+
                   ? "Running..."
+
                   : "▶ Start Focus"
               }
 
             </button>
 
             <button
-              onClick={() =>
-                setRunning(false)
-              }
+              onClick={pauseTimer}
               className="px-10 py-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 font-bold text-lg transition-all duration-300"
             >
 
@@ -432,15 +537,17 @@ export default function FocusMode() {
 
       </div>
 
-      {/* LIVE STATS */}
+      {/* LIVE METRICS */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {/* SESSIONS */}
 
         <motion.div
           whileHover={{
             y: -5,
           }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:scale-[1.015] transition-all duration-300"
+          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
         >
 
           <div className="text-5xl">
@@ -451,34 +558,25 @@ export default function FocusMode() {
 
           <p className="text-slate-400 mt-6">
 
-            Sessions Completed
+            Focus Sessions
 
           </p>
 
-          <motion.h2
-            key={sessions}
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            className="text-5xl font-black mt-3"
-          >
+          <h2 className="text-5xl font-black mt-4">
 
             {sessions}
 
-          </motion.h2>
+          </h2>
 
         </motion.div>
+
+        {/* XP */}
 
         <motion.div
           whileHover={{
             y: -5,
           }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:scale-[1.015] transition-all duration-300"
+          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
         >
 
           <div className="text-5xl">
@@ -489,70 +587,44 @@ export default function FocusMode() {
 
           <p className="text-slate-400 mt-6">
 
-            Focus XP
+            Total XP
 
           </p>
 
-          <motion.h2
-            key={xp}
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            className="text-5xl font-black mt-3"
-          >
+          <h2 className="text-5xl font-black mt-4">
 
             {xp}
 
-          </motion.h2>
+          </h2>
 
         </motion.div>
+
+        {/* SCORE */}
 
         <motion.div
           whileHover={{
             y: -5,
           }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:scale-[1.015] transition-all duration-300"
+          className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
         >
 
           <div className="text-5xl">
 
-            🔥
+            🚀
 
           </div>
 
           <p className="text-slate-400 mt-6">
 
-            Deep Work Hours
+            Productivity Score
 
           </p>
 
-          <motion.h2
-            key={sessions * 25}
-            initial={{
-              opacity: 0,
-              y: 10,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            className="text-5xl font-black mt-3"
-          >
+          <h2 className="text-5xl font-black mt-4">
 
-            {
-              (
-                sessions *
-                25 /
-                60
-              ).toFixed(1)
-            }
+            {score}
 
-          </motion.h2>
+          </h2>
 
         </motion.div>
 
