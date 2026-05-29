@@ -37,6 +37,18 @@ export default function Sidebar({
     },
 
     {
+      name: "Missions",
+      path: "/missions",
+      icon: "🚀",
+    },
+
+    {
+      name: "Achievements",
+      path: "/achievements",
+      icon: "🏆",
+    },
+
+    {
       name: "Assigned Goals",
       path: "/assigned-goals",
       icon: "🎯",
@@ -57,7 +69,7 @@ export default function Sidebar({
     {
       name: "Leaderboard",
       path: "/leaderboard",
-      icon: "🏆",
+      icon: "🥇",
     },
 
     {
@@ -84,7 +96,7 @@ export default function Sidebar({
     {
       name: "Leaderboard",
       path: "/leaderboard",
-      icon: "🏆",
+      icon: "🥇",
     },
 
     {
@@ -102,6 +114,14 @@ export default function Sidebar({
 
       : studentLinks;
 
+  const level =
+    Math.max(
+      1,
+      Math.floor(
+        (user?.xp || 0) / 250
+      )
+    );
+
   return (
 
     <AnimatePresence>
@@ -109,6 +129,8 @@ export default function Sidebar({
       {mobileMenu && (
 
         <>
+
+          {/* OVERLAY */}
 
           <motion.div
 
@@ -130,6 +152,8 @@ export default function Sidebar({
 
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
           />
+
+          {/* SIDEBAR */}
 
           <motion.div
 
@@ -156,7 +180,7 @@ export default function Sidebar({
 
             <div className="flex flex-col h-full">
 
-              {/* TOP */}
+              {/* HEADER */}
 
               <div className="p-7 border-b border-white/10">
 
@@ -172,7 +196,7 @@ export default function Sidebar({
 
                     <p className="text-slate-400 text-sm mt-2">
 
-                      Elite Productivity Platform
+                      Productivity Intelligence Platform
 
                     </p>
 
@@ -227,9 +251,47 @@ export default function Sidebar({
 
                 </div>
 
+                {/* LEVEL CARD */}
+
+                <div className="grid grid-cols-2 gap-3 mt-5">
+
+                  <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
+
+                    <p className="text-xs text-slate-400">
+
+                      Level
+
+                    </p>
+
+                    <h3 className="text-2xl font-black text-cyan-400 mt-2">
+
+                      {level}
+
+                    </h3>
+
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+
+                    <p className="text-xs text-slate-400">
+
+                      XP
+
+                    </p>
+
+                    <h3 className="text-2xl font-black text-purple-400 mt-2">
+
+                      {user?.xp || 0}
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
               </div>
 
-              {/* LINKS */}
+              {/* NAVIGATION */}
 
               <div className="flex-1 overflow-y-auto p-5 space-y-3">
 

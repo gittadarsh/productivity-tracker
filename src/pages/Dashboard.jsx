@@ -38,6 +38,8 @@ export default function Dashboard() {
   const [loading, setLoading] =
     useState(true);
 
+  /* LOAD DATA */
+
   useEffect(() => {
 
     loadDashboard();
@@ -59,6 +61,8 @@ export default function Dashboard() {
           return;
         }
 
+        /* USER */
+
         const userRef =
           doc(
             db,
@@ -70,6 +74,8 @@ export default function Dashboard() {
           await getDoc(
             userRef
           );
+
+        /* FOCUS */
 
         const focusRef =
           doc(
@@ -132,10 +138,33 @@ export default function Dashboard() {
       }
     };
 
+  /* LEVEL ENGINE */
+
+  const level =
+    Math.max(
+      1,
+      Math.floor(
+        stats.xp / 250
+      )
+    );
+
+  const rank =
+
+    level >= 20
+      ? "Elite Performer"
+
+    : level >= 10
+      ? "Deep Worker"
+
+    : level >= 5
+      ? "Consistent"
+
+    : "Beginner";
+
   const quickActions = [
 
     {
-      title: "Start Focus",
+      title: "Focus",
       icon: "🧠",
       path: "/focus",
       gradient:
@@ -151,19 +180,19 @@ export default function Dashboard() {
     },
 
     {
-      title: "Leaderboard",
-      icon: "🏆",
-      path: "/leaderboard",
+      title: "Missions",
+      icon: "🚀",
+      path: "/missions",
       gradient:
-        "from-yellow-500 to-orange-500",
+        "from-orange-500 to-red-500",
     },
 
     {
-      title: "Goals",
-      icon: "🎯",
-      path: "/assigned-goals",
+      title: "Achievements",
+      icon: "🏆",
+      path: "/achievements",
       gradient:
-        "from-green-500 to-emerald-500",
+        "from-yellow-500 to-orange-500",
     },
   ];
 
@@ -194,7 +223,7 @@ export default function Dashboard() {
     },
 
     {
-      title: "Completed Goals",
+      title: "Goals Completed",
       value: stats.goals,
       icon: "🎯",
       color:
@@ -208,9 +237,9 @@ export default function Dashboard() {
 
       <div className="flex items-center justify-center min-h-[60vh]">
 
-        <div className="text-slate-400 text-2xl font-semibold">
+        <div className="text-slate-400 text-2xl">
 
-          Loading productivity intelligence...
+          Loading dashboard...
 
         </div>
 
@@ -225,15 +254,18 @@ export default function Dashboard() {
       {/* HERO */}
 
       <motion.div
+
         initial={{
           opacity: 0,
           y: 20,
         }}
+
         animate={{
           opacity: 1,
           y: 0,
         }}
-        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+
+        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
       >
 
         <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/20 blur-[120px]" />
@@ -264,6 +296,44 @@ export default function Dashboard() {
 
           </p>
 
+          {/* LEVEL SYSTEM */}
+
+          <div className="flex flex-wrap gap-5 mt-8">
+
+            <div className="px-6 py-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
+
+              <p className="text-slate-400 text-sm">
+
+                Current Level
+
+              </p>
+
+              <h3 className="text-3xl font-black text-cyan-400 mt-2">
+
+                Level {level}
+
+              </h3>
+
+            </div>
+
+            <div className="px-6 py-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+
+              <p className="text-slate-400 text-sm">
+
+                Productivity Rank
+
+              </p>
+
+              <h3 className="text-3xl font-black text-purple-400 mt-2">
+
+                {rank}
+
+              </h3>
+
+            </div>
+
+          </div>
+
         </div>
 
       </motion.div>
@@ -272,139 +342,108 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-        {quickActions.map(
-          (
-            action,
-            index
-          ) => (
+        {quickActions.map((action, index) => (
 
-            <Link
-              key={index}
-              to={action.path}
-            >
-
-              <motion.div
-                whileHover={{
-                  y: -5,
-                }}
-                className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.03]"
-              >
-
-                <div className={`
-
-                absolute inset-0 opacity-10
-
-                bg-gradient-to-br
-
-                ${action.gradient}`}
-                />
-
-                <div className="relative z-10">
-
-                  <div className="text-5xl">
-
-                    {action.icon}
-
-                  </div>
-
-                  <h3 className="text-2xl font-black mt-6">
-
-                    {action.title}
-
-                  </h3>
-
-                </div>
-
-              </motion.div>
-
-            </Link>
-          )
-        )}
-
-      </div>
-
-      {/* LIVE STATS */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-
-        {statCards.map(
-          (
-            stat,
-            index
-          ) => (
+          <Link
+            key={index}
+            to={action.path}
+          >
 
             <motion.div
-              key={index}
+
               whileHover={{
-                y: -6,
+                y: -5,
               }}
-              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+
+              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.03]"
             >
 
               <div className={`
 
-              absolute top-0 right-0
-
-              w-52 h-52 blur-[110px]
-
-              opacity-20
+              absolute inset-0 opacity-10
 
               bg-gradient-to-br
 
-              ${stat.color}`}
+              ${action.gradient}`}
               />
 
               <div className="relative z-10">
 
-                <div className="flex items-center justify-between">
+                <div className="text-5xl">
 
-                  <div className="text-5xl">
-
-                    {stat.icon}
-
-                  </div>
-
-                  <div className={`
-
-                  px-4 py-2 rounded-xl text-xs font-bold
-
-                  bg-gradient-to-r
-
-                  ${stat.color}`}
-                  >
-
-                    LIVE
-
-                  </div>
+                  {action.icon}
 
                 </div>
 
-                <p className="text-slate-400 mt-7 text-lg">
+                <h3 className="text-2xl font-black mt-6">
 
-                  {stat.title}
+                  {action.title}
 
-                </p>
-
-                <h2 className="text-5xl md:text-6xl font-black mt-4">
-
-                  {stat.value}
-
-                  {
-                    stat.title ===
-                    "Current Streak"
-
-                      ? "d"
-
-                      : ""
-                  }
-
-                </h2>
+                </h3>
 
               </div>
 
             </motion.div>
-          )
-        )}
+
+          </Link>
+        ))}
+
+      </div>
+
+      {/* STATS */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        {statCards.map((stat, index) => (
+
+          <motion.div
+
+            key={index}
+
+            whileHover={{
+              y: -6,
+            }}
+
+            className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+          >
+
+            <div className={`
+
+            absolute top-0 right-0
+
+            w-52 h-52 blur-[110px]
+
+            opacity-20
+
+            bg-gradient-to-br
+
+            ${stat.color}`}
+            />
+
+            <div className="relative z-10">
+
+              <div className="text-5xl">
+
+                {stat.icon}
+
+              </div>
+
+              <p className="text-slate-400 mt-7 text-lg">
+
+                {stat.title}
+
+              </p>
+
+              <h2 className="text-5xl md:text-6xl font-black mt-4">
+
+                {stat.value}
+
+              </h2>
+
+            </div>
+
+          </motion.div>
+        ))}
 
       </div>
 

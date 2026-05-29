@@ -47,6 +47,8 @@ import Habits from "./pages/Habits";
 
 import FocusMode from "./pages/FocusMode";
 
+import Missions from "./pages/Missions";
+
 import AssignGoals from "./pages/AssignGoals";
 
 import AssignedGoals from "./pages/AssignedGoals";
@@ -407,8 +409,6 @@ export default function App() {
 
                     <div className="flex items-center gap-4 flex-wrap">
 
-                      {/* CLOCK */}
-
                       <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 font-semibold text-slate-300">
 
                         {
@@ -419,8 +419,6 @@ export default function App() {
                         }
 
                       </div>
-
-                      {/* SEARCH */}
 
                       <button
                         onClick={() =>
@@ -440,8 +438,6 @@ export default function App() {
                         </span>
 
                       </button>
-
-                      {/* THEME */}
 
                       <button
                         onClick={() =>
@@ -562,6 +558,17 @@ export default function App() {
                 <ProtectedRoute user={user}>
                   <PageWrapper>
                     <FocusMode />
+                  </PageWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/missions"
+              element={
+                <ProtectedRoute user={user}>
+                  <PageWrapper>
+                    <Missions />
                   </PageWrapper>
                 </ProtectedRoute>
               }
