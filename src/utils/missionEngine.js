@@ -3,47 +3,90 @@ export const generateMissions =
     sessions,
     streak,
     xp,
-  }) => [
+    score,
+  }) => {
 
-    {
-      title:
-        "Complete 2 Focus Sessions",
+    const missions = [];
 
-      progress:
-        Math.min(
-          100,
-          (sessions / 2) * 100
-        ),
+    /* FOCUS */
 
-      reward:
-        "+100 XP",
-    },
+    if (sessions < 5) {
 
-    {
-      title:
-        "Maintain Streak",
+      missions.push({
 
-      progress:
-        Math.min(
-          100,
-          (streak / 7) * 100
-        ),
+        title:
+          "Complete 3 Focus Sessions",
 
-      reward:
-        "+120 XP",
-    },
+        progress:
+          Math.min(
+            100,
+            (sessions / 3) * 100
+          ),
 
-    {
-      title:
-        "Reach 1000 XP",
+        reward:
+          "+120 XP",
+      });
+    }
 
-      progress:
-        Math.min(
-          100,
-          (xp / 1000) * 100
-        ),
+    /* STREAK */
 
-      reward:
-        "+200 XP",
-    },
-  ];
+    if (streak < 7) {
+
+      missions.push({
+
+        title:
+          "Protect Your Streak",
+
+        progress:
+          Math.min(
+            100,
+            (streak / 7) * 100
+          ),
+
+        reward:
+          "+150 XP",
+      });
+    }
+
+    /* XP */
+
+    if (xp < 2000) {
+
+      missions.push({
+
+        title:
+          "Reach 2000 XP",
+
+        progress:
+          Math.min(
+            100,
+            (xp / 2000) * 100
+          ),
+
+        reward:
+          "+300 XP",
+      });
+    }
+
+    /* ELITE */
+
+    if (score >= 70) {
+
+      missions.push({
+
+        title:
+          "Elite Productivity Push",
+
+        progress:
+          Math.min(
+            100,
+            score
+          ),
+
+        reward:
+          "+500 XP",
+      });
+    }
+
+    return missions;
+  };

@@ -49,11 +49,15 @@ import FocusMode from "./pages/FocusMode";
 
 import Missions from "./pages/Missions";
 
+import Achievements from "./pages/Achievements";
+
 import AssignGoals from "./pages/AssignGoals";
 
 import AssignedGoals from "./pages/AssignedGoals";
 
 import Notifications from "./pages/Notifications";
+
+import Profile from "./pages/Profile";
 
 /* COMPONENTS */
 
@@ -314,6 +318,20 @@ export default function App() {
           setOpen={setSearchOpen}
         />
 
+        {/* MOBILE OVERLAY */}
+
+        {
+          mobileMenu && (
+
+            <div
+              onClick={() =>
+                setMobileMenu(false)
+              }
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            />
+          )
+        }
+
         {/* SIDEBAR */}
 
         {
@@ -324,6 +342,8 @@ export default function App() {
               mobileMenu={mobileMenu}
               setMobileMenu={setMobileMenu}
               handleLogout={handleLogout}
+              sidebarOpen={mobileMenu}
+              setSidebarOpen={setMobileMenu}
             />
           )
         }
@@ -350,7 +370,7 @@ export default function App() {
                       <button
                         onClick={() =>
                           setMobileMenu(
-                            !mobileMenu
+                            prev => !prev
                           )
                         }
                         className="bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 px-4 py-3 rounded-2xl text-2xl"
@@ -575,6 +595,17 @@ export default function App() {
             />
 
             <Route
+              path="/achievements"
+              element={
+                <ProtectedRoute user={user}>
+                  <PageWrapper>
+                    <Achievements />
+                  </PageWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/assigned-goals"
               element={
                 <ProtectedRoute user={user}>
@@ -624,6 +655,17 @@ export default function App() {
                 <ProtectedRoute user={user}>
                   <PageWrapper>
                     <Notifications />
+                  </PageWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute user={user}>
+                  <PageWrapper>
+                    <Profile />
                   </PageWrapper>
                 </ProtectedRoute>
               }

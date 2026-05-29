@@ -1,127 +1,167 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  auth,
+  db,
+} from "../firebase";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
+
+import {
   motion,
 } from "framer-motion";
 
+import {
+  generateNotifications,
+} from "../utils/notificationEngine";
+
 export default function Notifications() {
 
-  const notifications = [
+  const [notifications,
+    setNotifications] =
+    useState([]);
 
-    {
-      title:
-        "Goal Completed",
-      message:
-        "A student completed an assigned goal.",
-      icon:
-        "🎯",
-    },
+  useEffect(() => {
 
-    {
-      title:
-        "Focus Session Finished",
-      message:
-        "Productivity session tracked successfully.",
-      icon:
-        "🧠",
-    },
+    loadNotifications();
 
-    {
-      title:
-        "New Student Joined",
-      message:
-        "A new student joined your mentor workspace.",
-      icon:
-        "🚀",
-    },
-  ];
+  }, []);
+
+  const loadNotifications =
+    async () => {
+
+      const user =
+        auth.currentUser;
+
+      if (!user)
+        return;
+
+      const userSnap =
+        await getDoc(
+
+          doc(
+            db,
+            "users",
+            user.uid
+          )
+        );
+
+      const focusSnap =
+        await getDoc(
+
+          doc(
+            db,
+            "focusSessions",
+            user.uid
+          )
+        );
+
+      const userData =
+        userSnap.exists()
+
+          ? userSnap.data()
+
+          : {};
+
+      const focusData =
+        focusSnap.exists()
+
+          ? focusSnap.data()
+
+          : {};
+
+      const xp =
+        userData.xp || 0;
+
+      const sessions =
+        focusData.sessions || 0;
+
+      const streak =
+        Math.floor(
+          sessions / 3
+        );
+
+      const score =
+        Math.min(
+
+          100,
+
+          xp * 0.02 +
+          sessions * 2 +
+          streak * 4
+        );
+
+      setNotifications(
+
+        generateNotifications({
+
+          xp,
+          sessions,
+          streak,
+          score,
+        })
+      );
+    };
 
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-6">
 
-      <div className="rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-10 shadow-2xl">
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        className="rounded-[40px] border border-white/10 bg-gradient-to-br from-orange-500/10 to-red-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
+      >
 
-        <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
-
-          Live Notification Center
-
-        </p>
-
-        <h1 className="text-6xl font-black mt-5">
+        <h1 className="text-5xl md:text-7xl font-black">
 
           🔔 Notifications
 
         </h1>
 
-        <p className="text-slate-400 text-lg mt-5">
+      </motion.div>
 
-          Track real-time productivity activity and accountability updates.
+      {notifications.map(
+        (
+          item,
+          index
+        ) => (
 
-        </p>
+          <motion.div
+            key={index}
+            whileHover={{
+              y: -4,
+            }}
+            className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+          >
 
-      </div>
+            <h2 className="text-3xl font-black">
 
-      <div className="space-y-5">
+              {item.title}
 
-        {notifications.map(
-          (
-            notification,
-            index
-          ) => (
+            </h2>
 
-            <motion.div
-              key={index}
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                delay:
-                  index * 0.08,
-              }}
-              className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
-            >
+            <p className="text-slate-400 text-lg mt-4">
 
-              <div className="flex items-center gap-5">
+              {item.description}
 
-                <div className="text-5xl">
+            </p>
 
-                  {
-                    notification.icon
-                  }
-
-                </div>
-
-                <div>
-
-                  <h2 className="text-2xl font-black">
-
-                    {
-                      notification.title
-                    }
-
-                  </h2>
-
-                  <p className="text-slate-400 mt-2">
-
-                    {
-                      notification.message
-                    }
-
-                  </p>
-
-                </div>
-
-              </div>
-
-            </motion.div>
-          )
-        )}
-
-      </div>
+          </motion.div>
+        )
+      )}
 
     </div>
   );

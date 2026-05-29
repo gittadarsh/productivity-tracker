@@ -21,6 +21,10 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+import AICoachDashboard from "../components/AICoachDashboard";
+
+import XPProgress from "../components/XPProgress";
+
 export default function Dashboard() {
 
   const [stats, setStats] =
@@ -37,8 +41,6 @@ export default function Dashboard() {
 
   const [loading, setLoading] =
     useState(true);
-
-  /* LOAD DATA */
 
   useEffect(() => {
 
@@ -61,8 +63,6 @@ export default function Dashboard() {
           return;
         }
 
-        /* USER */
-
         const userRef =
           doc(
             db,
@@ -74,8 +74,6 @@ export default function Dashboard() {
           await getDoc(
             userRef
           );
-
-        /* FOCUS */
 
         const focusRef =
           doc(
@@ -138,8 +136,6 @@ export default function Dashboard() {
       }
     };
 
-  /* LEVEL ENGINE */
-
   const level =
     Math.max(
       1,
@@ -167,32 +163,24 @@ export default function Dashboard() {
       title: "Focus",
       icon: "🧠",
       path: "/focus",
-      gradient:
-        "from-cyan-500 to-blue-500",
     },
 
     {
       title: "Analytics",
       icon: "📈",
       path: "/analytics",
-      gradient:
-        "from-purple-500 to-pink-500",
     },
 
     {
       title: "Missions",
       icon: "🚀",
       path: "/missions",
-      gradient:
-        "from-orange-500 to-red-500",
     },
 
     {
       title: "Achievements",
       icon: "🏆",
       path: "/achievements",
-      gradient:
-        "from-yellow-500 to-orange-500",
     },
   ];
 
@@ -202,32 +190,24 @@ export default function Dashboard() {
       title: "Total XP",
       value: stats.xp,
       icon: "⚡",
-      color:
-        "from-cyan-500 to-blue-500",
     },
 
     {
       title: "Focus Sessions",
       value: stats.sessions,
       icon: "🧠",
-      color:
-        "from-purple-500 to-pink-500",
     },
 
     {
       title: "Current Streak",
       value: stats.streak,
       icon: "🔥",
-      color:
-        "from-orange-500 to-red-500",
     },
 
     {
       title: "Goals Completed",
       value: stats.goals,
       icon: "🎯",
-      color:
-        "from-green-500 to-emerald-500",
     },
   ];
 
@@ -290,13 +270,11 @@ export default function Dashboard() {
 
           </h1>
 
-          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
+          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl">
 
-            Real-time productivity tracking powered by focus intelligence and accountability systems.
+            AI-powered productivity intelligence and behavioral coaching platform.
 
           </p>
-
-          {/* LEVEL SYSTEM */}
 
           <div className="flex flex-wrap gap-5 mt-8">
 
@@ -338,6 +316,14 @@ export default function Dashboard() {
 
       </motion.div>
 
+      {/* AI COACH */}
+
+      <AICoachDashboard />
+
+      {/* XP PROGRESS */}
+
+      <XPProgress />
+
       {/* QUICK ACTIONS */}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -350,38 +336,23 @@ export default function Dashboard() {
           >
 
             <motion.div
-
               whileHover={{
                 y: -5,
               }}
-
-              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.03]"
+              className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:bg-white/10 transition-all"
             >
 
-              <div className={`
+              <div className="text-5xl">
 
-              absolute inset-0 opacity-10
-
-              bg-gradient-to-br
-
-              ${action.gradient}`}
-              />
-
-              <div className="relative z-10">
-
-                <div className="text-5xl">
-
-                  {action.icon}
-
-                </div>
-
-                <h3 className="text-2xl font-black mt-6">
-
-                  {action.title}
-
-                </h3>
+                {action.icon}
 
               </div>
+
+              <h3 className="text-2xl font-black mt-6">
+
+                {action.title}
+
+              </h3>
 
             </motion.div>
 
@@ -397,50 +368,30 @@ export default function Dashboard() {
         {statCards.map((stat, index) => (
 
           <motion.div
-
             key={index}
-
             whileHover={{
-              y: -6,
+              y: -5,
             }}
-
-            className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+            className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
           >
 
-            <div className={`
+            <div className="text-5xl">
 
-            absolute top-0 right-0
-
-            w-52 h-52 blur-[110px]
-
-            opacity-20
-
-            bg-gradient-to-br
-
-            ${stat.color}`}
-            />
-
-            <div className="relative z-10">
-
-              <div className="text-5xl">
-
-                {stat.icon}
-
-              </div>
-
-              <p className="text-slate-400 mt-7 text-lg">
-
-                {stat.title}
-
-              </p>
-
-              <h2 className="text-5xl md:text-6xl font-black mt-4">
-
-                {stat.value}
-
-              </h2>
+              {stat.icon}
 
             </div>
+
+            <p className="text-slate-400 mt-7 text-lg">
+
+              {stat.title}
+
+            </p>
+
+            <h2 className="text-5xl md:text-6xl font-black mt-4">
+
+              {stat.value}
+
+            </h2>
 
           </motion.div>
         ))}
