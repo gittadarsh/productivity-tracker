@@ -7,76 +7,43 @@ import App from "./App";
 import "./index.css";
 
 import {
-
   Toaster,
-
 } from "react-hot-toast";
 
 import {
-
-  registerSW,
-
-} from "virtual:pwa-register";
-
-/* REGISTER PWA */
-
-registerSW({
-
-  immediate: true,
-});
+  ProductivityProvider,
+} from "./context/ProductivityContext";
 
 ReactDOM.createRoot(
-
   document.getElementById("root")
-
 ).render(
 
   <React.StrictMode>
 
-    {/* TOAST SYSTEM */}
+    <ProductivityProvider>
 
-    <Toaster
+      <App />
 
-      position="top-right"
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
 
-      toastOptions={{
+            background: "#0f172a",
 
-        duration: 3000,
+            color: "#fff",
 
-        style: {
+            border:
+              "1px solid rgba(255,255,255,0.08)",
 
-          background: "#0f172a",
+            borderRadius: "18px",
 
-          color: "#ffffff",
+            padding: "16px",
+          },
+        }}
+      />
 
-          border:
-            "1px solid #334155",
-
-          padding:
-            "16px",
-
-          borderRadius:
-            "16px",
-
-          fontWeight:
-            "600",
-        },
-
-        success: {
-
-          duration: 2500,
-        },
-
-        error: {
-
-          duration: 3500,
-        },
-      }}
-    />
-
-    {/* MAIN APP */}
-
-    <App />
+    </ProductivityProvider>
 
   </React.StrictMode>
 );

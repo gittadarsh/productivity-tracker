@@ -4,253 +4,186 @@ import {
 } from "react";
 
 import {
-  motion,
-} from "framer-motion";
+  collection,
+  onSnapshot,
+} from "firebase/firestore";
 
 import {
   db,
 } from "../firebase";
 
 import {
-  collection,
-  onSnapshot,
-} from "firebase/firestore";
+  motion,
+} from "framer-motion";
 
 export default function Leaderboard() {
 
-  const [students, setStudents] =
+  const [users, setUsers] =
     useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
 
   useEffect(() => {
 
-    loadLeaderboard();
+    const unsub =
+      onSnapshot(
+
+        collection(
+          db,
+          "users"
+        ),
+
+        (
+          snapshot
+        ) => {
+
+          const data =
+            snapshot.docs.map(
+
+              doc => ({
+
+                id:
+                  doc.id,
+
+                ...doc.data(),
+              })
+            );
+
+          data.sort(
+
+            (
+              a,
+              b
+            ) =>
+
+              (b.xp || 0)
+
+              -
+
+              (a.xp || 0)
+          );
+
+          setUsers(data);
+        }
+      );
+
+    return () =>
+      unsub();
 
   }, []);
-
-  const loadLeaderboard =
-    async () => {
-
-      try {
-
-        onSnapshot(
-
-          collection(
-            db,
-            "users"
-          ),
-
-          (snapshot) => {
-
-            const users =
-              snapshot.docs
-
-                .map((doc) => ({
-                  id: doc.id,
-                  ...doc.data(),
-                }))
-
-                .filter(
-                  (user) =>
-                    user.role ===
-                    "student"
-                )
-
-                .sort(
-                  (a, b) =>
-
-                    (
-                      b.xp || 0
-                    ) -
-
-                    (
-                      a.xp || 0
-                    )
-                );
-
-            setStudents(users);
-
-            setLoading(false);
-
-          }
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        setLoading(false);
-
-      }
-    };
 
   return (
 
     <div className="space-y-8">
 
-      {/* HERO */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
+      >
 
-      <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 backdrop-blur-xl p-10 shadow-2xl">
+        <h1 className="text-5xl md:text-7xl font-black">
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-yellow-500/20 blur-[120px]" />
+          🏆 Leaderboard
 
-        <div className="relative z-10">
+        </h1>
 
-          <p className="text-yellow-400 uppercase tracking-[6px] text-sm font-semibold">
-
-            Productivity Rankings
-
-          </p>
-
-          <h1 className="text-6xl font-black mt-5">
-
-            🏆 Global Leaderboard
-
-          </h1>
-
-          <p className="text-slate-400 text-lg mt-5">
-
-            Ranked by real productivity consistency and XP intelligence.
-
-          </p>
-
-        </div>
-
-      </div>
-
-      {/* CONTENT */}
+      </motion.div>
 
       <div className="space-y-5">
 
-        {
-          loading ? (
+        {users.map(
+          (
+            user,
+            index
+          ) => {
 
-            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
+            const level =
+              Math.max(
 
-              <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
+                1,
 
-              <div className="relative z-10">
+                Math.floor(
+                  (
+                    user.xp || 0
+                  ) / 250
+                )
+              );
 
-                <div className="text-8xl mb-6">
+            return (
 
-                  🏆
+              <motion.div
+                key={user.id}
+                whileHover={{
+                  y: -4,
+                }}
+                className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+              >
 
-                </div>
+                <div className="flex items-center justify-between flex-wrap gap-5">
 
-                <h2 className="text-4xl font-black">
+                  <div className="flex items-center gap-5">
 
-                  Loading Rankings...
+                    <div className="text-5xl font-black text-cyan-400">
 
-                </h2>
-
-                <p className="text-slate-400 text-lg mt-4">
-
-                  Fetching real-time leaderboard intelligence.
-
-                </p>
-
-              </div>
-
-            </div>
-
-          ) : (
-
-            students.map(
-              (
-                student,
-                index
-              ) => (
-
-                <motion.div
-                  key={student.id}
-                  initial={{
-                    opacity: 0,
-                    y: 20,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{
-                    delay:
-                      index * 0.05,
-                  }}
-                  whileHover={{
-                    y: -5,
-                  }}
-                  className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-                >
-
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-yellow-500/10 blur-3xl" />
-
-                  <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-                    <div className="flex items-center gap-5">
-
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center text-2xl font-black">
-
-                        #
-                        {index + 1}
-
-                      </div>
-
-                      <img
-                        src={
-                          student.photo ||
-
-                          `https://ui-avatars.com/api/?name=${student.name}`
-                        }
-                        alt="student"
-                        className="w-16 h-16 rounded-2xl object-cover border border-white/10"
-                      />
-
-                      <div>
-
-                        <h2 className="text-3xl font-black">
-
-                          {student.name}
-
-                        </h2>
-
-                        <p className="text-slate-400 mt-2">
-
-                          {student.email}
-
-                        </p>
-
-                      </div>
+                      #{index + 1}
 
                     </div>
 
-                    <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 rounded-2xl px-8 py-5">
+                    <img
+                      src={
+                        user.photo ||
 
-                      <p className="text-cyan-300 text-sm">
+                        `https://ui-avatars.com/api/?name=${user.name}`
+                      }
+                      alt="profile"
+                      className="w-16 h-16 rounded-2xl object-cover"
+                    />
 
-                        Total XP
+                    <div>
+
+                      <h2 className="text-3xl font-black">
+
+                        {user.name}
+
+                      </h2>
+
+                      <p className="text-slate-400 mt-2">
+
+                        Level {level}
 
                       </p>
-
-                      <h3 className="text-5xl font-black text-cyan-400 mt-2">
-
-                        {
-                          student.xp ||
-                          0
-                        }
-
-                      </h3>
 
                     </div>
 
                   </div>
 
-                </motion.div>
-              )
-            )
+                  <div className="text-right">
 
-          )
-        }
+                    <h2 className="text-5xl font-black text-yellow-400">
+
+                      {user.xp || 0}
+
+                    </h2>
+
+                    <p className="text-slate-400 mt-2">
+
+                      XP
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </motion.div>
+            );
+          }
+        )}
 
       </div>
 
