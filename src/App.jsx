@@ -45,6 +45,8 @@ import Leaderboard from "./pages/Leaderboard";
 
 import Habits from "./pages/Habits";
 
+import FocusMode from "./pages/FocusMode";
+
 import AssignGoals from "./pages/AssignGoals";
 
 import AssignedGoals from "./pages/AssignedGoals";
@@ -549,6 +551,17 @@ export default function App() {
                 <ProtectedRoute user={user}>
                   <PageWrapper>
                     <Habits />
+                  </PageWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/focus"
+              element={
+                <ProtectedRoute user={user}>
+                  <PageWrapper>
+                    <FocusMode />
                   </PageWrapper>
                 </ProtectedRoute>
               }

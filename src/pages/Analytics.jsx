@@ -13,40 +13,24 @@ import {
 } from "../firebase";
 
 import {
-  collection,
-  getDocs,
-  query,
-  where,
+  doc,
+  getDoc,
 } from "firebase/firestore";
-
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  BarChart,
-  Bar,
-} from "recharts";
 
 export default function Analytics() {
 
-  const [stats, setStats] =
+  const [data, setData] =
     useState({
 
       xp: 0,
 
       sessions: 0,
 
-      completedHabits: 0,
+      streak: 0,
 
-      totalHabits: 0,
+      goals: 0,
 
-      completedGoals: 0,
-
-      totalGoals: 0,
+      score: 0,
     });
 
   const [loading, setLoading] =
@@ -69,130 +53,92 @@ export default function Analytics() {
         if (!user)
           return;
 
-        /* SESSIONS */
+        /* USER */
 
-        const sessionQuery =
-          query(
-            collection(
-              db,
-              "focusSessions"
-            ),
-            where(
-              "uid",
-              "==",
-              user.uid
-            )
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
           );
 
-        const sessionSnap =
-          await getDocs(
-            sessionQuery
+        const userSnap =
+          await getDoc(
+            userRef
           );
+
+        /* FOCUS */
+
+        const focusRef =
+          doc(
+            db,
+            "focusSessions",
+            user.uid
+          );
+
+        const focusSnap =
+          await getDoc(
+            focusRef
+          );
+
+        const userData =
+          userSnap.exists()
+
+            ? userSnap.data()
+
+            : {};
+
+        const focusData =
+          focusSnap.exists()
+
+            ? focusSnap.data()
+
+            : {};
+
+        const xp =
+          userData.xp || 0;
 
         const sessions =
-          sessionSnap.docs.map(
-            (doc) =>
-              doc.data()
-          );
-
-        /* HABITS */
-
-        const habitQuery =
-          query(
-            collection(
-              db,
-              "habits"
-            ),
-            where(
-              "uid",
-              "==",
-              user.uid
-            )
-          );
-
-        const habitSnap =
-          await getDocs(
-            habitQuery
-          );
-
-        const habits =
-          habitSnap.docs.map(
-            (doc) =>
-              doc.data()
-          );
-
-        /* GOALS */
-
-        const goalQuery =
-          query(
-            collection(
-              db,
-              "assignedGoals"
-            ),
-            where(
-              "studentUid",
-              "==",
-              user.uid
-            )
-          );
-
-        const goalSnap =
-          await getDocs(
-            goalQuery
-          );
+          focusData.sessions || 0;
 
         const goals =
-          goalSnap.docs.map(
-            (doc) =>
-              doc.data()
+          userData.completedGoals || 0;
+
+        const streak =
+          Math.floor(
+            sessions / 3
           );
 
-        /* CALCULATIONS */
+        /* PRODUCTIVITY SCORE */
 
-        const totalXP =
-          sessions.reduce(
-            (
-              acc,
-              curr
-            ) =>
+        const score =
+          Math.min(
 
-              acc +
-              (
-                curr.xp ||
-                0
-              ),
+            100,
 
-            0
+            Math.floor(
+
+              xp * 0.02 +
+
+              sessions * 2 +
+
+              streak * 4 +
+
+              goals * 5
+            )
           );
 
-        const completedHabits =
-          habits.filter(
-            (h) =>
-              h.completed
-          ).length;
+        setData({
 
-        const completedGoals =
-          goals.filter(
-            (g) =>
-              g.completed
-          ).length;
+          xp,
 
-        setStats({
+          sessions,
 
-          xp: totalXP,
+          streak,
 
-          sessions:
-            sessions.length,
+          goals,
 
-          completedHabits,
-
-          totalHabits:
-            habits.length,
-
-          completedGoals,
-
-          totalGoals:
-            goals.length,
+          score,
         });
 
       } catch (error) {
@@ -206,80 +152,54 @@ export default function Analytics() {
       }
     };
 
-  /* CHART DATA */
-
-  const productivityData = [
+  const insights = [
 
     {
-      name: "Focus",
-      value:
-        stats.sessions *
-        10,
+      title:
+        "Peak Productivity",
+
+      description:
+        "Your productivity is improving rapidly through focus consistency.",
+
+      icon: "🚀",
     },
 
     {
-      name: "Habits",
-      value:
-        stats.completedHabits *
-        15,
+      title:
+        "Focus Intelligence",
+
+      description:
+        "You perform best when completing multiple focus sessions daily.",
+
+      icon: "🧠",
     },
 
     {
-      name: "Goals",
-      value:
-        stats.completedGoals *
-        25,
-    },
+      title:
+        "Streak Momentum",
 
-    {
-      name: "XP",
-      value:
-        stats.xp,
-    },
-  ];
+      description:
+        "Maintaining your streak is dramatically improving execution consistency.",
 
-  const trendData = [
-
-    {
-      day: "Mon",
-      score: 20,
-    },
-
-    {
-      day: "Tue",
-      score: 35,
-    },
-
-    {
-      day: "Wed",
-      score: 50,
-    },
-
-    {
-      day: "Thu",
-      score: 65,
-    },
-
-    {
-      day: "Fri",
-      score: 80,
-    },
-
-    {
-      day: "Sat",
-      score: 92,
+      icon: "🔥",
     },
   ];
 
-  const productivityScore =
+  if (loading) {
 
-    stats.xp +
+    return (
 
-    stats.completedHabits *
-      20 +
+      <div className="flex items-center justify-center min-h-[60vh]">
 
-    stats.completedGoals *
-      30;
+        <div className="text-slate-400 text-2xl">
+
+          Loading analytics...
+
+        </div>
+
+      </div>
+    );
+  }
 
   return (
 
@@ -296,36 +216,35 @@ export default function Analytics() {
           opacity: 1,
           y: 0,
         }}
-        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
       >
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/20 blur-[120px]" />
 
         <div className="relative z-10">
 
-          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
+          <p className="text-purple-400 uppercase tracking-[6px] text-sm font-semibold">
 
-            Live Productivity Analytics
+            Productivity Intelligence
 
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
 
-            Analyze your
+            Performance
             {" "}
 
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
 
-              performance intelligence
+              Analytics
+
             </span>
 
           </h1>
 
-          <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
+          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
 
-            Real analytics generated from habits,
-            focus sessions,
-            and assigned goal execution.
+            AI-powered productivity insights and behavioral performance tracking.
 
           </p>
 
@@ -333,275 +252,214 @@ export default function Analytics() {
 
       </motion.div>
 
-      {/* STATS */}
+      {/* SCORE */}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 shadow-2xl">
+
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[120px]" />
+
+        <div className="relative z-10 text-center">
+
+          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
+
+            Productivity Score
+
+          </p>
+
+          <h1 className="text-[120px] md:text-[180px] font-black leading-none mt-5 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+
+            {data.score}
+
+          </h1>
+
+          <p className="text-2xl text-slate-400 mt-4">
+
+            Elite Productivity Level
+
+          </p>
+
+          {/* PROGRESS */}
+
+          <div className="max-w-3xl mx-auto mt-10">
+
+            <div className="w-full h-6 rounded-full bg-white/5 overflow-hidden">
+
+              <motion.div
+                initial={{
+                  width: 0,
+                }}
+                animate={{
+                  width: `${data.score}%`,
+                }}
+                transition={{
+                  duration: 1.5,
+                }}
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* METRICS */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
         {[
           {
             title:
-              "Productivity Score",
+              "Total XP",
+
             value:
-              productivityScore,
-            icon:
-              "📈",
+              data.xp,
+
+            icon: "⚡",
           },
 
           {
             title:
               "Focus Sessions",
+
             value:
-              stats.sessions,
-            icon:
-              "🧠",
+              data.sessions,
+
+            icon: "🧠",
           },
 
           {
             title:
-              "Completed Goals",
+              "Current Streak",
+
             value:
-              `${stats.completedGoals}/${stats.totalGoals}`,
-            icon:
-              "🎯",
+              data.streak,
+
+            icon: "🔥",
           },
 
           {
             title:
-              "Habit Completion",
+              "Goals Completed",
+
             value:
-              `${stats.completedHabits}/${stats.totalHabits}`,
-            icon:
-              "⚡",
+              data.goals,
+
+            icon: "🎯",
           },
-        ].map((card, index) => (
+        ].map(
+          (
+            item,
+            index
+          ) => (
 
-          <motion.div
-            key={index}
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              delay:
-                index * 0.08,
-            }}
-            className="rounded-[30px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
-          >
+            <motion.div
+              key={index}
+              whileHover={{
+                y: -6,
+              }}
+              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+            >
 
-            <div className="flex items-center justify-between">
+              <div className="absolute top-0 right-0 w-52 h-52 bg-cyan-500/10 blur-[110px]" />
 
-              <div>
+              <div className="relative z-10">
 
-                <p className="text-slate-400 text-sm">
+                <div className="text-5xl">
 
-                  {card.title}
+                  {item.icon}
+
+                </div>
+
+                <p className="text-slate-400 mt-7 text-lg">
+
+                  {item.title}
 
                 </p>
 
-                <h2 className="text-4xl font-black mt-4">
+                <h2 className="text-5xl md:text-6xl font-black mt-4">
 
-                  {
-                    loading
-                      ? "--"
-                      : card.value
-                  }
+                  {item.value}
 
                 </h2>
 
               </div>
 
-              <div className="text-5xl">
-
-                {card.icon}
-
-              </div>
-
-            </div>
-
-          </motion.div>
-        ))}
-
-      </div>
-
-      {/* CHARTS */}
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        {/* BAR CHART */}
-
-        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
-
-          <h2 className="text-3xl font-black mb-8">
-
-            📊 Productivity Breakdown
-
-          </h2>
-
-          <div className="h-[350px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <BarChart
-                data={
-                  productivityData
-                }
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#334155"
-                />
-
-                <XAxis
-                  dataKey="name"
-                  stroke="#94a3b8"
-                />
-
-                <YAxis
-                  stroke="#94a3b8"
-                />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="value"
-                  radius={[
-                    12,
-                    12,
-                    0,
-                    0,
-                  ]}
-                />
-
-              </BarChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-        {/* LINE CHART */}
-
-        <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
-
-          <h2 className="text-3xl font-black mb-8">
-
-            📈 Weekly Growth Trend
-
-          </h2>
-
-          <div className="h-[350px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <LineChart
-                data={trendData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#334155"
-                />
-
-                <XAxis
-                  dataKey="day"
-                  stroke="#94a3b8"
-                />
-
-                <YAxis
-                  stroke="#94a3b8"
-                />
-
-                <Tooltip />
-
-                <Line
-                  type="monotone"
-                  dataKey="score"
-                  strokeWidth={4}
-                />
-
-              </LineChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
+            </motion.div>
+          )
+        )}
 
       </div>
 
       {/* AI INSIGHTS */}
 
-      <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+      <div className="space-y-5">
 
-        <h2 className="text-4xl font-black mb-8">
+        <h2 className="text-4xl font-black">
 
-          🤖 AI Productivity Insights
+          🧠 AI Productivity Insights
 
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {insights.map(
+          (
+            insight,
+            index
+          ) => (
 
-          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-3xl p-6">
+            <motion.div
+              key={index}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                delay:
+                  index * 0.08,
+              }}
+              whileHover={{
+                y: -5,
+              }}
+              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-8 shadow-2xl transition-all duration-300 hover:scale-[1.01]"
+            >
 
-            <h3 className="text-cyan-400 font-bold text-xl mb-3">
+              <div className="absolute top-0 right-0 w-52 h-52 bg-purple-500/10 blur-[120px]" />
 
-              Productivity Momentum
+              <div className="relative z-10 flex items-start gap-6">
 
-            </h3>
+                <div className="text-6xl">
 
-            <p className="text-slate-300 leading-relaxed">
+                  {insight.icon}
 
-              Your consistency score is improving based on recent session activity.
+                </div>
 
-            </p>
+                <div>
 
-          </div>
+                  <h3 className="text-3xl font-black">
 
-          <div className="bg-purple-500/10 border border-purple-500/20 rounded-3xl p-6">
+                    {insight.title}
 
-            <h3 className="text-purple-400 font-bold text-xl mb-3">
+                  </h3>
 
-              Goal Execution
+                  <p className="text-slate-400 text-lg mt-4 leading-relaxed">
 
-            </h3>
+                    {insight.description}
 
-            <p className="text-slate-300 leading-relaxed">
+                  </p>
 
-              Goal completion performance indicates strong accountability growth.
+                </div>
 
-            </p>
+              </div>
 
-          </div>
-
-          <div className="bg-green-500/10 border border-green-500/20 rounded-3xl p-6">
-
-            <h3 className="text-green-400 font-bold text-xl mb-3">
-
-              Focus Stability
-
-            </h3>
-
-            <p className="text-slate-300 leading-relaxed">
-
-              AI detected stable focus session consistency over time.
-
-            </p>
-
-          </div>
-
-        </div>
+            </motion.div>
+          )
+        )}
 
       </div>
 

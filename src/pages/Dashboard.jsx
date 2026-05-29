@@ -1,35 +1,222 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   motion,
 } from "framer-motion";
 
+import {
+  Link,
+} from "react-router-dom";
+
+import {
+  auth,
+  db,
+} from "../firebase";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
+
 export default function Dashboard() {
 
-  const stats = [
+  const [stats, setStats] =
+    useState({
+
+      xp: 0,
+
+      sessions: 0,
+
+      streak: 0,
+
+      goals: 0,
+    });
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, []);
+
+  const loadDashboard =
+    async () => {
+
+      try {
+
+        const user =
+          auth.currentUser;
+
+        if (!user) {
+
+          setLoading(false);
+
+          return;
+        }
+
+        const userRef =
+          doc(
+            db,
+            "users",
+            user.uid
+          );
+
+        const userSnap =
+          await getDoc(
+            userRef
+          );
+
+        const focusRef =
+          doc(
+            db,
+            "focusSessions",
+            user.uid
+          );
+
+        const focusSnap =
+          await getDoc(
+            focusRef
+          );
+
+        const userData =
+          userSnap.exists()
+
+            ? userSnap.data()
+
+            : {};
+
+        const focusData =
+          focusSnap.exists()
+
+            ? focusSnap.data()
+
+            : {};
+
+        const sessions =
+          focusData.sessions || 0;
+
+        const streak =
+          sessions > 0
+
+            ? Math.floor(
+                sessions / 3
+              )
+
+            : 0;
+
+        setStats({
+
+          xp:
+            userData.xp || 0,
+
+          sessions,
+
+          streak,
+
+          goals:
+            userData.completedGoals || 0,
+        });
+
+      } catch (error) {
+
+        console.log(error);
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  const quickActions = [
+
+    {
+      title: "Start Focus",
+      icon: "🧠",
+      path: "/focus",
+      gradient:
+        "from-cyan-500 to-blue-500",
+    },
+
+    {
+      title: "Analytics",
+      icon: "📈",
+      path: "/analytics",
+      gradient:
+        "from-purple-500 to-pink-500",
+    },
+
+    {
+      title: "Leaderboard",
+      icon: "🏆",
+      path: "/leaderboard",
+      gradient:
+        "from-yellow-500 to-orange-500",
+    },
+
+    {
+      title: "Goals",
+      icon: "🎯",
+      path: "/assigned-goals",
+      gradient:
+        "from-green-500 to-emerald-500",
+    },
+  ];
+
+  const statCards = [
 
     {
       title: "Total XP",
-      value: "2,480",
+      value: stats.xp,
       icon: "⚡",
+      color:
+        "from-cyan-500 to-blue-500",
     },
 
     {
       title: "Focus Sessions",
-      value: "128",
+      value: stats.sessions,
       icon: "🧠",
+      color:
+        "from-purple-500 to-pink-500",
     },
 
     {
       title: "Current Streak",
-      value: "16 Days",
+      value: stats.streak,
       icon: "🔥",
+      color:
+        "from-orange-500 to-red-500",
     },
 
     {
       title: "Completed Goals",
-      value: "42",
+      value: stats.goals,
       icon: "🎯",
+      color:
+        "from-green-500 to-emerald-500",
     },
   ];
+
+  if (loading) {
+
+    return (
+
+      <div className="flex items-center justify-center min-h-[60vh]">
+
+        <div className="text-slate-400 text-2xl font-semibold">
+
+          Loading productivity intelligence...
+
+        </div>
+
+      </div>
+    );
+  }
 
   return (
 
@@ -46,10 +233,10 @@ export default function Dashboard() {
           opacity: 1,
           y: 0,
         }}
-        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
+        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
       >
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/20 blur-[120px]" />
 
         <div className="relative z-10">
 
@@ -59,10 +246,9 @@ export default function Dashboard() {
 
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
 
-            Build
-            {" "}
+            Build{" "}
 
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
 
@@ -72,9 +258,9 @@ export default function Dashboard() {
 
           </h1>
 
-          <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
+          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
 
-            Track habits, improve focus, complete goals, and level up your productivity system.
+            Real-time productivity tracking powered by focus intelligence and accountability systems.
 
           </p>
 
@@ -86,124 +272,139 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
+        {quickActions.map(
+          (
+            action,
+            index
+          ) => (
 
-          <div className="text-4xl">
+            <Link
+              key={index}
+              to={action.path}
+            >
 
-            ⚡
+              <motion.div
+                whileHover={{
+                  y: -5,
+                }}
+                className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.03]"
+              >
 
-          </div>
+                <div className={`
 
-          <h3 className="text-xl font-black mt-4">
+                absolute inset-0 opacity-10
 
-            Start Focus
+                bg-gradient-to-br
 
-          </h3>
+                ${action.gradient}`}
+                />
 
-        </button>
+                <div className="relative z-10">
 
-        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
+                  <div className="text-5xl">
 
-          <div className="text-4xl">
+                    {action.icon}
 
-            🎯
+                  </div>
 
-          </div>
+                  <h3 className="text-2xl font-black mt-6">
 
-          <h3 className="text-xl font-black mt-4">
+                    {action.title}
 
-            Add Goal
+                  </h3>
 
-          </h3>
+                </div>
 
-        </button>
+              </motion.div>
 
-        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
-
-          <div className="text-4xl">
-
-            📈
-
-          </div>
-
-          <h3 className="text-xl font-black mt-4">
-
-            View Analytics
-
-          </h3>
-
-        </button>
-
-        <button className="rounded-[28px] border border-white/10 bg-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 p-6 text-left hover:scale-[1.02]">
-
-          <div className="text-4xl">
-
-            🧠
-
-          </div>
-
-          <h3 className="text-xl font-black mt-4">
-
-            AI Insights
-
-          </h3>
-
-        </button>
+            </Link>
+          )
+        )}
 
       </div>
 
-      {/* STATS */}
+      {/* LIVE STATS */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        {stats.map((stat, index) => (
+        {statCards.map(
+          (
+            stat,
+            index
+          ) => (
 
-          <motion.div
-            key={index}
-            initial={{
-              opacity: 0,
-              y: 20,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              delay: index * 0.05,
-            }}
-            whileHover={{
-              y: -5,
-            }}
-            className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-          >
+            <motion.div
+              key={index}
+              whileHover={{
+                y: -6,
+              }}
+              className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.02]"
+            >
 
-            <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 blur-3xl" />
+              <div className={`
 
-            <div className="relative z-10">
+              absolute top-0 right-0
 
-              <div className="text-5xl">
+              w-52 h-52 blur-[110px]
 
-                {stat.icon}
+              opacity-20
+
+              bg-gradient-to-br
+
+              ${stat.color}`}
+              />
+
+              <div className="relative z-10">
+
+                <div className="flex items-center justify-between">
+
+                  <div className="text-5xl">
+
+                    {stat.icon}
+
+                  </div>
+
+                  <div className={`
+
+                  px-4 py-2 rounded-xl text-xs font-bold
+
+                  bg-gradient-to-r
+
+                  ${stat.color}`}
+                  >
+
+                    LIVE
+
+                  </div>
+
+                </div>
+
+                <p className="text-slate-400 mt-7 text-lg">
+
+                  {stat.title}
+
+                </p>
+
+                <h2 className="text-5xl md:text-6xl font-black mt-4">
+
+                  {stat.value}
+
+                  {
+                    stat.title ===
+                    "Current Streak"
+
+                      ? "d"
+
+                      : ""
+                  }
+
+                </h2>
 
               </div>
 
-              <p className="text-slate-400 mt-6">
-
-                {stat.title}
-
-              </p>
-
-              <h2 className="text-5xl font-black mt-3">
-
-                {stat.value}
-
-              </h2>
-
-            </div>
-
-          </motion.div>
-
-        ))}
+            </motion.div>
+          )
+        )}
 
       </div>
 

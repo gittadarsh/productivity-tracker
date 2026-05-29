@@ -31,6 +31,12 @@ export default function Sidebar({
     },
 
     {
+      name: "Focus Mode",
+      path: "/focus",
+      icon: "🧠",
+    },
+
+    {
       name: "Assigned Goals",
       path: "/assigned-goals",
       icon: "🎯",
@@ -104,8 +110,6 @@ export default function Sidebar({
 
         <>
 
-          {/* OVERLAY */}
-
           <motion.div
 
             initial={{
@@ -126,8 +130,6 @@ export default function Sidebar({
 
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
           />
-
-          {/* SIDEBAR */}
 
           <motion.div
 
