@@ -10,7 +10,13 @@ import {
   getProductivityPersona,
 } from "../utils/personaEngine";
 
+import {
+  generateMemoryInsights,
+} from "../utils/productivityMemoryEngine";
+
 import PremiumCard from "../components/PremiumCard";
+
+import ProfileAnalytics from "../components/ProfileAnalytics";
 
 export default function Profile() {
 
@@ -26,6 +32,19 @@ export default function Profile() {
     getProductivityPersona(
       productivity
     );
+
+  const memoryInsight =
+    generateMemoryInsights({
+
+      score:
+        productivity.score,
+
+      streak:
+        productivity.streak,
+
+      sessions:
+        productivity.sessions,
+    });
 
   const consistencyGrade =
 
@@ -97,6 +116,30 @@ export default function Profile() {
         <p className="text-slate-400 text-lg mt-5 max-w-3xl">
 
           {persona.description}
+
+        </p>
+
+      </PremiumCard>
+
+      {/* AI MEMORY */}
+
+      <PremiumCard className="p-8">
+
+        <p className="text-orange-400 uppercase tracking-[5px] text-sm font-semibold">
+
+          AI Productivity Memory
+
+        </p>
+
+        <h2 className="text-4xl font-black mt-5">
+
+          Behavioral Insight
+
+        </h2>
+
+        <p className="text-slate-400 text-lg mt-5 leading-relaxed">
+
+          {memoryInsight.message}
 
         </p>
 
@@ -225,6 +268,10 @@ export default function Profile() {
         </PremiumCard>
 
       </div>
+
+      {/* ANALYTICS */}
+
+      <ProfileAnalytics />
 
     </div>
   );

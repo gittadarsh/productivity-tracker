@@ -1,68 +1,81 @@
+import toast from "react-hot-toast";
+
+export const notifySuccess =
+  message => {
+
+    toast.success(message);
+  };
+
+export const notifyError =
+  message => {
+
+    toast.error(message);
+  };
+
+export const notifyAchievement =
+  title => {
+
+    toast.success(
+      `🏆 ${title} unlocked`
+    );
+  };
+
+export const notifyAI =
+  message => {
+
+    toast(message, {
+
+      icon: "🤖",
+    });
+  };
+
+/* OLD EXPORT FIX */
+
 export const generateNotifications =
-  ({
-    score,
-    streak,
-    xp,
-    sessions,
-  }) => {
+  productivity => {
 
-    const notifications = [];
-
-    if (streak < 3) {
-
-      notifications.push({
-
-        type: "warning",
-
-        title:
-          "Streak At Risk",
-
-        description:
-          "Complete a focus session today to maintain consistency.",
-      });
-    }
-
-    if (score < 40) {
-
-      notifications.push({
-
-        type: "danger",
-
-        title:
-          "Productivity Declining",
-
-        description:
-          "Your productivity score is dropping significantly.",
-      });
-    }
+    const notifications =
+      [];
 
     if (
-      xp % 250 > 180
+      productivity?.streak < 3
     ) {
 
       notifications.push({
 
-        type: "success",
-
         title:
-          "Level Almost Unlocked",
+          "Streak Warning",
 
         description:
-          "You are very close to the next productivity level.",
+          "Complete a focus session today.",
       });
     }
 
-    if (sessions < 5) {
+    if (
+      productivity?.score >= 80
+    ) {
 
       notifications.push({
 
-        type: "info",
-
         title:
-          "Low Focus Activity",
+          "Elite Momentum",
 
         description:
-          "Increase deep work sessions to improve momentum.",
+          "Your productivity momentum is strong.",
+      });
+    }
+
+    if (
+      !notifications.length
+    ) {
+
+      notifications.push({
+
+        title:
+          "All Systems Stable",
+
+        description:
+          "Your productivity systems are healthy.",
       });
     }
 

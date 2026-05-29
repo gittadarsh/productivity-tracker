@@ -30,6 +30,18 @@ import {
   calculateSessionQuality,
 } from "../utils/sessionQualityEngine";
 
+import {
+  addActivity,
+} from "../utils/activityFeedEngine";
+
+import {
+  checkAchievements,
+} from "../utils/achievementEngine";
+
+import {
+  unlockAchievements,
+} from "../utils/unlockAchievementEngine";
+
 export default function FocusMode() {
 
   const [minutes, setMinutes] =
@@ -129,7 +141,7 @@ export default function FocusMode() {
       }
     };
 
-  /* PRODUCTIVITY SCORE */
+  /* SCORE */
 
   useEffect(() => {
 
@@ -224,16 +236,12 @@ export default function FocusMode() {
 
         let gainedXP = 50;
 
-        /* STREAK BONUS */
-
         if (
           newSessions >= 5
         ) {
 
           gainedXP += 25;
         }
-
-        /* ELITE BONUS */
 
         if (
           score >= 80
@@ -337,6 +345,57 @@ export default function FocusMode() {
               sessionQuality,
           }
         );
+
+        /* LIVE ACTIVITY */
+
+        await addActivity(
+
+          user.uid,
+
+          {
+            icon: "⚡",
+
+            title:
+              `+${gainedXP} XP Earned`,
+
+            description:
+              "Focus session completed successfully.",
+          }
+        );
+
+        /* ACHIEVEMENTS */
+
+        const unlocked =
+          await unlockAchievements(
+
+            user.uid,
+
+            checkAchievements({
+
+              xp: newXP,
+
+              streak:
+                Math.floor(
+                  newSessions / 3
+                ),
+
+              sessions:
+                newSessions,
+            })
+          );
+
+        if (unlocked.length) {
+
+          unlocked.forEach(
+            achievement => {
+
+              toast.success(
+
+                `🏆 ${achievement.title} unlocked`
+              );
+            }
+          );
+        }
 
         toast.success(
 
@@ -451,58 +510,54 @@ export default function FocusMode() {
 
       <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 md:p-16 shadow-2xl text-center">
 
-        <div className="relative z-10">
+        <div className="text-[90px] md:text-[150px] font-black tracking-tight">
 
-          <div className="text-[90px] md:text-[150px] font-black tracking-tight">
+          {String(minutes).padStart(2, "0")}
+          :
+          {String(seconds).padStart(2, "0")}
 
-            {String(minutes).padStart(2, "0")}
-            :
-            {String(seconds).padStart(2, "0")}
+        </div>
 
-          </div>
+        <p className="text-slate-400 text-xl mt-5">
 
-          <p className="text-slate-400 text-xl mt-5">
+          {
+            running
 
-            {
-              running
+              ? "Deep work session active"
 
-                ? "Deep work session active"
+              : "Ready to focus"
+          }
 
-                : "Ready to focus"
-            }
+        </p>
 
-          </p>
+        <div className="flex flex-wrap items-center justify-center gap-5 mt-10">
 
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-10">
+          <button
+            onClick={startTimer}
+            className="px-10 py-5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 font-black text-lg"
+          >
 
-            <button
-              onClick={startTimer}
-              className="px-10 py-5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 font-black text-lg"
-            >
+            ▶ Start Focus
 
-              ▶ Start Focus
+          </button>
 
-            </button>
+          <button
+            onClick={pauseTimer}
+            className="px-10 py-5 rounded-2xl border border-white/10 bg-white/5"
+          >
 
-            <button
-              onClick={pauseTimer}
-              className="px-10 py-5 rounded-2xl border border-white/10 bg-white/5"
-            >
+            ⏸ Pause
 
-              ⏸ Pause
+          </button>
 
-            </button>
+          <button
+            onClick={resetTimer}
+            className="px-10 py-5 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-400"
+          >
 
-            <button
-              onClick={resetTimer}
-              className="px-10 py-5 rounded-2xl border border-red-500/20 bg-red-500/10 text-red-400"
-            >
+            ↺ Reset
 
-              ↺ Reset
-
-            </button>
-
-          </div>
+          </button>
 
         </div>
 
@@ -536,7 +591,7 @@ export default function FocusMode() {
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-5xl font-black mt-5 text-cyan-400">
 
             {xp}
 
@@ -552,7 +607,7 @@ export default function FocusMode() {
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-5xl font-black mt-5 text-green-400">
 
             {quality}
 
@@ -568,7 +623,7 @@ export default function FocusMode() {
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-5xl font-black mt-5 text-purple-400">
 
             {score}
 

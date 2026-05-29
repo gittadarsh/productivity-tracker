@@ -1,40 +1,79 @@
-export const getAchievements =
+export const checkAchievements =
   ({
     xp,
-    sessions,
     streak,
-    score,
-  }) => [
+    sessions,
+  }) => {
 
-    {
-      title:
-        "XP Hunter",
+    const unlocked = [];
 
-      unlocked:
-        xp >= 1000,
-    },
+    /* XP */
 
-    {
-      title:
-        "Focus Master",
+    if (xp >= 500) {
 
-      unlocked:
-        sessions >= 25,
-    },
+      unlocked.push({
 
-    {
-      title:
-        "Consistency Beast",
+        title:
+          "XP Starter",
 
-      unlocked:
-        streak >= 7,
-    },
+        icon: "⚡",
+      });
+    }
 
-    {
-      title:
-        "Elite Performer",
+    if (xp >= 2000) {
 
-      unlocked:
-        score >= 90,
-    },
-  ];
+      unlocked.push({
+
+        title:
+          "Momentum Master",
+
+        icon: "🚀",
+      });
+    }
+
+    /* STREAK */
+
+    if (streak >= 7) {
+
+      unlocked.push({
+
+        title:
+          "Consistency Warrior",
+
+        icon: "🔥",
+      });
+    }
+
+    /* FOCUS */
+
+    if (sessions >= 25) {
+
+      unlocked.push({
+
+        title:
+          "Deep Work Elite",
+
+        icon: "🧠",
+      });
+    }
+
+    return unlocked;
+  };
+
+/* OLD EXPORT FIX */
+
+export const getAchievements =
+  productivity => {
+
+    return checkAchievements({
+
+      xp:
+        productivity?.xp || 0,
+
+      streak:
+        productivity?.streak || 0,
+
+      sessions:
+        productivity?.sessions || 0,
+    });
+  };

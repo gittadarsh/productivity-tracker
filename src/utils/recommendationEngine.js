@@ -1,50 +1,44 @@
 export const generateRecommendations =
   ({
-    xp,
-    sessions,
-    streak,
     score,
+    streak,
+    sessions,
   }) => {
 
-    const recommendations = [];
+    const recommendations =
+      [];
 
-    /* FOCUS */
-
-    if (sessions < 3) {
-
-      recommendations.push(
-
-        "Complete more focus sessions daily to improve deep work capacity."
-      );
-    }
-
-    /* STREAK */
-
-    if (streak < 5) {
+    if (streak < 3) {
 
       recommendations.push(
 
-        "Your streak is still weak. Consistency will massively improve productivity."
+        "Complete a focus session today to rebuild momentum."
       );
     }
 
-    /* SCORE */
+    if (sessions < 10) {
+
+      recommendations.push(
+
+        "Increase deep work sessions for faster growth."
+      );
+    }
 
     if (score >= 80) {
 
       recommendations.push(
 
-        "You are performing at high productivity levels. Maintain current momentum."
+        "You are in elite momentum mode. Protect consistency."
       );
     }
 
-    /* XP */
-
-    if (xp < 1000) {
+    if (
+      !recommendations.length
+    ) {
 
       recommendations.push(
 
-        "Reach 1000 XP to unlock stronger progression momentum."
+        "Your productivity systems are stable and improving."
       );
     }
 

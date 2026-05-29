@@ -29,9 +29,9 @@ import ProductivityHeader from "../components/ProductivityHeader";
 
 import PremiumCard from "../components/PremiumCard";
 
-import LiveActivityFeed from "../components/LiveActivityFeed";
-
 import AIAlerts from "../components/AIAlerts";
+
+import RealtimeActivityFeed from "../components/RealtimeActivityFeed";
 
 export default function Dashboard() {
 
@@ -144,27 +144,6 @@ export default function Dashboard() {
       }
     };
 
-  const level =
-    Math.max(
-      1,
-      Math.floor(
-        stats.xp / 250
-      )
-    );
-
-  const rank =
-
-    level >= 20
-      ? "Elite Performer"
-
-    : level >= 10
-      ? "Deep Worker"
-
-    : level >= 5
-      ? "Consistent"
-
-    : "Beginner";
-
   const quickActions = [
 
     {
@@ -236,18 +215,6 @@ export default function Dashboard() {
         <div className="animate-pulse space-y-8">
 
           <div className="h-52 rounded-[40px] bg-white/5" />
-
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
-
-            <div className="h-36 rounded-[30px] bg-white/5" />
-
-            <div className="h-36 rounded-[30px] bg-white/5" />
-
-            <div className="h-36 rounded-[30px] bg-white/5" />
-
-            <div className="h-36 rounded-[30px] bg-white/5" />
-
-          </div>
 
         </div>
 
@@ -364,7 +331,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* LIVE SECTION */}
+      {/* LIVE FEED + ALERTS */}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
@@ -376,32 +343,7 @@ export default function Dashboard() {
 
           </h2>
 
-          <LiveActivityFeed
-
-            activities={[
-
-              {
-                icon: "⚡",
-                title: "+50 XP Earned",
-                description:
-                  "Focus session completed successfully.",
-              },
-
-              {
-                icon: "🔥",
-                title: "Streak Increased",
-                description:
-                  "Consistency momentum improved.",
-              },
-
-              {
-                icon: "🏆",
-                title: "Achievement Progress",
-                description:
-                  "You are approaching the next milestone.",
-              },
-            ]}
-          />
+          <RealtimeActivityFeed />
 
         </div>
 

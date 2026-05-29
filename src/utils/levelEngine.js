@@ -1,46 +1,43 @@
+export const calculateLevel =
+  xp => {
+
+    return Math.max(
+
+      1,
+
+      Math.floor(
+
+        0.1 *
+
+        Math.sqrt(xp)
+      )
+    );
+  };
+
+export const getNextLevelXP =
+  level => {
+
+    return Math.pow(
+      (level + 1) / 0.1,
+      2
+    );
+  };
+
+/* OLD EXPORT FIX */
+
 export const getLevelData =
-  (xp) => {
+  xp => {
 
     const level =
-      Math.max(
-        1,
-        Math.floor(
-          xp / 250
-        )
-      );
+      calculateLevel(xp);
 
     const nextLevelXP =
-      (level + 1) * 250;
-
-    const currentLevelXP =
-      level * 250;
-
-    const progress =
-      (
-        (
-          xp -
-          currentLevelXP
-        ) /
-
-        (
-          nextLevelXP -
-          currentLevelXP
-        )
-      ) * 100;
+      getNextLevelXP(level);
 
     return {
 
       level,
 
       nextLevelXP,
-
-      progress:
-        Math.min(
-          100,
-          Math.max(
-            0,
-            progress
-          )
-        ),
     };
   };
