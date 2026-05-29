@@ -25,6 +25,14 @@ import AICoachDashboard from "../components/AICoachDashboard";
 
 import XPProgress from "../components/XPProgress";
 
+import ProductivityHeader from "../components/ProductivityHeader";
+
+import PremiumCard from "../components/PremiumCard";
+
+import LiveActivityFeed from "../components/LiveActivityFeed";
+
+import AIAlerts from "../components/AIAlerts";
+
 export default function Dashboard() {
 
   const [stats, setStats] =
@@ -190,24 +198,32 @@ export default function Dashboard() {
       title: "Total XP",
       value: stats.xp,
       icon: "⚡",
+      color:
+        "text-cyan-400",
     },
 
     {
       title: "Focus Sessions",
       value: stats.sessions,
       icon: "🧠",
+      color:
+        "text-purple-400",
     },
 
     {
       title: "Current Streak",
       value: stats.streak,
       icon: "🔥",
+      color:
+        "text-orange-400",
     },
 
     {
       title: "Goals Completed",
       value: stats.goals,
       icon: "🎯",
+      color:
+        "text-green-400",
     },
   ];
 
@@ -215,11 +231,23 @@ export default function Dashboard() {
 
     return (
 
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="min-h-screen bg-slate-950 text-white p-8">
 
-        <div className="text-slate-400 text-2xl">
+        <div className="animate-pulse space-y-8">
 
-          Loading dashboard...
+          <div className="h-52 rounded-[40px] bg-white/5" />
+
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
+
+            <div className="h-36 rounded-[30px] bg-white/5" />
+
+            <div className="h-36 rounded-[30px] bg-white/5" />
+
+            <div className="h-36 rounded-[30px] bg-white/5" />
+
+            <div className="h-36 rounded-[30px] bg-white/5" />
+
+          </div>
 
         </div>
 
@@ -270,59 +298,126 @@ export default function Dashboard() {
 
           </h1>
 
-          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl">
+          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
 
             AI-powered productivity intelligence and behavioral coaching platform.
 
           </p>
 
-          <div className="flex flex-wrap gap-5 mt-8">
-
-            <div className="px-6 py-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
-
-              <p className="text-slate-400 text-sm">
-
-                Current Level
-
-              </p>
-
-              <h3 className="text-3xl font-black text-cyan-400 mt-2">
-
-                Level {level}
-
-              </h3>
-
-            </div>
-
-            <div className="px-6 py-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
-
-              <p className="text-slate-400 text-sm">
-
-                Productivity Rank
-
-              </p>
-
-              <h3 className="text-3xl font-black text-purple-400 mt-2">
-
-                {rank}
-
-              </h3>
-
-            </div>
-
-          </div>
-
         </div>
 
       </motion.div>
 
-      {/* AI COACH */}
+      <ProductivityHeader />
 
       <AICoachDashboard />
 
-      {/* XP PROGRESS */}
-
       <XPProgress />
+
+      {/* COMMAND CENTER */}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <PremiumCard className="p-8">
+
+          <p className="text-cyan-400 uppercase tracking-[5px] text-sm font-semibold">
+
+            AI Momentum Analysis
+
+          </p>
+
+          <h2 className="text-4xl font-black mt-5 leading-tight">
+
+            You are building strong productivity momentum.
+
+          </h2>
+
+          <p className="text-slate-400 text-lg mt-5 leading-relaxed">
+
+            Your recent focus consistency and XP growth indicate improving behavioral discipline.
+
+          </p>
+
+        </PremiumCard>
+
+        <PremiumCard className="p-8">
+
+          <p className="text-orange-400 uppercase tracking-[5px] text-sm font-semibold">
+
+            Next Milestone
+
+          </p>
+
+          <h2 className="text-4xl font-black mt-5 leading-tight">
+
+            Unlock Elite Performer
+
+          </h2>
+
+          <p className="text-slate-400 text-lg mt-5 leading-relaxed">
+
+            Maintain your streak and increase deep work consistency to unlock elite productivity status.
+
+          </p>
+
+        </PremiumCard>
+
+      </div>
+
+      {/* LIVE SECTION */}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <div>
+
+          <h2 className="text-4xl font-black mb-6">
+
+            Live Activity
+
+          </h2>
+
+          <LiveActivityFeed
+
+            activities={[
+
+              {
+                icon: "⚡",
+                title: "+50 XP Earned",
+                description:
+                  "Focus session completed successfully.",
+              },
+
+              {
+                icon: "🔥",
+                title: "Streak Increased",
+                description:
+                  "Consistency momentum improved.",
+              },
+
+              {
+                icon: "🏆",
+                title: "Achievement Progress",
+                description:
+                  "You are approaching the next milestone.",
+              },
+            ]}
+          />
+
+        </div>
+
+        <div>
+
+          <h2 className="text-4xl font-black mb-6">
+
+            AI Alerts
+
+          </h2>
+
+          <AIAlerts />
+
+        </div>
+
+      </div>
 
       {/* QUICK ACTIONS */}
 
@@ -338,6 +433,9 @@ export default function Dashboard() {
             <motion.div
               whileHover={{
                 y: -5,
+              }}
+              transition={{
+                duration: 0.25,
               }}
               className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:bg-white/10 transition-all"
             >
@@ -367,12 +465,9 @@ export default function Dashboard() {
 
         {statCards.map((stat, index) => (
 
-          <motion.div
+          <PremiumCard
             key={index}
-            whileHover={{
-              y: -5,
-            }}
-            className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
+            className="p-7"
           >
 
             <div className="text-5xl">
@@ -387,13 +482,18 @@ export default function Dashboard() {
 
             </p>
 
-            <h2 className="text-5xl md:text-6xl font-black mt-4">
+            <h2 className={`
+
+            text-5xl md:text-6xl font-black mt-4
+
+            ${stat.color}`}
+            >
 
               {stat.value}
 
             </h2>
 
-          </motion.div>
+          </PremiumCard>
         ))}
 
       </div>

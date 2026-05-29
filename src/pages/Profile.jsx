@@ -6,6 +6,12 @@ import {
   getRewardData,
 } from "../utils/rewardEngine";
 
+import {
+  getProductivityPersona,
+} from "../utils/personaEngine";
+
+import PremiumCard from "../components/PremiumCard";
+
 export default function Profile() {
 
   const productivity =
@@ -16,9 +22,45 @@ export default function Profile() {
       productivity.xp
     );
 
+  const persona =
+    getProductivityPersona(
+      productivity
+    );
+
+  const consistencyGrade =
+
+    productivity.score >= 85
+      ? "A+"
+
+    : productivity.score >= 70
+      ? "A"
+
+    : productivity.score >= 55
+      ? "B"
+
+    : productivity.score >= 40
+      ? "C"
+
+    : "D";
+
+  const strongestMetric =
+
+    productivity.streak >= 10
+      ? "Consistency"
+
+    : productivity.sessions >= 20
+      ? "Deep Work"
+
+    : productivity.xp >= 1500
+      ? "Momentum"
+
+    : "Growth";
+
   return (
 
     <div className="space-y-8">
+
+      {/* HERO */}
 
       <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-10 shadow-2xl">
 
@@ -28,17 +70,43 @@ export default function Profile() {
 
         </h1>
 
-        <p className="text-slate-400 text-xl mt-5">
+        <p className="text-slate-400 text-xl mt-5 max-w-3xl">
 
-          Your behavioral productivity identity.
+          Your behavioral productivity identity and AI performance profile.
 
         </p>
 
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* PERSONA */}
 
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+      <PremiumCard className="p-8">
+
+        <p className="text-cyan-400 uppercase tracking-[5px] text-sm font-semibold">
+
+          Productivity Persona
+
+        </p>
+
+        <h2 className="text-5xl font-black mt-5">
+
+          {persona.title}
+
+        </h2>
+
+        <p className="text-slate-400 text-lg mt-5 max-w-3xl">
+
+          {persona.description}
+
+        </p>
+
+      </PremiumCard>
+
+      {/* GRID */}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <PremiumCard className="p-8">
 
           <p className="text-slate-400">
 
@@ -46,15 +114,15 @@ export default function Profile() {
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5 text-cyan-400">
+          <h2 className="text-4xl font-black mt-5 text-cyan-400">
 
             {reward.title}
 
           </h2>
 
-        </div>
+        </PremiumCard>
 
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+        <PremiumCard className="p-8">
 
           <p className="text-slate-400">
 
@@ -62,19 +130,53 @@ export default function Profile() {
 
           </p>
 
-          <h2 className="text-4xl font-black mt-5 text-purple-400">
+          <h2 className="text-3xl font-black mt-5 text-purple-400">
 
             {reward.reward}
 
           </h2>
 
-        </div>
+        </PremiumCard>
+
+        <PremiumCard className="p-8">
+
+          <p className="text-slate-400">
+
+            Consistency Grade
+
+          </p>
+
+          <h2 className="text-5xl font-black mt-5 text-green-400">
+
+            {consistencyGrade}
+
+          </h2>
+
+        </PremiumCard>
+
+        <PremiumCard className="p-8">
+
+          <p className="text-slate-400">
+
+            Strongest Metric
+
+          </p>
+
+          <h2 className="text-4xl font-black mt-5 text-orange-400">
+
+            {strongestMetric}
+
+          </h2>
+
+        </PremiumCard>
 
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* PRODUCTIVITY STATS */}
 
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <PremiumCard className="p-8">
 
           <p className="text-slate-400">
 
@@ -82,45 +184,45 @@ export default function Profile() {
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-6xl font-black mt-5">
 
             {productivity.level}
 
           </h2>
 
-        </div>
+        </PremiumCard>
 
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+        <PremiumCard className="p-8">
 
           <p className="text-slate-400">
 
-            Score
+            Productivity Score
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-6xl font-black mt-5 text-cyan-400">
 
             {productivity.score}
 
           </h2>
 
-        </div>
+        </PremiumCard>
 
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8">
+        <PremiumCard className="p-8">
 
           <p className="text-slate-400">
 
-            Streak
+            Current Streak
 
           </p>
 
-          <h2 className="text-5xl font-black mt-5">
+          <h2 className="text-6xl font-black mt-5 text-orange-400">
 
             {productivity.streak}
 
           </h2>
 
-        </div>
+        </PremiumCard>
 
       </div>
 
