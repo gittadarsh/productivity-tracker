@@ -14,7 +14,7 @@ export default function PageWrapper({
 
       initial={{
         opacity: 0,
-        y: 20,
+        y: 10,
       }}
 
       animate={{
@@ -22,14 +22,11 @@ export default function PageWrapper({
         y: 0,
       }}
 
-      exit={{
-        opacity: 0,
-        y: -20,
-      }}
-
       transition={{
         duration: 0.35,
       }}
+
+      className="w-full max-w-[1800px] mx-auto"
     >
 
       {children}

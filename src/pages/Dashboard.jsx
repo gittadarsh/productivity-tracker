@@ -111,23 +111,6 @@ export default function Dashboard() {
     },
   ];
 
-  if (
-    productivity.loading
-  ) {
-
-    return (
-
-      <div className="min-h-screen bg-slate-950 text-white p-8">
-
-        <div className="animate-pulse space-y-8">
-
-          <div className="h-52 rounded-[40px] bg-white/5" />
-
-        </div>
-
-      </div>
-    );
-  }
 
   return (
 

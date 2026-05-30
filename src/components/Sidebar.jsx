@@ -4,379 +4,335 @@ import {
 
 import {
   motion,
-  AnimatePresence,
 } from "framer-motion";
 
-export default function Sidebar({
+import {
+  Home,
+  Target,
+  BarChart3,
+  Trophy,
+  Brain,
+  User,
+  Flame,
+  LogOut,
+  X,
+} from "lucide-react";
 
-  user,
-  mobileMenu,
-  setMobileMenu,
-  handleLogout,
+import {
+  useUIStore,
+} from "../store/uiStore";
 
-}) {
+const navItems = [
 
-  const studentLinks = [
+  {
+    name: "Dashboard",
+    icon: Home,
+    path: "/dashboard",
+  },
 
-    {
-      name: "Dashboard",
-      path: "/dashboard",
-      icon: "🏠",
-    },
+  {
+    name: "Habits",
+    icon: Target,
+    path: "/habits",
+  },
 
-    {
-      name: "Habits",
-      path: "/habits",
-      icon: "⚡",
-    },
+  {
+    name: "Analytics",
+    icon: BarChart3,
+    path: "/analytics",
+  },
 
-    {
-      name: "Focus Mode",
-      path: "/focus",
-      icon: "🧠",
-    },
+  {
+    name: "Achievements",
+    icon: Trophy,
+    path: "/achievements",
+  },
 
-    {
-      name: "Missions",
-      path: "/missions",
-      icon: "🚀",
-    },
+  {
+    name: "Focus",
+    icon: Brain,
+    path: "/focus",
+  },
 
-    {
-      name: "Achievements",
-      path: "/achievements",
-      icon: "🏆",
-    },
+  {
+    name: "Profile",
+    icon: User,
+    path: "/profile",
+  },
+];
 
-    {
-      name: "Assigned Goals",
-      path: "/assigned-goals",
-      icon: "🎯",
-    },
+export default function Sidebar() {
 
-    {
-      name: "Analytics",
-      path: "/analytics",
-      icon: "📈",
-    },
+  const {
 
-    {
-      name: "Heatmap",
-      path: "/heatmap",
-      icon: "🔥",
-    },
+    sidebarOpen,
 
-    {
-      name: "Leaderboard",
-      path: "/leaderboard",
-      icon: "🥇",
-    },
+    toggleSidebar,
 
-    {
-      name: "Notifications",
-      path: "/notifications",
-      icon: "🔔",
-    },
-  ];
-
-  const mentorLinks = [
-
-    {
-      name: "Mentor Dashboard",
-      path: "/mentor",
-      icon: "🧠",
-    },
-
-    {
-      name: "Assign Goals",
-      path: "/assign-goals",
-      icon: "🚀",
-    },
-
-    {
-      name: "Leaderboard",
-      path: "/leaderboard",
-      icon: "🥇",
-    },
-
-    {
-      name: "Notifications",
-      path: "/notifications",
-      icon: "🔔",
-    },
-  ];
-
-  const links =
-
-    user?.role === "mentor"
-
-      ? mentorLinks
-
-      : studentLinks;
-
-  const level =
-    Math.max(
-      1,
-      Math.floor(
-        (user?.xp || 0) / 250
-      )
-    );
+  } = useUIStore();
 
   return (
 
-    <AnimatePresence>
+    <>
 
-      {mobileMenu && (
+      {/* MOBILE OVERLAY */}
 
-        <>
+      {sidebarOpen && (
 
-          {/* OVERLAY */}
+        <div
+          onClick={toggleSidebar}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+        />
+      )}
 
-          <motion.div
+      {/* SIDEBAR */}
 
-            initial={{
-              opacity: 0,
-            }}
+      <motion.aside
 
-            animate={{
-              opacity: 1,
-            }}
+        initial={{
+          x: -100,
+          opacity: 0,
+        }}
 
-            exit={{
-              opacity: 0,
-            }}
+        animate={{
+          x: sidebarOpen
+            ? 0
+            : -420,
 
-            onClick={() =>
-              setMobileMenu(false)
-            }
+          opacity: 1,
+        }}
 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-          />
+        transition={{
+          duration: 0.3,
+        }}
 
-          {/* SIDEBAR */}
+        className="fixed top-0 left-0 z-50 h-screen w-[360px] bg-[#050816]/95 border-r border-white/10 backdrop-blur-2xl flex flex-col"
+      >
 
-          <motion.div
+        {/* HEADER */}
 
-            initial={{
-              x: -320,
-            }}
+        <div className="p-8 border-b border-white/10">
 
-            animate={{
-              x: 0,
-            }}
+          <div className="flex items-start justify-between gap-4">
 
-            exit={{
-              x: -320,
-            }}
+            <div>
 
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 26,
-            }}
+              <h1 className="text-3xl xl:text-4xl font-black leading-tight">
 
-            className="fixed top-0 left-0 z-50 h-screen w-[300px] bg-[#020617]/95 backdrop-blur-2xl border-r border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.7)]"
-          >
+                <span className="text-cyan-400">
 
-            <div className="flex flex-col h-full">
+                  Productivity
 
-              {/* HEADER */}
+                </span>
 
-              <div className="p-7 border-b border-white/10">
+                <span className="text-blue-500">
 
-                <div className="flex items-center justify-between">
+                  OS
 
-                  <div>
+                </span>
 
-                    <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              </h1>
 
-                      ProductivityOS
+              <p className="text-slate-400 text-base mt-2">
 
-                    </h1>
+                Productivity Intelligence Platform
 
-                    <p className="text-slate-400 text-sm mt-2">
+              </p>
 
-                      Productivity Intelligence Platform
+            </div>
 
-                    </p>
+            <button
+              onClick={toggleSidebar}
+              className="w-12 h-12 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all"
+            >
 
-                  </div>
+              <X size={22} />
 
-                  <button
-                    onClick={() =>
-                      setMobileMenu(false)
-                    }
-                    className="w-11 h-11 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 flex items-center justify-center text-xl"
-                  >
+            </button>
 
-                    ✕
+          </div>
 
-                  </button>
+        </div>
 
-                </div>
+        {/* PROFILE */}
 
-              </div>
+        <div className="p-7 border-b border-white/10">
 
-              {/* USER */}
+          <div className="flex items-center gap-5">
 
-              <div className="p-6 border-b border-white/10">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-4xl font-black">
 
-                <div className="flex items-center gap-4">
+              AK
 
-                  <img
-                    src={
-                      user?.photo ||
+            </div>
 
-                      `https://ui-avatars.com/api/?name=${user?.name}`
-                    }
-                    alt="profile"
-                    className="w-16 h-16 rounded-2xl object-cover border border-white/10"
-                  />
+            <div>
 
-                  <div>
+              <h2 className="text-3xl font-black">
 
-                    <h2 className="font-black text-xl">
+                Adarsh Kumar
 
-                      {user?.name}
+              </h2>
 
-                    </h2>
+              <p className="text-slate-400 text-lg mt-1">
 
-                    <p className="text-slate-400 capitalize mt-1">
+                Student
 
-                      {user?.role}
+              </p>
 
-                    </p>
+            </div>
 
-                  </div>
+          </div>
 
-                </div>
+          {/* STATS */}
 
-                {/* LEVEL CARD */}
+          <div className="grid grid-cols-2 gap-4 mt-8">
 
-                <div className="grid grid-cols-2 gap-3 mt-5">
+            <div className="rounded-3xl bg-cyan-500/10 border border-cyan-500/20 p-5">
 
-                  <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20">
+              <p className="text-sm uppercase tracking-wide text-slate-400">
 
-                    <p className="text-xs text-slate-400">
+                Level
 
-                      Level
+              </p>
 
-                    </p>
+              <h2 className="text-3xl font-black text-cyan-400 mt-3">
 
-                    <h3 className="text-2xl font-black text-cyan-400 mt-2">
+                1
 
-                      {level}
+              </h2>
 
-                    </h3>
+            </div>
 
-                  </div>
+            <div className="rounded-3xl bg-purple-500/10 border border-purple-500/20 p-5">
 
-                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+              <p className="text-sm uppercase tracking-wide text-slate-400">
 
-                    <p className="text-xs text-slate-400">
+                XP
 
-                      XP
+              </p>
 
-                    </p>
+              <h2 className="text-3xl font-black text-purple-400 mt-3">
 
-                    <h3 className="text-2xl font-black text-purple-400 mt-2">
+                0
 
-                      {user?.xp || 0}
+              </h2>
 
-                    </h3>
+            </div>
 
-                  </div>
+          </div>
 
-                </div>
+        </div>
 
-              </div>
+        {/* NAVIGATION */}
 
-              {/* NAVIGATION */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
 
-              <div className="flex-1 overflow-y-auto p-5 space-y-3">
+          {navItems.map(
+            item => {
 
-                {links.map((link) => (
+              const Icon =
+                item.icon;
 
-                  <NavLink
-                    key={link.path}
-                    to={link.path}
+              return (
 
-                    onClick={() => {
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                >
 
-                      setMobileMenu(false);
+                  {({
+                    isActive,
+                  }) => (
 
-                      window.scrollTo({
-                        top: 0,
-                        behavior: "smooth",
-                      });
+                    <motion.div
 
-                    }}
+                      whileHover={{
+                        scale: 1.02,
+                      }}
 
-                    className={({ isActive }) =>
+                      whileTap={{
+                        scale: 0.98,
+                      }}
 
-                      `
+                      className={`
 
-                      flex items-center gap-4
-
-                      px-5 py-4
-
-                      rounded-2xl
-
-                      transition-all duration-300
-
-                      border
+                      flex items-center gap-5 rounded-3xl px-6 py-5 transition-all duration-300
 
                       ${
                         isActive
 
-                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300"
+                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20"
 
-                          : "bg-white/5 border-white/5 hover:bg-white/10 text-slate-300"
-                      }`
-                    }
-                  >
+                          : "bg-white/[0.03] border border-white/5 hover:bg-white/[0.06]"
+                      }
+                      `}
+                    >
 
-                    <span className="text-2xl">
+                      <Icon
+                        size={28}
+                        className={`
 
-                      {link.icon}
+                        ${
+                          isActive
 
-                    </span>
+                            ? "text-cyan-400"
 
-                    <span className="font-semibold">
+                            : "text-slate-400"
+                        }
+                        `}
+                      />
 
-                      {link.name}
+                      <span className={`
 
-                    </span>
+                      text-xl font-semibold
 
-                  </NavLink>
+                      ${
+                        isActive
 
-                ))}
+                          ? "text-cyan-300"
 
-              </div>
+                          : "text-white"
+                      }
+                      `}>
 
-              {/* LOGOUT */}
+                        {item.name}
 
-              <div className="p-5 border-t border-white/10">
+                      </span>
 
-                <button
-                  onClick={handleLogout}
-                  className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 py-4 rounded-2xl font-bold transition-all duration-300"
-                >
+                    </motion.div>
+                  )}
 
-                  Logout
+                </NavLink>
+              );
+            }
+          )}
 
-                </button>
+        </div>
 
-              </div>
+        {/* FOOTER */}
 
-            </div>
+        <div className="p-6 border-t border-white/10">
 
-          </motion.div>
+          <button className="w-full rounded-3xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all px-6 py-5 flex items-center justify-center gap-4">
 
-        </>
+            <LogOut
+              size={24}
+              className="text-red-400"
+            />
 
-      )}
+            <span className="text-xl font-semibold text-red-400">
 
-    </AnimatePresence>
+              Logout
+
+            </span>
+
+          </button>
+
+        </div>
+
+      </motion.aside>
+
+    </>
   );
 }

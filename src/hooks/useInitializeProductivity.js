@@ -13,6 +13,10 @@ import {
 } from "firebase/firestore";
 
 import {
+  onAuthStateChanged,
+} from "firebase/auth";
+
+import {
   useProductivityStore,
 } from "../store/useProductivityStore";
 
@@ -42,115 +46,132 @@ export default function useInitializeProductivity() {
 
   useEffect(() => {
 
-    const user =
-      auth.currentUser;
+    const unsubscribeAuth =
 
-    if (!user)
-      return;
+      onAuthStateChanged(
 
-    const userRef =
-      doc(
-        db,
-        "users",
-        user.uid
-      );
+        auth,
 
-    const focusRef =
-      doc(
-        db,
-        "focusSessions",
-        user.uid
-      );
+        user => {
 
-    let userData = {};
-    let focusData = {};
+          if (!user) {
 
-    const updateStore =
-      () => {
+            setLoading(false);
 
-        const xp =
-          userData.xp || 0;
+            return;
+          }
 
-        const sessions =
-          focusData.sessions || 0;
+          const userRef =
+            doc(
+              db,
+              "users",
+              user.uid
+            );
 
-        const quality =
-          focusData.quality || 100;
+          const focusRef =
+            doc(
+              db,
+              "focusSessions",
+              user.uid
+            );
 
-        const streak =
-          Number(
-            localStorage.getItem(
-              "streak"
-            ) || 0
-          );
+          let userData = {};
+          let focusData = {};
 
-        const level =
-          calculateLevel(xp);
+          const updateStore =
+            () => {
 
-        const score =
-          calculateProductivityScore({
+              const xp =
+                userData.xp || 0;
 
-            xp,
+              const sessions =
+                focusData.sessions || 0;
 
-            sessions,
+              const quality =
+                focusData.quality || 100;
 
-            streak,
+              const streak =
+                Number(
 
-            quality,
-          });
+                  localStorage.getItem(
+                    "streak"
+                  ) || 0
+                );
 
-        setProductivity({
+              const level =
+                calculateLevel(xp);
 
-          xp,
+              const score =
+                calculateProductivityScore({
 
-          sessions,
+                  xp,
 
-          streak,
+                  sessions,
 
-          quality,
+                  streak,
 
-          level,
+                  quality,
+                });
 
-          score,
-        });
+              setProductivity({
 
-        setLoading(false);
-      };
+                xp,
 
-    const unsubUser =
-      onSnapshot(
+                sessions,
 
-        userRef,
+                streak,
 
-        snapshot => {
+                quality,
 
-          userData =
-            snapshot.data() || {};
+                level,
 
-          updateStore();
+                score,
+
+                loading: false,
+              });
+
+              setLoading(false);
+            };
+
+          const unsubUser =
+            onSnapshot(
+
+              userRef,
+
+              snapshot => {
+
+                userData =
+                  snapshot.data() || {};
+
+                updateStore();
+              }
+            );
+
+          const unsubFocus =
+            onSnapshot(
+
+              focusRef,
+
+              snapshot => {
+
+                focusData =
+                  snapshot.data() || {};
+
+                updateStore();
+              }
+            );
+
+          return () => {
+
+            unsubUser();
+
+            unsubFocus();
+          };
         }
       );
 
-    const unsubFocus =
-      onSnapshot(
-
-        focusRef,
-
-        snapshot => {
-
-          focusData =
-            snapshot.data() || {};
-
-          updateStore();
-        }
-      );
-
-    return () => {
-
-      unsubUser();
-
-      unsubFocus();
-    };
+    return () =>
+      unsubscribeAuth();
 
   }, []);
 }
