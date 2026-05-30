@@ -6,6 +6,8 @@ import {
 
 import Dashboard from "./pages/Dashboard";
 
+import Students from "./pages/Students";
+
 import Habits from "./pages/Habits";
 
 import Analytics from "./pages/Analytics";
@@ -49,6 +51,11 @@ export default function App() {
           path="/habits"
           element={<Habits />}
         />
+  
+  <Route
+  path="/students"
+  element={<Students />}
+/>
 
         <Route
           path="/analytics"

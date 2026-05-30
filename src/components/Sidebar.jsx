@@ -7,6 +7,7 @@ import {
   Trophy,
   Brain,
   User,
+  Users,
   LogOut,
   X,
 } from "lucide-react";
@@ -48,6 +49,12 @@ const navItems = [
   },
 
   {
+    name: "Students",
+    icon: Users,
+    path: "/students",
+  },
+
+  {
     name: "Profile",
     icon: User,
     path: "/profile",
@@ -63,6 +70,8 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* OVERLAY */}
+
       {sidebarOpen && (
 
         <div
@@ -70,6 +79,8 @@ export default function Sidebar() {
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
         />
       )}
+
+      {/* SIDEBAR */}
 
       <aside
         className={`
@@ -100,7 +111,7 @@ export default function Sidebar() {
 
           <div>
 
-            <h1 className="text-3xl font-black">
+            <h1 className="text-3xl font-black leading-tight">
 
               <span className="text-cyan-400">
 
@@ -126,12 +137,44 @@ export default function Sidebar() {
 
           <button
             onClick={closeSidebar}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center"
+            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
           >
 
             <X size={18} />
 
           </button>
+
+        </div>
+
+        {/* PROFILE */}
+
+        <div className="p-5 border-b border-white/10">
+
+          <div className="flex items-center gap-4">
+
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-2xl font-black">
+
+              AK
+
+            </div>
+
+            <div>
+
+              <h2 className="text-xl font-bold">
+
+                Adarsh Kumar
+
+              </h2>
+
+              <p className="text-slate-400 text-sm mt-1">
+
+                Productivity Student
+
+              </p>
+
+            </div>
+
+          </div>
 
         </div>
 
