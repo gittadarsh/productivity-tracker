@@ -7,78 +7,73 @@ import {
 } from "react-router-dom";
 
 import {
-  Toaster,
-} from "react-hot-toast";
-
-import App from "./App";
+  onAuthStateChanged,
+} from "firebase/auth";
 
 import "./index.css";
 
+import App from "./App";
+
 import {
-  ProductivityProvider,
-} from "./context/ProductivityContext";
+  auth,
+} from "./firebase";
 
-import AppInitializer from "./AppInitializer";
+import {
+  createUserProfile,
+} from "./services/userService";
 
-import ErrorBoundary from "./components/ErrorBoundary";
+import {
+  useProductivityStore,
+} from "./store/useProductivityStore";
+
+import {
+  useUIStore,
+} from "./store/uiStore";
+
+/* INITIALIZE AUTH */
+
+onAuthStateChanged(
+  auth,
+
+  async (user) => {
+
+    if (user) {
+
+      await createUserProfile(
+        user
+      );
+
+      useProductivityStore
+        .getState()
+        .setUser(user);
+    }
+
+    else {
+
+      useProductivityStore
+        .getState()
+        .setUser(null);
+    }
+  }
+);
+
+/* INITIALIZE UI */
+
+useUIStore.getState();
+
+/* RENDER APP */
 
 ReactDOM.createRoot(
-  document.getElementById("root")
+  document.getElementById(
+    "root"
+  )
 ).render(
 
   <React.StrictMode>
 
     <BrowserRouter>
 
-      <ProductivityProvider>
-
-        <ErrorBoundary>
-
-          <AppInitializer>
-
-            <App />
-
-          </AppInitializer>
-
-        </ErrorBoundary>
-
-      </ProductivityProvider>
-
-      <Toaster
-
-        position="top-right"
-
-        toastOptions={{
-
-          style: {
-
-            background:
-              "#0f172a",
-
-            color:
-              "#ffffff",
-
-            border:
-              "1px solid rgba(255,255,255,0.1)",
-
-            borderRadius:
-              "16px",
-
-            padding:
-              "16px",
-          },
-
-          success: {
-
-            duration: 3000,
-          },
-
-          error: {
-
-            duration: 4000,
-          },
-        }}
-      />
+      <App />
 
     </BrowserRouter>
 

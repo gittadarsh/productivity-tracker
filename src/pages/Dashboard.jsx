@@ -17,15 +17,52 @@ import {
   useProductivityStore,
 } from "../store/useProductivityStore";
 
+import {
+  useHabitStore,
+} from "../store/habitStore";
+
+import {
+  generateDailyMissions,
+} from "../utils/dailyMissionEngine";
+
+import {
+  generateAnalytics,
+} from "../utils/analyticsEngine";
+
+import {
+  generateInsights,
+} from "../utils/insightEngine";
+
 export default function Dashboard() {
 
   const productivity =
     useProductivityStore();
 
+  const {
+    habits,
+    xp,
+  } = useHabitStore();
+
+  const analytics =
+    generateAnalytics(
+      habits
+    );
+
+  const missions =
+    generateDailyMissions(
+      habits
+    );
+
+  const insights =
+    generateInsights(
+      analytics
+    );
+
   const stats = [
 
     {
-      title: "Current Streak",
+      title:
+        "Current Streak",
 
       value:
         productivity.streak || 0,
@@ -40,7 +77,8 @@ export default function Dashboard() {
     },
 
     {
-      title: "Level",
+      title:
+        "Level",
 
       value:
         productivity.level || 1,
@@ -59,7 +97,7 @@ export default function Dashboard() {
         "Productivity Score",
 
       value:
-        productivity.score || 25,
+        analytics.completionRate || 0,
 
       icon: Brain,
 
@@ -71,10 +109,11 @@ export default function Dashboard() {
     },
 
     {
-      title: "XP",
+      title:
+        "XP",
 
       value:
-        productivity.xp || 0,
+        xp,
 
       icon: Zap,
 
@@ -126,7 +165,8 @@ export default function Dashboard() {
 
           {stats.map((stat) => {
 
-            const Icon = stat.icon;
+            const Icon =
+              stat.icon;
 
             return (
 
@@ -188,7 +228,120 @@ export default function Dashboard() {
 
         </div>
 
+        {/* XP PROGRESS */}
+
         <XPProgress />
+
+        {/* DAILY MISSIONS + INSIGHTS */}
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+          {/* DAILY MISSIONS */}
+
+          <PremiumCard className="rounded-[36px] p-8 border border-white/10 bg-white/[0.03]">
+
+            <h2 className="text-3xl font-black mb-6">
+
+              Daily Missions
+
+            </h2>
+
+            <div className="space-y-4">
+
+              {missions.map(
+                (mission) => (
+
+                  <div
+                    key={mission.id}
+                    className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 flex items-center justify-between"
+                  >
+
+                    <div>
+
+                      <h3 className="text-xl font-semibold">
+
+                        {mission.title}
+
+                      </h3>
+
+                      <p className="text-slate-400 mt-1">
+
+                        +{mission.xp} XP
+
+                      </p>
+
+                    </div>
+
+                    <div className={`
+
+                    px-4 py-2 rounded-xl text-sm font-bold
+
+                    ${
+                      mission.completed
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-yellow-500/20 text-yellow-400"
+                    }
+                    `}>
+
+                      {mission.completed
+                        ? "Completed"
+                        : "Pending"}
+
+                    </div>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </PremiumCard>
+
+          {/* AI INSIGHTS */}
+
+          <PremiumCard className="rounded-[36px] p-8 border border-white/10 bg-white/[0.03]">
+
+            <h2 className="text-3xl font-black mb-6">
+
+              AI Insights
+
+            </h2>
+
+            <div className="space-y-4">
+
+              {insights.length === 0 && (
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-slate-400">
+
+                  Start completing habits to unlock insights.
+
+                </div>
+              )}
+
+              {insights.map(
+                (
+                  insight,
+                  index
+                ) => (
+
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-cyan-500/10 bg-cyan-500/5 p-5 text-lg text-slate-300"
+                  >
+
+                    {insight}
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+          </PremiumCard>
+
+        </div>
+
+        {/* AI BRAIN */}
 
         <AIBrainPanel />
 

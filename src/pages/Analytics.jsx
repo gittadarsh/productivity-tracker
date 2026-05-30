@@ -1,630 +1,246 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import PageWrapper from "../components/PageWrapper";
+
+import PremiumCard from "../components/PremiumCard";
 
 import {
-  motion,
-} from "framer-motion";
+  BarChart3,
+  Activity,
+  Trophy,
+  Flame,
+} from "lucide-react";
 
 import {
-  auth,
-  db,
-} from "../firebase";
+  useHabitStore,
+} from "../store/habitStore";
 
 import {
-  doc,
-  getDoc,
-} from "firebase/firestore";
-
-import {
-
-  LineChart,
-  Line,
-
-  XAxis,
-  YAxis,
-
-  Tooltip,
-  ResponsiveContainer,
-
-  AreaChart,
-  Area,
-
-  CartesianGrid,
-
-} from "recharts";
-
-import {
-  generateInsights,
-} from "../utils/insightEngine";
-
-import {
-  getPerformanceStatus,
-} from "../utils/performanceEngine";
-
-import {
-  getLevelData,
-} from "../utils/levelEngine";
+  generateAnalytics,
+} from "../utils/analyticsEngine";
 
 export default function Analytics() {
 
-  const [data, setData] =
-    useState({
-
-      xp: 0,
-
-      sessions: 0,
-
-      streak: 0,
-
-      goals: 0,
-
-      score: 0,
-    });
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [insights, setInsights] =
-    useState([]);
-
-  useEffect(() => {
-
-    loadAnalytics();
-
-  }, []);
-
-  const loadAnalytics =
-    async () => {
-
-      try {
-
-        const user =
-          auth.currentUser;
-
-        if (!user)
-          return;
-
-        const userRef =
-          doc(
-            db,
-            "users",
-            user.uid
-          );
-
-        const userSnap =
-          await getDoc(
-            userRef
-          );
-
-        const focusRef =
-          doc(
-            db,
-            "focusSessions",
-            user.uid
-          );
-
-        const focusSnap =
-          await getDoc(
-            focusRef
-          );
-
-        const userData =
-          userSnap.exists()
-
-            ? userSnap.data()
-
-            : {};
-
-        const focusData =
-          focusSnap.exists()
-
-            ? focusSnap.data()
-
-            : {};
-
-        const xp =
-          userData.xp || 0;
-
-        const sessions =
-          focusData.sessions || 0;
-
-        const goals =
-          userData.completedGoals || 0;
-
-        const streak =
-          Math.floor(
-            sessions / 3
-          );
-
-        const score =
-          Math.min(
-
-            100,
-
-            Math.floor(
-
-              xp * 0.02 +
-
-              sessions * 2 +
-
-              streak * 4 +
-
-              goals * 5
-            )
-          );
-
-        setData({
-
-          xp,
-
-          sessions,
-
-          streak,
-
-          goals,
-
-          score,
-        });
-
-        setInsights(
-
-          generateInsights({
-
-            xp,
-
-            sessions,
-
-            streak,
-
-            score,
-          })
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-
-      }
-    };
-
-  /* CHART DATA */
-
-  const xpData = [
-
-    {
-      day: "Mon",
-      xp: 120,
-    },
-
-    {
-      day: "Tue",
-      xp: 220,
-    },
-
-    {
-      day: "Wed",
-      xp: 380,
-    },
-
-    {
-      day: "Thu",
-      xp: 520,
-    },
-
-    {
-      day: "Fri",
-      xp: 740,
-    },
-
-    {
-      day: "Sat",
-      xp: 900,
-    },
-
-    {
-      day: "Sun",
-      xp: data.xp,
-    },
-  ];
-
-  const focusChartData = [
-
-    {
-      day: "Mon",
-      sessions: 1,
-    },
-
-    {
-      day: "Tue",
-      sessions: 2,
-    },
-
-    {
-      day: "Wed",
-      sessions: 3,
-    },
-
-    {
-      day: "Thu",
-      sessions: 2,
-    },
-
-    {
-      day: "Fri",
-      sessions: 4,
-    },
-
-    {
-      day: "Sat",
-      sessions: 5,
-    },
-
-    {
-      day: "Sun",
-      sessions: data.sessions,
-    },
-  ];
-
-  const performance =
-    getPerformanceStatus({
-
-      score:
-        data.score,
-
-      streak:
-        data.streak,
-    });
-
-  const levelData =
-    getLevelData(
-      data.xp
+  const { habits } =
+    useHabitStore();
+
+  const analytics =
+    generateAnalytics(
+      habits
     );
 
-  if (loading) {
+  const cards = [
 
-    return (
+    {
+      title:
+        "Completion Rate",
 
-      <div className="flex items-center justify-center min-h-[60vh]">
+      value:
+        `${analytics.completionRate}%`,
 
-        <div className="text-slate-400 text-2xl">
+      icon: Activity,
 
-          Loading analytics...
+      color:
+        "text-cyan-400",
 
-        </div>
+      bg:
+        "from-cyan-500/20 to-blue-500/10",
+    },
 
-      </div>
-    );
-  }
+    {
+      title:
+        "Completed Habits",
+
+      value:
+        analytics.completedHabits,
+
+      icon: Trophy,
+
+      color:
+        "text-green-400",
+
+      bg:
+        "from-green-500/20 to-emerald-500/10",
+    },
+
+    {
+      title:
+        "Average Streak",
+
+      value:
+        analytics.averageStreak,
+
+      icon: Flame,
+
+      color:
+        "text-orange-400",
+
+      bg:
+        "from-orange-500/20 to-red-500/10",
+    },
+
+    {
+      title:
+        "Productivity Rank",
+
+      value:
+        analytics.productivityLabel,
+
+      icon: BarChart3,
+
+      color:
+        "text-purple-400",
+
+      bg:
+        "from-purple-500/20 to-pink-500/10",
+    },
+  ];
 
   return (
 
-    <div className="space-y-8">
+    <PageWrapper>
 
-      {/* HERO */}
+      <div className="space-y-8 pb-20">
 
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
-      >
+        {/* HERO */}
 
-        <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/20 blur-[120px]" />
+        <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 p-8 xl:p-12">
 
-        <div className="relative z-10">
+          <h1 className="text-5xl xl:text-7xl font-black bg-gradient-to-r from-cyan-300 to-blue-500 bg-clip-text text-transparent">
 
-          <p className="text-purple-400 uppercase tracking-[6px] text-sm font-semibold">
-
-            Productivity Intelligence
-
-          </p>
-
-          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
-
-            Performance{" "}
-
-            <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
-
-              Analytics
-
-            </span>
+            Analytics
 
           </h1>
 
-        </div>
+          <p className="text-slate-400 text-xl mt-4">
 
-      </motion.div>
-
-      {/* PRODUCTIVITY SCORE */}
-
-      <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-xl p-10 shadow-2xl">
-
-        <div className="text-center">
-
-          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
-
-            Productivity Score
+            Track consistency and performance intelligently.
 
           </p>
 
-          <h1 className="text-[120px] md:text-[180px] font-black leading-none mt-5 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+        </div>
 
-            {data.score}
+        {/* CARDS */}
 
-          </h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+          {cards.map((card) => {
+
+            const Icon =
+              card.icon;
+
+            return (
+
+              <PremiumCard
+                key={card.title}
+                className={`
+
+                rounded-[36px]
+
+                p-8 border border-white/10
+
+                bg-gradient-to-br ${card.bg}
+                `}
+              >
+
+                <div className="flex items-start justify-between">
+
+                  <div>
+
+                    <p className="text-slate-400 text-lg">
+
+                      {card.title}
+
+                    </p>
+
+                    <h2 className={`
+
+                    text-4xl xl:text-5xl font-black mt-5
+
+                    ${card.color}
+                    `}>
+
+                      {card.value}
+
+                    </h2>
+
+                  </div>
+
+                  <div className={`
+
+                  w-14 h-14 rounded-3xl
+
+                  bg-white/10
+
+                  flex items-center justify-center
+
+                  ${card.color}
+                  `}>
+
+                    <Icon size={26} />
+
+                  </div>
+
+                </div>
+
+              </PremiumCard>
+            );
+          })}
 
         </div>
 
-        {/* PERFORMANCE */}
+        {/* INSIGHTS */}
 
-        <div className="mt-10 space-y-6">
+        <PremiumCard className="rounded-[40px] p-8 border border-white/10 bg-white/[0.03]">
 
-          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+          <h2 className="text-3xl font-black mb-6">
 
-            <p className="text-slate-400">
+            AI Insights
 
-              Performance Status
+          </h2>
+
+          <div className="space-y-4 text-lg text-slate-300">
+
+            <p>
+
+              • Your current completion rate is{" "}
+
+              <span className="text-cyan-400 font-bold">
+
+                {analytics.completionRate}%
+
+              </span>
 
             </p>
 
-            <h2 className={`
+            <p>
 
-            text-4xl font-black mt-3
+              • Your productivity level is classified as{" "}
 
-            ${performance.color}`}
-            >
+              <span className="text-purple-400 font-bold">
 
-              {performance.label}
+                {analytics.productivityLabel}
 
-            </h2>
+              </span>
 
-          </div>
+            </p>
 
-          {/* LEVEL */}
+            <p>
 
-          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+              • Consistency improves exponentially after a 7-day streak.
 
-            <div className="flex items-center justify-between flex-wrap gap-5">
+            </p>
 
-              <div>
+            <p>
 
-                <p className="text-slate-400">
+              • Elite productivity systems prioritize consistency over intensity.
 
-                  Current Level
-
-                </p>
-
-                <h2 className="text-4xl font-black mt-3">
-
-                  Level {levelData.level}
-
-                </h2>
-
-              </div>
-
-              <div className="text-right">
-
-                <p className="text-slate-400">
-
-                  Next Level
-
-                </p>
-
-                <h2 className="text-2xl font-black mt-3 text-cyan-400">
-
-                  {levelData.nextLevelXP} XP
-
-                </h2>
-
-              </div>
-
-            </div>
-
-            <div className="w-full h-4 rounded-full bg-white/5 overflow-hidden mt-6">
-
-              <motion.div
-                initial={{
-                  width: 0,
-                }}
-                animate={{
-                  width:
-                    `${levelData.progress}%`,
-                }}
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
-              />
-
-            </div>
+            </p>
 
           </div>
 
-        </div>
+        </PremiumCard>
 
       </div>
 
-      {/* CHARTS */}
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        {/* XP CHART */}
-
-        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
-
-          <h2 className="text-3xl font-black mb-8">
-
-            ⚡ XP Growth
-
-          </h2>
-
-          <div className="h-[320px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <AreaChart
-                data={xpData}
-              >
-
-                <defs>
-
-                  <linearGradient
-                    id="xp"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-
-                    <stop
-                      offset="5%"
-                      stopColor="#06b6d4"
-                      stopOpacity={0.8}
-                    />
-
-                    <stop
-                      offset="95%"
-                      stopColor="#06b6d4"
-                      stopOpacity={0}
-                    />
-
-                  </linearGradient>
-
-                </defs>
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#1e293b"
-                />
-
-                <XAxis
-                  dataKey="day"
-                  stroke="#94a3b8"
-                />
-
-                <YAxis
-                  stroke="#94a3b8"
-                />
-
-                <Tooltip />
-
-                <Area
-                  type="monotone"
-                  dataKey="xp"
-                  stroke="#06b6d4"
-                  fillOpacity={1}
-                  fill="url(#xp)"
-                />
-
-              </AreaChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-        {/* FOCUS CHART */}
-
-        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
-
-          <h2 className="text-3xl font-black mb-8">
-
-            🧠 Focus Sessions
-
-          </h2>
-
-          <div className="h-[320px]">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <LineChart
-                data={focusChartData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#1e293b"
-                />
-
-                <XAxis
-                  dataKey="day"
-                  stroke="#94a3b8"
-                />
-
-                <YAxis
-                  stroke="#94a3b8"
-                />
-
-                <Tooltip />
-
-                <Line
-                  type="monotone"
-                  dataKey="sessions"
-                  stroke="#a855f7"
-                  strokeWidth={4}
-                />
-
-              </LineChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* INSIGHTS */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        {insights.map(
-          (
-            insight,
-            index
-          ) => (
-
-            <motion.div
-              key={index}
-              whileHover={{
-                y: -5,
-              }}
-              className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl"
-            >
-
-              <h2 className="text-3xl font-black">
-
-                {insight.title}
-
-              </h2>
-
-              <p className="text-slate-400 text-lg mt-4 leading-relaxed">
-
-                {insight.description}
-
-              </p>
-
-            </motion.div>
-          )
-        )}
-
-      </div>
-
-    </div>
+    </PageWrapper>
   );
 }

@@ -1,70 +1,62 @@
 import {
+  doc,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+import {
   db,
 } from "../firebase";
 
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+export async function createUserProfile(
+  user
+) {
 
-export const getUserData =
-  async uid => {
+  if (!user) return;
 
-    const ref =
-      doc(
-        db,
-        "users",
-        uid
-      );
-
-    const snap =
-      await getDoc(ref);
-
-    return snap.exists()
-
-      ? snap.data()
-
-      : null;
-  };
-
-export const updateUserData =
-  async (
-    uid,
-    data
-  ) => {
-
-    await updateDoc(
-
-      doc(
-        db,
-        "users",
-        uid
-      ),
-
-      data
-    );
-  };
-
-export const mergeUserData =
-  async (
-    uid,
-    data
-  ) => {
+  try {
 
     await setDoc(
 
       doc(
         db,
         "users",
-        uid
+        user.uid
       ),
 
-      data,
+      {
+
+        uid: user.uid,
+
+        email:
+          user.email || "",
+
+        name:
+          user.displayName ||
+          "Student",
+
+        joinedAt:
+          serverTimestamp(),
+
+        lastLogin:
+          serverTimestamp(),
+
+        xp: 0,
+
+        streak: 0,
+
+        productivityScore: 0,
+
+        role: "student",
+      },
 
       {
         merge: true,
       }
     );
-  };
+
+  } catch (error) {
+
+    console.log(error);
+  }
+}

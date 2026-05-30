@@ -1,43 +1,48 @@
-export const calculateLevel =
-  xp => {
+export function generateInsights(
+  analytics
+) {
 
-    return Math.max(
+  const insights = [];
 
-      1,
+  if (
+    analytics.completionRate >=
+    80
+  ) {
 
-      Math.floor(
-
-        0.1 *
-
-        Math.sqrt(xp)
-      )
+    insights.push(
+      "Elite consistency detected."
     );
-  };
+  }
 
-export const getNextLevelXP =
-  level => {
+  if (
+    analytics.averageStreak >=
+    5
+  ) {
 
-    return Math.pow(
-      (level + 1) / 0.1,
-      2
+    insights.push(
+      "Your streak momentum is becoming stable."
     );
-  };
+  }
 
-/* OLD EXPORT FIX */
+  if (
+    analytics.completionRate <
+    40
+  ) {
 
-export const getLevelData =
-  xp => {
+    insights.push(
+      "Your consistency system needs optimization."
+    );
+  }
 
-    const level =
-      calculateLevel(xp);
+  if (
+    analytics.completedHabits ===
+    analytics.totalHabits
+  ) {
 
-    const nextLevelXP =
-      getNextLevelXP(level);
+    insights.push(
+      "Perfect daily execution achieved."
+    );
+  }
 
-    return {
-
-      level,
-
-      nextLevelXP,
-    };
-  };
+  return insights;
+}

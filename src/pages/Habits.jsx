@@ -1,247 +1,137 @@
+import { useState } from "react";
+
 import {
-  useState,
-} from "react";
+  Plus,
+  Trash2,
+  Check,
+  Flame,
+} from "lucide-react";
+
+import PageWrapper from "../components/PageWrapper";
 
 import PremiumCard from "../components/PremiumCard";
 
 import {
-  motion,
-} from "framer-motion";
+  useHabitStore,
+} from "../store/habitStore";
 
 export default function Habits() {
 
-  const [
+  const [input, setInput] =
+    useState("");
 
+  const {
     habits,
+    addHabit,
+    toggleHabit,
+    deleteHabit,
+  } = useHabitStore();
 
-    setHabits,
+  const handleAddHabit = () => {
 
-  ] = useState(
+    addHabit(input);
 
-    JSON.parse(
-
-      localStorage.getItem(
-        "habits"
-      ) || "[]"
-    )
-  );
-
-  const [
-
-    input,
-
-    setInput,
-
-  ] = useState("");
-
-  /* ADD HABIT */
-
-  const addHabit =
-    () => {
-
-      const trimmed =
-        input.trim();
-
-      if (!trimmed)
-        return;
-
-      const newHabit = {
-
-        id: Date.now(),
-
-        title: trimmed,
-
-        completed: false,
-      };
-
-      const updated = [
-
-        newHabit,
-
-        ...habits,
-      ];
-
-      setHabits(updated);
-
-      localStorage.setItem(
-
-        "habits",
-
-        JSON.stringify(updated)
-      );
-
-      setInput("");
-    };
-
-  /* ENTER KEY */
-
-  const handleKeyDown =
-    e => {
-
-      if (
-        e.key === "Enter"
-      ) {
-
-        addHabit();
-      }
-    };
-
-  /* TOGGLE */
-
-  const toggleHabit =
-    id => {
-
-      const updated =
-        habits.map(
-          habit =>
-
-            habit.id === id
-
-              ? {
-
-                  ...habit,
-
-                  completed:
-                    !habit.completed,
-                }
-
-              : habit
-        );
-
-      setHabits(updated);
-
-      localStorage.setItem(
-
-        "habits",
-
-        JSON.stringify(updated)
-      );
-    };
-
-  /* DELETE */
-
-  const deleteHabit =
-    id => {
-
-      const updated =
-        habits.filter(
-          habit =>
-            habit.id !== id
-        );
-
-      setHabits(updated);
-
-      localStorage.setItem(
-
-        "habits",
-
-        JSON.stringify(updated)
-      );
-    };
+    setInput("");
+  };
 
   return (
 
-    <div className="space-y-8">
+    <PageWrapper>
 
-      {/* HERO */}
+      <div className="space-y-8 pb-20">
 
-      <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-10 shadow-2xl">
+        {/* HEADER */}
 
-        <h1 className="text-6xl font-black">
+        <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 p-8">
 
-          Habit System
+          <h1 className="text-5xl font-black bg-gradient-to-r from-cyan-300 to-blue-500 bg-clip-text text-transparent">
 
-        </h1>
+            Habit System
 
-        <p className="text-slate-400 text-xl mt-5 max-w-3xl">
+          </h1>
 
-          Build elite consistency through daily behavioral systems.
+          <p className="text-slate-400 text-xl mt-3">
 
-        </p>
+            Build elite routines with consistency.
 
-      </div>
-
-      {/* INPUT */}
-
-      <PremiumCard className="p-8">
-
-        <h2 className="text-3xl font-black mb-6">
-
-          Add Habit
-
-        </h2>
-
-        <div className="flex flex-col md:flex-row gap-4">
-
-          <input
-            type="text"
-            value={input}
-            onChange={e =>
-              setInput(
-                e.target.value
-              )
-            }
-            onKeyDown={
-              handleKeyDown
-            }
-            placeholder="Enter a habit..."
-            className="flex-1 rounded-2xl bg-white/5 border border-white/10 px-6 py-5 text-lg outline-none focus:border-cyan-400 transition-all"
-          />
-
-          <button
-            onClick={addHabit}
-            className="rounded-2xl bg-cyan-500 hover:bg-cyan-400 transition-all px-8 py-5 font-bold text-lg"
-          >
-
-            Add Habit
-
-          </button>
+          </p>
 
         </div>
 
-      </PremiumCard>
+        {/* ADD HABIT */}
 
-      {/* HABITS */}
+        <PremiumCard className="rounded-[36px] p-6 border border-white/10 bg-white/[0.03]">
 
-      <div className="space-y-5">
+          <div className="flex gap-4">
 
-        {habits.length === 0 && (
+            <input
+              value={input}
 
-          <PremiumCard className="p-10 text-center">
+              onChange={(e) =>
+                setInput(
+                  e.target.value
+                )
+              }
 
-            <h2 className="text-3xl font-black">
+              onKeyDown={(e) => {
 
-              No habits yet
+                if (e.key === "Enter") {
 
-            </h2>
-
-            <p className="text-slate-400 text-lg mt-4">
-
-              Start building your productivity identity.
-
-            </p>
-
-          </PremiumCard>
-        )}
-
-        {habits.map(
-          habit => (
-
-            <motion.div
-              key={habit.id}
-
-              initial={{
-                opacity: 0,
-                y: 10,
+                  handleAddHabit();
+                }
               }}
 
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
+              placeholder="Add a new habit..."
+
+              className="flex-1 bg-slate-900 border border-white/10 rounded-2xl px-6 py-5 text-xl outline-none focus:border-cyan-500"
+            />
+
+            <button
+              onClick={handleAddHabit}
+              className="w-16 h-16 rounded-2xl bg-cyan-500 hover:bg-cyan-400 transition-all flex items-center justify-center"
             >
 
-              <PremiumCard className="p-6 flex items-center justify-between gap-5">
+              <Plus size={28} />
+
+            </button>
+
+          </div>
+
+        </PremiumCard>
+
+        {/* HABITS */}
+
+        <div className="grid gap-5">
+
+          {habits.length === 0 && (
+
+            <PremiumCard className="rounded-[36px] p-10 text-center border border-white/10 bg-white/[0.03]">
+
+              <h2 className="text-3xl font-bold text-slate-300">
+
+                No habits yet
+
+              </h2>
+
+              <p className="text-slate-500 mt-3 text-lg">
+
+                Start building your productivity system.
+
+              </p>
+
+            </PremiumCard>
+          )}
+
+          {habits.map((habit) => (
+
+            <PremiumCard
+              key={habit.id}
+              className="rounded-[36px] p-6 border border-white/10 bg-white/[0.03]"
+            >
+
+              <div className="flex items-center justify-between">
+
+                {/* LEFT */}
 
                 <div className="flex items-center gap-5">
 
@@ -251,38 +141,59 @@ export default function Habits() {
                         habit.id
                       )
                     }
+
                     className={`
 
-                    w-8 h-8 rounded-full border-2 transition-all
+                    w-14 h-14 rounded-2xl flex items-center justify-center transition-all
 
                     ${
                       habit.completed
-
-                        ? "bg-green-500 border-green-500"
-
-                        : "border-white/20"
+                        ? "bg-green-500"
+                        : "bg-white/5 border border-white/10"
                     }
                     `}
-                  />
+                  >
 
-                  <h2 className={`
+                    <Check size={24} />
 
-                  text-2xl font-bold
+                  </button>
 
-                  ${
-                    habit.completed
+                  <div>
 
-                      ? "line-through text-slate-500"
+                    <h2 className={`
 
-                      : "text-white"
-                  }
-                  `}>
+                    text-2xl font-bold
 
-                    {habit.title}
+                    ${
+                      habit.completed
+                        ? "line-through text-slate-500"
+                        : "text-white"
+                    }
+                    `}>
 
-                  </h2>
+                      {habit.title}
+
+                    </h2>
+
+                    <div className="flex items-center gap-2 mt-2 text-orange-400">
+
+                      <Flame size={18} />
+
+                      <span>
+
+                        {habit.streak}
+                        {" "}
+                        day streak
+
+                      </span>
+
+                    </div>
+
+                  </div>
 
                 </div>
+
+                {/* DELETE */}
 
                 <button
                   onClick={() =>
@@ -290,21 +201,23 @@ export default function Habits() {
                       habit.id
                     )
                   }
-                  className="text-red-400 hover:text-red-300 transition-all text-lg"
+
+                  className="w-14 h-14 rounded-2xl bg-red-500/10 hover:bg-red-500/20 transition-all flex items-center justify-center text-red-400"
                 >
 
-                  Delete
+                  <Trash2 size={22} />
 
                 </button>
 
-              </PremiumCard>
+              </div>
 
-            </motion.div>
-          )
-        )}
+            </PremiumCard>
+          ))}
+
+        </div>
 
       </div>
 
-    </div>
+    </PageWrapper>
   );
 }
