@@ -2,17 +2,23 @@ import React from "react";
 
 import ReactDOM from "react-dom/client";
 
-import App from "./App";
-
-import "./index.css";
+import {
+  BrowserRouter,
+} from "react-router-dom";
 
 import {
   Toaster,
 } from "react-hot-toast";
 
+import App from "./App";
+
+import "./index.css";
+
 import {
   ProductivityProvider,
 } from "./context/ProductivityContext";
+
+import AppInitializer from "./AppInitializer";
 
 ReactDOM.createRoot(
   document.getElementById("root")
@@ -20,30 +26,45 @@ ReactDOM.createRoot(
 
   <React.StrictMode>
 
-    <ProductivityProvider>
+    <BrowserRouter>
 
-      <App />
+      <ProductivityProvider>
+
+        <AppInitializer>
+
+          <App />
+
+        </AppInitializer>
+
+      </ProductivityProvider>
 
       <Toaster
+
         position="top-right"
+
         toastOptions={{
+
           style: {
 
-            background: "#0f172a",
+            background:
+              "#0f172a",
 
-            color: "#fff",
+            color:
+              "#ffffff",
 
             border:
-              "1px solid rgba(255,255,255,0.08)",
+              "1px solid rgba(255,255,255,0.1)",
 
-            borderRadius: "18px",
+            borderRadius:
+              "16px",
 
-            padding: "16px",
+            padding:
+              "16px",
           },
         }}
       />
 
-    </ProductivityProvider>
+    </BrowserRouter>
 
   </React.StrictMode>
 );

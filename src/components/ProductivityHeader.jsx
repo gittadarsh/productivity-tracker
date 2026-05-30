@@ -1,11 +1,11 @@
 import {
-  useProductivity,
-} from "../context/ProductivityContext";
+  useProductivityStore,
+} from "../store/useProductivityStore";
 
 export default function ProductivityHeader() {
 
   const productivity =
-    useProductivity();
+    useProductivityStore();
 
   return (
 
