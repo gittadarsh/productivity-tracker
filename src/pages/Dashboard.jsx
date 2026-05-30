@@ -1,26 +1,19 @@
-import {
-  motion,
-} from "framer-motion";
-
-import {
-  Link,
-} from "react-router-dom";
-
-import AIBrainPanel from "../components/AIBrainPanel";
-
 import ProductivityHeader from "../components/ProductivityHeader";
 
-import AICoachDashboard from "../components/AICoachDashboard";
-
-import XPProgress from "../components/XPProgress";
+import PageWrapper from "../components/PageWrapper";
 
 import PremiumCard from "../components/PremiumCard";
 
-import AIAlerts from "../components/AIAlerts";
+import XPProgress from "../components/XPProgress";
 
-import RealtimeActivityFeed from "../components/RealtimeActivityFeed";
+import AIBrainPanel from "../components/AIBrainPanel";
 
-import AIRecommendations from "../components/AIRecommendations";
+import {
+  Flame,
+  Trophy,
+  Brain,
+  Zap,
+} from "lucide-react";
 
 import {
   useProductivityStore,
@@ -31,70 +24,36 @@ export default function Dashboard() {
   const productivity =
     useProductivityStore();
 
-  const quickActions = [
+  const stats = [
 
     {
-      title: "Focus",
-      icon: "🧠",
-      path: "/focus",
-    },
-
-    {
-      title: "Analytics",
-      icon: "📈",
-      path: "/analytics",
-    },
-
-    {
-      title: "Missions",
-      icon: "🚀",
-      path: "/missions",
-    },
-
-    {
-      title: "Achievements",
-      icon: "🏆",
-      path: "/achievements",
-    },
-  ];
-
-  const statCards = [
-
-    {
-      title: "Total XP",
-      value:
-        productivity.xp,
-
-      icon: "⚡",
-
-      color:
-        "text-cyan-400",
-    },
-
-    {
-      title:
-        "Focus Sessions",
+      title: "Current Streak",
 
       value:
-        productivity.sessions,
+        productivity.streak || 0,
 
-      icon: "🧠",
-
-      color:
-        "text-purple-400",
-    },
-
-    {
-      title:
-        "Current Streak",
-
-      value:
-        productivity.streak,
-
-      icon: "🔥",
+      icon: Flame,
 
       color:
+        "from-orange-500/20 to-red-500/10",
+
+      text:
         "text-orange-400",
+    },
+
+    {
+      title: "Level",
+
+      value:
+        productivity.level || 1,
+
+      icon: Trophy,
+
+      color:
+        "from-purple-500/20 to-pink-500/10",
+
+      text:
+        "text-purple-400",
     },
 
     {
@@ -102,228 +61,149 @@ export default function Dashboard() {
         "Productivity Score",
 
       value:
-        productivity.score,
+        productivity.score || 25,
 
-      icon: "📈",
+      icon: Brain,
 
       color:
+        "from-green-500/20 to-emerald-500/10",
+
+      text:
         "text-green-400",
+    },
+
+    {
+      title: "XP",
+
+      value:
+        productivity.xp || 0,
+
+      icon: Zap,
+
+      color:
+        "from-cyan-500/20 to-blue-500/10",
+
+      text:
+        "text-cyan-400",
     },
   ];
 
-
   return (
 
-    <div className="space-y-8">
+    <PageWrapper>
 
-      {/* HERO */}
+      <div className="space-y-8 pb-20">
 
-      <motion.div
+        {/* HEADER */}
 
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
+        <ProductivityHeader />
 
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+        {/* HERO */}
 
-        className="relative overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-12 shadow-2xl"
-      >
+        <div className="rounded-[42px] overflow-hidden border border-white/10 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-slate-900 p-8 xl:p-12">
 
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/20 blur-[120px]" />
+          <div className="space-y-5">
 
-        <div className="relative z-10">
+            <p className="uppercase tracking-[10px] text-cyan-400 text-sm xl:text-lg font-bold">
 
-          <p className="text-cyan-400 uppercase tracking-[6px] text-sm font-semibold">
+              Productivity Intelligence
 
-            Productivity Intelligence
+            </p>
 
-          </p>
+            <h1 className="text-5xl xl:text-7xl font-black leading-none max-w-5xl bg-gradient-to-r from-cyan-300 to-blue-500 bg-clip-text text-transparent">
 
-          <h1 className="text-5xl md:text-7xl font-black mt-6 leading-tight">
+              Build elite consistency.
 
-            Build{" "}
+            </h1>
 
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <p className="text-slate-400 text-lg xl:text-2xl max-w-3xl leading-relaxed">
 
-              elite consistency
+              Transform your focus, habits, and productivity into an intelligent operating system.
 
-            </span>
+            </p>
 
-          </h1>
-
-          <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
-
-            AI-powered productivity operating system.
-
-          </p>
+          </div>
 
         </div>
 
-      </motion.div>
+        {/* STATS */}
 
-      <ProductivityHeader />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-      <AICoachDashboard />
+          {stats.map((stat) => {
 
-      <XPProgress />
+            const Icon = stat.icon;
 
-<AIBrainPanel />
-      {/* COMMAND CENTER */}
+            return (
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <PremiumCard
+                key={stat.title}
+                className={`
 
-        <PremiumCard className="p-8">
+                rounded-[36px]
 
-          <p className="text-cyan-400 uppercase tracking-[5px] text-sm font-semibold">
+                bg-gradient-to-br ${stat.color}
 
-            AI Momentum Analysis
-
-          </p>
-
-          <h2 className="text-4xl font-black mt-5 leading-tight">
-
-            Productivity momentum is improving strongly.
-
-          </h2>
-
-          <p className="text-slate-400 text-lg mt-5 leading-relaxed">
-
-            Your behavioral consistency and focus quality indicate strong growth patterns.
-
-          </p>
-
-        </PremiumCard>
-
-        <AIRecommendations />
-
-      </div>
-
-      {/* LIVE SECTION */}
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-        <div>
-
-          <h2 className="text-4xl font-black mb-6">
-
-            Live Activity
-
-          </h2>
-
-          <RealtimeActivityFeed />
-
-        </div>
-
-        <div>
-
-          <h2 className="text-4xl font-black mb-6">
-
-            AI Alerts
-
-          </h2>
-
-          <AIAlerts />
-
-        </div>
-
-      </div>
-
-      {/* QUICK ACTIONS */}
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-
-        {quickActions.map(
-          (
-            action,
-            index
-          ) => (
-
-            <Link
-              key={index}
-              to={action.path}
-            >
-
-              <motion.div
-
-                whileHover={{
-                  y: -5,
-                }}
-
-                transition={{
-                  duration: 0.25,
-                }}
-
-                className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:bg-white/10 transition-all"
+                p-8 border border-white/10
+                `}
               >
 
-                <div className="text-5xl">
+                <div className="flex items-start justify-between">
 
-                  {action.icon}
+                  <div>
+
+                    <p className="text-slate-400 text-base xl:text-lg">
+
+                      {stat.title}
+
+                    </p>
+
+                    <h2 className={`
+
+                    text-4xl xl:text-5xl font-black mt-6
+
+                    ${stat.text}
+                    `}>
+
+                      {stat.value}
+
+                    </h2>
+
+                  </div>
+
+                  <div className={`
+
+                  w-14 h-14 xl:w-16 xl:h-16 rounded-3xl
+
+                  bg-white/10
+
+                  flex items-center justify-center
+
+                  ${stat.text}
+                  `}>
+
+                    <Icon size={28} />
+
+                  </div>
 
                 </div>
 
-                <h3 className="text-2xl font-black mt-6">
+              </PremiumCard>
+            );
+          })}
 
-                  {action.title}
+        </div>
 
-                </h3>
+        {/* XP */}
 
-              </motion.div>
+        <XPProgress />
 
-            </Link>
-          )
-        )}
+        {/* AI */}
 
-      </div>
-
-      {/* STATS */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-
-        {statCards.map(
-          (
-            stat,
-            index
-          ) => (
-
-            <PremiumCard
-              key={index}
-              className="p-7"
-            >
-
-              <div className="text-5xl">
-
-                {stat.icon}
-
-              </div>
-
-              <p className="text-slate-400 mt-7 text-lg">
-
-                {stat.title}
-
-              </p>
-
-              <h2 className={`
-
-              text-5xl md:text-6xl font-black mt-4
-
-              ${stat.color}`}
-              >
-
-                {stat.value}
-
-              </h2>
-
-            </PremiumCard>
-          )
-        )}
+        <AIBrainPanel />
 
       </div>
 
-    </div>
+    </PageWrapper>
   );
 }

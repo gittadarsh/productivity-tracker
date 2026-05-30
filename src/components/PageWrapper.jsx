@@ -1,11 +1,7 @@
-import {
-  motion,
-} from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function PageWrapper({
-
   children,
-
 }) {
 
   return (
@@ -23,10 +19,10 @@ export default function PageWrapper({
       }}
 
       transition={{
-        duration: 0.35,
+        duration: 0.3,
       }}
 
-      className="w-full max-w-[1800px] mx-auto"
+      className="w-full min-h-screen p-6 xl:p-8"
     >
 
       {children}

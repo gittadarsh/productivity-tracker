@@ -1,77 +1,113 @@
-import {
-  useProductivityStore,
-} from "../store/useProductivityStore";
+import { Menu, Search, Sun } from "lucide-react";
+
+import { useUIStore } from "../store/uiStore";
 
 export default function ProductivityHeader() {
 
-  const productivity =
-    useProductivityStore();
+  const { toggleSidebar } = useUIStore();
+
+  const currentHour = new Date().getHours();
+
+  const greeting =
+    currentHour < 12
+      ? "Good Morning"
+      : currentHour < 18
+      ? "Good Afternoon"
+      : "Good Evening";
 
   return (
 
-    <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
+    <div className="w-full rounded-[36px] border border-white/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/5 backdrop-blur-2xl px-8 py-7 flex items-center justify-between">
 
-      <div className="rounded-[28px] border border-cyan-500/20 bg-cyan-500/10 p-6">
+      {/* LEFT */}
 
-        <p className="text-slate-400">
+      <div className="flex items-center gap-6">
 
-          Total XP
+        {/* MENU */}
 
-        </p>
+        <button
+          onClick={toggleSidebar}
+          className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center"
+        >
 
-        <h2 className="text-5xl font-black mt-4 text-cyan-400">
+          <Menu size={30} />
 
-          {productivity.xp}
+        </button>
 
-        </h2>
+        {/* PROFILE */}
+
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-3xl font-black">
+
+          AK
+
+        </div>
+
+        {/* TEXT */}
+
+        <div>
+
+          <h1 className="text-5xl font-black leading-tight">
+
+            {greeting},{" "}
+
+            <span className="text-cyan-400">
+
+              Adarsh
+
+            </span>
+
+          </h1>
+
+          <p className="text-slate-400 text-2xl mt-1">
+
+            Student Productivity Dashboard
+
+          </p>
+
+        </div>
 
       </div>
 
-      <div className="rounded-[28px] border border-orange-500/20 bg-orange-500/10 p-6">
+      {/* RIGHT */}
 
-        <p className="text-slate-400">
+      <div className="flex items-center gap-5">
 
-          Streak
+        {/* TIME */}
 
-        </p>
+        <div className="rounded-3xl bg-white/5 border border-white/10 px-8 py-5">
 
-        <h2 className="text-5xl font-black mt-4 text-orange-400">
+          <h2 className="text-3xl font-bold">
 
-          {productivity.streak}
+            {new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
 
-        </h2>
+          </h2>
 
-      </div>
+        </div>
 
-      <div className="rounded-[28px] border border-purple-500/20 bg-purple-500/10 p-6">
+        {/* SEARCH */}
 
-        <p className="text-slate-400">
+        <button className="rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all px-8 py-5 flex items-center gap-4">
 
-          Level
+          <Search size={24} />
 
-        </p>
+          <span className="text-2xl font-semibold">
 
-        <h2 className="text-5xl font-black mt-4 text-purple-400">
+            Search
 
-          {productivity.level}
+          </span>
 
-        </h2>
+        </button>
 
-      </div>
+        {/* THEME */}
 
-      <div className="rounded-[28px] border border-green-500/20 bg-green-500/10 p-6">
+        <button className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center">
 
-        <p className="text-slate-400">
+          <Sun size={26} />
 
-          Productivity Score
-
-        </p>
-
-        <h2 className="text-5xl font-black mt-4 text-green-400">
-
-          {productivity.score}
-
-        </h2>
+        </button>
 
       </div>
 

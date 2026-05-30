@@ -1,18 +1,21 @@
-import {
-  create,
-} from "zustand";
+import { create } from "zustand";
 
-export const useUIStore =
-  create(set => ({
+export const useUIStore = create((set) => ({
 
-    sidebarOpen: true,
+  sidebarOpen: false,
 
-    toggleSidebar:
-      () =>
+  toggleSidebar: () =>
+    set((state) => ({
+      sidebarOpen: !state.sidebarOpen,
+    })),
 
-        set(state => ({
+  closeSidebar: () =>
+    set({
+      sidebarOpen: false,
+    }),
 
-          sidebarOpen:
-            !state.sidebarOpen,
-        })),
-  }));
+  openSidebar: () =>
+    set({
+      sidebarOpen: true,
+    }),
+}));
