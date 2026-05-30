@@ -1,5 +1,3 @@
-import ProductivityHeader from "../components/ProductivityHeader";
-
 import PageWrapper from "../components/PageWrapper";
 
 import PremiumCard from "../components/PremiumCard";
@@ -93,10 +91,6 @@ export default function Dashboard() {
     <PageWrapper>
 
       <div className="space-y-8 pb-20">
-
-        {/* HEADER */}
-
-        <ProductivityHeader />
 
         {/* HERO */}
 
@@ -194,11 +188,7 @@ export default function Dashboard() {
 
         </div>
 
-        {/* XP */}
-
         <XPProgress />
-
-        {/* AI */}
 
         <AIBrainPanel />
 

@@ -1,12 +1,20 @@
-import { Menu, Search, Sun } from "lucide-react";
+import {
+  Menu,
+  Search,
+  Sun,
+} from "lucide-react";
 
-import { useUIStore } from "../store/uiStore";
+import {
+  useUIStore,
+} from "../store/uiStore";
 
 export default function ProductivityHeader() {
 
-  const { toggleSidebar } = useUIStore();
+  const { toggleSidebar } =
+    useUIStore();
 
-  const currentHour = new Date().getHours();
+  const currentHour =
+    new Date().getHours();
 
   const greeting =
     currentHour < 12
@@ -17,36 +25,30 @@ export default function ProductivityHeader() {
 
   return (
 
-    <div className="w-full rounded-[36px] border border-white/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/5 backdrop-blur-2xl px-8 py-7 flex items-center justify-between">
+    <div className="w-full rounded-[36px] border border-white/10 bg-gradient-to-r from-cyan-500/10 to-blue-500/5 backdrop-blur-2xl px-6 xl:px-8 py-6 flex items-center justify-between">
 
       {/* LEFT */}
 
-      <div className="flex items-center gap-6">
-
-        {/* MENU */}
+      <div className="flex items-center gap-5">
 
         <button
           onClick={toggleSidebar}
-          className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center"
+          className="w-14 h-14 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center"
         >
 
-          <Menu size={30} />
+          <Menu size={28} />
 
         </button>
 
-        {/* PROFILE */}
-
-        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-3xl font-black">
+        <div className="w-14 h-14 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-2xl font-black">
 
           AK
 
         </div>
 
-        {/* TEXT */}
-
         <div>
 
-          <h1 className="text-5xl font-black leading-tight">
+          <h1 className="text-3xl xl:text-4xl font-black leading-tight">
 
             {greeting},{" "}
 
@@ -58,9 +60,9 @@ export default function ProductivityHeader() {
 
           </h1>
 
-          <p className="text-slate-400 text-2xl mt-1">
+          <p className="text-slate-400 text-lg mt-1">
 
-            Student Productivity Dashboard
+            Student Dashboard
 
           </p>
 
@@ -70,13 +72,11 @@ export default function ProductivityHeader() {
 
       {/* RIGHT */}
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
 
-        {/* TIME */}
+        <div className="rounded-3xl bg-white/5 border border-white/10 px-6 py-4">
 
-        <div className="rounded-3xl bg-white/5 border border-white/10 px-8 py-5">
-
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-2xl font-bold">
 
             {new Date().toLocaleTimeString([], {
               hour: "2-digit",
@@ -87,13 +87,11 @@ export default function ProductivityHeader() {
 
         </div>
 
-        {/* SEARCH */}
+        <button className="rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all px-6 py-4 flex items-center gap-3">
 
-        <button className="rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all px-8 py-5 flex items-center gap-4">
+          <Search size={22} />
 
-          <Search size={24} />
-
-          <span className="text-2xl font-semibold">
+          <span className="text-xl font-semibold">
 
             Search
 
@@ -101,11 +99,9 @@ export default function ProductivityHeader() {
 
         </button>
 
-        {/* THEME */}
+        <button className="w-14 h-14 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center">
 
-        <button className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center">
-
-          <Sun size={26} />
+          <Sun size={24} />
 
         </button>
 
