@@ -1,308 +1,142 @@
 import {
-
-  useEffect,
   useState,
-
 } from "react";
 
-import {
+import PremiumCard from "../components/PremiumCard";
 
+import {
   motion,
-
 } from "framer-motion";
-
-import {
-
-  auth,
-  db,
-
-} from "../firebase";
-
-import {
-
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  serverTimestamp,
-  where,
-  updateDoc,
-
-} from "firebase/firestore";
-
-import toast from "react-hot-toast";
 
 export default function Habits() {
 
   const [
+
     habits,
-    setHabits
-  ] = useState([]);
+
+    setHabits,
+
+  ] = useState(
+
+    JSON.parse(
+
+      localStorage.getItem(
+        "habits"
+      ) || "[]"
+    )
+  );
 
   const [
-    loading,
-    setLoading
-  ] = useState(true);
 
-  const [
-    newHabit,
-    setNewHabit
+    input,
+
+    setInput,
+
   ] = useState("");
-
-  /* LOAD HABITS */
-
-  useEffect(() => {
-
-    loadHabits();
-
-  }, []);
-
-  const loadHabits =
-    async () => {
-
-      try {
-
-        const user =
-          auth.currentUser;
-
-        if (!user)
-          return;
-
-        const q = query(
-
-          collection(
-            db,
-            "habits"
-          ),
-
-          where(
-            "uid",
-            "==",
-            user.uid
-          )
-        );
-
-        const snapshot =
-          await getDocs(q);
-
-        const data =
-          snapshot.docs.map(
-            (doc) => ({
-
-              id:
-                doc.id,
-
-              ...doc.data(),
-            })
-          );
-
-        setHabits(data);
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Failed to load habits"
-        );
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
 
   /* ADD HABIT */
 
   const addHabit =
-    async () => {
+    () => {
 
-      if (
-        !newHabit.trim()
-      )
+      const trimmed =
+        input.trim();
+
+      if (!trimmed)
         return;
 
-      try {
+      const newHabit = {
 
-        const user =
-          auth.currentUser;
+        id: Date.now(),
 
-        const docRef =
-          await addDoc(
+        title: trimmed,
 
-            collection(
-              db,
-              "habits"
-            ),
+        completed: false,
+      };
 
-            {
-              uid:
-                user.uid,
+      const updated = [
 
-              title:
-                newHabit,
+        newHabit,
 
-              completed:
-                false,
+        ...habits,
+      ];
 
-              streak:
-                0,
+      setHabits(updated);
 
-              createdAt:
-                serverTimestamp(),
-            }
-          );
+      localStorage.setItem(
 
-        setHabits([
+        "habits",
 
-          ...habits,
+        JSON.stringify(updated)
+      );
 
-          {
-            id:
-              docRef.id,
+      setInput("");
+    };
 
-            title:
-              newHabit,
+  /* ENTER KEY */
 
-            completed:
-              false,
+  const handleKeyDown =
+    e => {
 
-            streak:
-              0,
-          },
-        ]);
+      if (
+        e.key === "Enter"
+      ) {
 
-        setNewHabit("");
-
-        toast.success(
-          "Habit added"
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Failed to add habit"
-        );
+        addHabit();
       }
     };
 
   /* TOGGLE */
 
   const toggleHabit =
-    async (habit) => {
+    id => {
 
-      try {
+      const updated =
+        habits.map(
+          habit =>
 
-        const ref =
-          doc(
-            db,
-            "habits",
-            habit.id
-          );
+            habit.id === id
 
-        await updateDoc(
-          ref,
+              ? {
 
-          {
-            completed:
-              !habit.completed,
+                  ...habit,
 
-            streak:
-              !habit.completed
+                  completed:
+                    !habit.completed,
+                }
 
-                ? habit.streak +
-                  1
-
-                : Math.max(
-                    habit.streak -
-                      1,
-                    0
-                  ),
-          }
+              : habit
         );
 
-        setHabits(
+      setHabits(updated);
 
-          habits.map(
-            (h) =>
+      localStorage.setItem(
 
-              h.id ===
-              habit.id
+        "habits",
 
-                ? {
-
-                    ...h,
-
-                    completed:
-                      !h.completed,
-
-                    streak:
-                      !h.completed
-
-                        ? h.streak +
-                          1
-
-                        : Math.max(
-                            h.streak -
-                              1,
-                            0
-                          ),
-                  }
-
-                : h
-          )
-        );
-
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Failed to update habit"
-        );
-      }
+        JSON.stringify(updated)
+      );
     };
 
   /* DELETE */
 
   const deleteHabit =
-    async (id) => {
+    id => {
 
-      try {
-
-        await deleteDoc(
-
-          doc(
-            db,
-            "habits",
-            id
-          )
+      const updated =
+        habits.filter(
+          habit =>
+            habit.id !== id
         );
 
-        setHabits(
+      setHabits(updated);
 
-          habits.filter(
-            (h) =>
-              h.id !== id
-          )
-        );
+      localStorage.setItem(
 
-        toast.success(
-          "Habit deleted"
-        );
+        "habits",
 
-      } catch (error) {
-
-        console.log(error);
-
-        toast.error(
-          "Delete failed"
-        );
-      }
+        JSON.stringify(updated)
+      );
     };
 
   return (
@@ -311,282 +145,165 @@ export default function Habits() {
 
       {/* HERO */}
 
-      <motion.div
+      <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-10 shadow-2xl">
 
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
+        <h1 className="text-6xl font-black">
 
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
+          Habit System
 
-        className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-cyan-500/10 to-blue-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
-      >
+        </h1>
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/20 blur-[120px]" />
+        <p className="text-slate-400 text-xl mt-5 max-w-3xl">
 
-        <div className="relative z-10">
+          Build elite consistency through daily behavioral systems.
 
-          <p className="text-cyan-400 font-semibold tracking-widest uppercase mb-3">
+        </p>
 
-            Habit Tracking Engine
+      </div>
 
-          </p>
+      {/* INPUT */}
 
-          <h1 className="text-5xl md:text-6xl font-black leading-tight max-w-4xl">
+      <PremiumCard className="p-8">
 
-            Build
-            {" "}
+        <h2 className="text-3xl font-black mb-6">
 
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          Add Habit
 
-              elite habits
-            </span>
-
-            {" "}
-            daily.
-          </h1>
-
-        </div>
-
-      </motion.div>
-
-      {/* ADD */}
-
-      <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl">
+        </h2>
 
         <div className="flex flex-col md:flex-row gap-4">
 
           <input
             type="text"
-
-            value={newHabit}
-
-            onChange={(e) =>
-              setNewHabit(
+            value={input}
+            onChange={e =>
+              setInput(
                 e.target.value
               )
             }
-
-            placeholder="Add a new habit..."
-
-            className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-cyan-400 transition"
+            onKeyDown={
+              handleKeyDown
+            }
+            placeholder="Enter a habit..."
+            className="flex-1 rounded-2xl bg-white/5 border border-white/10 px-6 py-5 text-lg outline-none focus:border-cyan-400 transition-all"
           />
 
           <button
             onClick={addHabit}
-
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:scale-[1.03] transition-all duration-300 px-8 py-4 rounded-2xl font-bold shadow-2xl"
+            className="rounded-2xl bg-cyan-500 hover:bg-cyan-400 transition-all px-8 py-5 font-bold text-lg"
           >
 
-            ➕ Add Habit
+            Add Habit
 
           </button>
 
         </div>
 
-      </div>
+      </PremiumCard>
 
       {/* HABITS */}
 
-      {
-        loading
+      <div className="space-y-5">
 
-          ? (
+        {habits.length === 0 && (
 
-            <div className="text-center text-slate-400">
+          <PremiumCard className="p-10 text-center">
 
-              Loading habits...
+            <h2 className="text-3xl font-black">
 
-            </div>
-          )
+              No habits yet
 
-          : (
+            </h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <p className="text-slate-400 text-lg mt-4">
 
-              {habits.map(
-                (
-                  habit,
-                  index
-                ) => (
+              Start building your productivity identity.
 
-                  <motion.div
+            </p>
 
-                    key={
-                      habit.id
+          </PremiumCard>
+        )}
+
+        {habits.map(
+          habit => (
+
+            <motion.div
+              key={habit.id}
+
+              initial={{
+                opacity: 0,
+                y: 10,
+              }}
+
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+            >
+
+              <PremiumCard className="p-6 flex items-center justify-between gap-5">
+
+                <div className="flex items-center gap-5">
+
+                  <button
+                    onClick={() =>
+                      toggleHabit(
+                        habit.id
+                      )
                     }
+                    className={`
 
-                    initial={{
-                      opacity: 0,
-                      y: 20,
-                    }}
+                    w-8 h-8 rounded-full border-2 transition-all
 
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                    }}
+                    ${
+                      habit.completed
 
-                    transition={{
-                      delay:
-                        index *
-                        0.05,
-                    }}
+                        ? "bg-green-500 border-green-500"
 
-                    whileHover={{
-                      y: -5,
-                    }}
+                        : "border-white/20"
+                    }
+                    `}
+                  />
 
-                    className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl"
-                  >
+                  <h2 className={`
 
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 blur-3xl" />
+                  text-2xl font-bold
 
-                    <div className="relative z-10">
+                  ${
+                    habit.completed
 
-                      <div className="flex items-start justify-between gap-5">
+                      ? "line-through text-slate-500"
 
-                        <div>
+                      : "text-white"
+                  }
+                  `}>
 
-                          <h2 className="text-3xl font-black">
+                    {habit.title}
 
-                            {
-                              habit.title
-                            }
+                  </h2>
 
-                          </h2>
+                </div>
 
-                          <p className="text-slate-400 mt-3">
+                <button
+                  onClick={() =>
+                    deleteHabit(
+                      habit.id
+                    )
+                  }
+                  className="text-red-400 hover:text-red-300 transition-all text-lg"
+                >
 
-                            Daily productivity habit
+                  Delete
 
-                          </p>
+                </button>
 
-                        </div>
+              </PremiumCard>
 
-                        <div className="text-5xl">
-
-                          {
-                            habit.completed
-
-                              ? "✅"
-
-                              : "⚡"
-                          }
-
-                        </div>
-
-                      </div>
-
-                      {/* STREAK */}
-
-                      <div className="mt-8">
-
-                        <div className="flex items-center justify-between mb-3">
-
-                          <span className="text-slate-400">
-
-                            Streak
-
-                          </span>
-
-                          <span className="font-bold text-2xl">
-
-                            🔥
-                            {" "}
-                            {
-                              habit.streak
-                            }
-
-                          </span>
-
-                        </div>
-
-                        <div className="h-4 bg-white/5 rounded-full overflow-hidden">
-
-                          <motion.div
-
-                            initial={{
-                              width: 0,
-                            }}
-
-                            animate={{
-                              width:
-                                `${
-                                  Math.min(
-                                    habit.streak *
-                                      10,
-                                    100
-                                  )
-                                }%`,
-                            }}
-
-                            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
-                          />
-
-                        </div>
-
-                      </div>
-
-                      {/* ACTIONS */}
-
-                      <div className="flex gap-4 mt-8">
-
-                        <button
-                          onClick={() =>
-                            toggleHabit(
-                              habit
-                            )
-                          }
-
-                          className={`flex-1 py-4 rounded-2xl font-bold transition-all duration-300
-
-                          ${
-                            habit.completed
-
-                              ? "bg-green-500/20 text-green-400 border border-green-500/20"
-
-                              : "bg-gradient-to-r from-cyan-500 to-blue-500"
-                          }`}
-                        >
-
-                          {
-                            habit.completed
-
-                              ? "Completed"
-
-                              : "Mark Complete"
-                          }
-
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            deleteHabit(
-                              habit.id
-                            )
-                          }
-
-                          className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition px-6 rounded-2xl text-red-400"
-                        >
-
-                          🗑
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  </motion.div>
-                )
-              )}
-
-            </div>
+            </motion.div>
           )
-      }
+        )}
+
+      </div>
 
     </div>
   );

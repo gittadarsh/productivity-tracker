@@ -6,6 +6,8 @@ import {
   Link,
 } from "react-router-dom";
 
+import AIBrainPanel from "../components/AIBrainPanel";
+
 import ProductivityHeader from "../components/ProductivityHeader";
 
 import AICoachDashboard from "../components/AICoachDashboard";
@@ -186,6 +188,7 @@ export default function Dashboard() {
 
       <XPProgress />
 
+<AIBrainPanel />
       {/* COMMAND CENTER */}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
