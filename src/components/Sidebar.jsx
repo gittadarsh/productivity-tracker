@@ -1,10 +1,6 @@
-import {
-  NavLink,
-} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-import {
-  motion,
-} from "framer-motion";
+import { motion } from "framer-motion";
 
 import {
   Home,
@@ -13,17 +9,13 @@ import {
   Trophy,
   Brain,
   User,
-  Flame,
   LogOut,
   X,
 } from "lucide-react";
 
-import {
-  useUIStore,
-} from "../store/uiStore";
+import { useUIStore } from "../store/uiStore";
 
 const navItems = [
-
   {
     name: "Dashboard",
     icon: Home,
@@ -64,21 +56,15 @@ const navItems = [
 export default function Sidebar() {
 
   const {
-
     sidebarOpen,
-
     toggleSidebar,
-
   } = useUIStore();
 
   return (
-
     <>
-
       {/* MOBILE OVERLAY */}
 
       {sidebarOpen && (
-
         <div
           onClick={toggleSidebar}
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
@@ -88,17 +74,13 @@ export default function Sidebar() {
       {/* SIDEBAR */}
 
       <motion.aside
-
         initial={{
           x: -100,
           opacity: 0,
         }}
 
         animate={{
-          x: sidebarOpen
-            ? 0
-            : -420,
-
+          x: sidebarOpen ? 0 : -420,
           opacity: 1,
         }}
 
@@ -120,15 +102,11 @@ export default function Sidebar() {
               <h1 className="text-3xl xl:text-4xl font-black leading-tight">
 
                 <span className="text-cyan-400">
-
                   Productivity
-
                 </span>
 
                 <span className="text-blue-500">
-
                   OS
-
                 </span>
 
               </h1>
@@ -228,85 +206,69 @@ export default function Sidebar() {
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
 
-          {navItems.map(
-            item => {
+          {navItems.map((item) => {
 
-              const Icon =
-                item.icon;
+            const Icon = item.icon;
 
-              return (
+            return (
 
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                >
+              <NavLink
+                key={item.path}
+                to={item.path}
+              >
 
-                  {({
-                    isActive,
-                  }) => (
+                {({ isActive }) => (
 
-                    <motion.div
+                  <motion.div
+                    whileHover={{
+                      scale: 1.02,
+                    }}
 
-                      whileHover={{
-                        scale: 1.02,
-                      }}
+                    whileTap={{
+                      scale: 0.98,
+                    }}
 
-                      whileTap={{
-                        scale: 0.98,
-                      }}
-
-                      className={`
-
+                    className={`
                       flex items-center gap-5 rounded-3xl px-6 py-5 transition-all duration-300
-
                       ${
                         isActive
-
                           ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20"
-
                           : "bg-white/[0.03] border border-white/5 hover:bg-white/[0.06]"
                       }
+                    `}
+                  >
+
+                    <Icon
+                      size={28}
+                      className={
+                        isActive
+                          ? "text-cyan-400"
+                          : "text-slate-400"
+                      }
+                    />
+
+                    <span
+                      className={`
+                        text-xl font-semibold
+                        ${
+                          isActive
+                            ? "text-cyan-300"
+                            : "text-white"
+                        }
                       `}
                     >
 
-                      <Icon
-                        size={28}
-                        className={`
+                      {item.name}
 
-                        ${
-                          isActive
+                    </span>
 
-                            ? "text-cyan-400"
+                  </motion.div>
 
-                            : "text-slate-400"
-                        }
-                        `}
-                      />
+                )}
 
-                      <span className={`
-
-                      text-xl font-semibold
-
-                      ${
-                        isActive
-
-                          ? "text-cyan-300"
-
-                          : "text-white"
-                      }
-                      `}>
-
-                        {item.name}
-
-                      </span>
-
-                    </motion.div>
-                  )}
-
-                </NavLink>
-              );
-            }
-          )}
+              </NavLink>
+            );
+          })}
 
         </div>
 
