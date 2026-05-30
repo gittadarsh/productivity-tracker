@@ -1,31 +1,26 @@
-export default function LoadingSkeleton() {
+export default function LoadingScreen() {
 
   return (
 
-    <div className="space-y-8 animate-pulse">
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
 
-      {/* HERO */}
+      <div className="text-center">
 
-      <div className="h-52 rounded-[36px] bg-white/5 border border-white/10" />
+        <div className="w-20 h-20 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto" />
 
-      {/* STATS */}
+        <h1 className="text-4xl font-black mt-8">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          Initializing Productivity OS
 
-        {[1, 2, 3, 4].map((item) => (
+        </h1>
 
-          <div
-            key={item}
-            className="h-40 rounded-[30px] bg-white/5 border border-white/10"
-          />
+        <p className="text-slate-400 text-lg mt-4">
 
-        ))}
+          Syncing intelligence systems...
+
+        </p>
 
       </div>
-
-      {/* CONTENT */}
-
-      <div className="h-[500px] rounded-[36px] bg-white/5 border border-white/10" />
 
     </div>
   );

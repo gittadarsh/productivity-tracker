@@ -1,9 +1,4 @@
 import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
   motion,
 } from "framer-motion";
 
@@ -11,21 +6,11 @@ import {
   Link,
 } from "react-router-dom";
 
-import {
-  auth,
-  db,
-} from "../firebase";
-
-import {
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import ProductivityHeader from "../components/ProductivityHeader";
 
 import AICoachDashboard from "../components/AICoachDashboard";
 
 import XPProgress from "../components/XPProgress";
-
-import ProductivityHeader from "../components/ProductivityHeader";
 
 import PremiumCard from "../components/PremiumCard";
 
@@ -33,116 +18,16 @@ import AIAlerts from "../components/AIAlerts";
 
 import RealtimeActivityFeed from "../components/RealtimeActivityFeed";
 
+import AIRecommendations from "../components/AIRecommendations";
+
+import {
+  useProductivityStore,
+} from "../store/useProductivityStore";
+
 export default function Dashboard() {
 
-  const [stats, setStats] =
-    useState({
-
-      xp: 0,
-
-      sessions: 0,
-
-      streak: 0,
-
-      goals: 0,
-    });
-
-  const [loading, setLoading] =
-    useState(true);
-
-  useEffect(() => {
-
-    loadDashboard();
-
-  }, []);
-
-  const loadDashboard =
-    async () => {
-
-      try {
-
-        const user =
-          auth.currentUser;
-
-        if (!user) {
-
-          setLoading(false);
-
-          return;
-        }
-
-        const userRef =
-          doc(
-            db,
-            "users",
-            user.uid
-          );
-
-        const userSnap =
-          await getDoc(
-            userRef
-          );
-
-        const focusRef =
-          doc(
-            db,
-            "focusSessions",
-            user.uid
-          );
-
-        const focusSnap =
-          await getDoc(
-            focusRef
-          );
-
-        const userData =
-          userSnap.exists()
-
-            ? userSnap.data()
-
-            : {};
-
-        const focusData =
-          focusSnap.exists()
-
-            ? focusSnap.data()
-
-            : {};
-
-        const sessions =
-          focusData.sessions || 0;
-
-        const streak =
-          sessions > 0
-
-            ? Math.floor(
-                sessions / 3
-              )
-
-            : 0;
-
-        setStats({
-
-          xp:
-            userData.xp || 0,
-
-          sessions,
-
-          streak,
-
-          goals:
-            userData.completedGoals || 0,
-        });
-
-      } catch (error) {
-
-        console.log(error);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
+  const productivity =
+    useProductivityStore();
 
   const quickActions = [
 
@@ -175,38 +60,58 @@ export default function Dashboard() {
 
     {
       title: "Total XP",
-      value: stats.xp,
+      value:
+        productivity.xp,
+
       icon: "⚡",
+
       color:
         "text-cyan-400",
     },
 
     {
-      title: "Focus Sessions",
-      value: stats.sessions,
+      title:
+        "Focus Sessions",
+
+      value:
+        productivity.sessions,
+
       icon: "🧠",
+
       color:
         "text-purple-400",
     },
 
     {
-      title: "Current Streak",
-      value: stats.streak,
+      title:
+        "Current Streak",
+
+      value:
+        productivity.streak,
+
       icon: "🔥",
+
       color:
         "text-orange-400",
     },
 
     {
-      title: "Goals Completed",
-      value: stats.goals,
-      icon: "🎯",
+      title:
+        "Productivity Score",
+
+      value:
+        productivity.score,
+
+      icon: "📈",
+
       color:
         "text-green-400",
     },
   ];
 
-  if (loading) {
+  if (
+    productivity.loading
+  ) {
 
     return (
 
@@ -267,7 +172,7 @@ export default function Dashboard() {
 
           <p className="text-slate-400 text-lg md:text-xl mt-6 max-w-3xl leading-relaxed">
 
-            AI-powered productivity intelligence and behavioral coaching platform.
+            AI-powered productivity operating system.
 
           </p>
 
@@ -295,43 +200,23 @@ export default function Dashboard() {
 
           <h2 className="text-4xl font-black mt-5 leading-tight">
 
-            You are building strong productivity momentum.
+            Productivity momentum is improving strongly.
 
           </h2>
 
           <p className="text-slate-400 text-lg mt-5 leading-relaxed">
 
-            Your recent focus consistency and XP growth indicate improving behavioral discipline.
+            Your behavioral consistency and focus quality indicate strong growth patterns.
 
           </p>
 
         </PremiumCard>
 
-        <PremiumCard className="p-8">
-
-          <p className="text-orange-400 uppercase tracking-[5px] text-sm font-semibold">
-
-            Next Milestone
-
-          </p>
-
-          <h2 className="text-4xl font-black mt-5 leading-tight">
-
-            Unlock Elite Performer
-
-          </h2>
-
-          <p className="text-slate-400 text-lg mt-5 leading-relaxed">
-
-            Maintain your streak and increase deep work consistency to unlock elite productivity status.
-
-          </p>
-
-        </PremiumCard>
+        <AIRecommendations />
 
       </div>
 
-      {/* LIVE FEED + ALERTS */}
+      {/* LIVE SECTION */}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
@@ -365,39 +250,47 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
 
-        {quickActions.map((action, index) => (
+        {quickActions.map(
+          (
+            action,
+            index
+          ) => (
 
-          <Link
-            key={index}
-            to={action.path}
-          >
-
-            <motion.div
-              whileHover={{
-                y: -5,
-              }}
-              transition={{
-                duration: 0.25,
-              }}
-              className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:bg-white/10 transition-all"
+            <Link
+              key={index}
+              to={action.path}
             >
 
-              <div className="text-5xl">
+              <motion.div
 
-                {action.icon}
+                whileHover={{
+                  y: -5,
+                }}
 
-              </div>
+                transition={{
+                  duration: 0.25,
+                }}
 
-              <h3 className="text-2xl font-black mt-6">
+                className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl hover:bg-white/10 transition-all"
+              >
 
-                {action.title}
+                <div className="text-5xl">
 
-              </h3>
+                  {action.icon}
 
-            </motion.div>
+                </div>
 
-          </Link>
-        ))}
+                <h3 className="text-2xl font-black mt-6">
+
+                  {action.title}
+
+                </h3>
+
+              </motion.div>
+
+            </Link>
+          )
+        )}
 
       </div>
 
@@ -405,38 +298,43 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        {statCards.map((stat, index) => (
+        {statCards.map(
+          (
+            stat,
+            index
+          ) => (
 
-          <PremiumCard
-            key={index}
-            className="p-7"
-          >
-
-            <div className="text-5xl">
-
-              {stat.icon}
-
-            </div>
-
-            <p className="text-slate-400 mt-7 text-lg">
-
-              {stat.title}
-
-            </p>
-
-            <h2 className={`
-
-            text-5xl md:text-6xl font-black mt-4
-
-            ${stat.color}`}
+            <PremiumCard
+              key={index}
+              className="p-7"
             >
 
-              {stat.value}
+              <div className="text-5xl">
 
-            </h2>
+                {stat.icon}
 
-          </PremiumCard>
-        ))}
+              </div>
+
+              <p className="text-slate-400 mt-7 text-lg">
+
+                {stat.title}
+
+              </p>
+
+              <h2 className={`
+
+              text-5xl md:text-6xl font-black mt-4
+
+              ${stat.color}`}
+              >
+
+                {stat.value}
+
+              </h2>
+
+            </PremiumCard>
+          )
+        )}
 
       </div>
 

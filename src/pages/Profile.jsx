@@ -1,6 +1,6 @@
 import {
-  useProductivity,
-} from "../context/ProductivityContext";
+  useProductivityStore,
+} from "../store/useProductivityStore";
 
 import {
   getRewardData,
@@ -18,10 +18,12 @@ import PremiumCard from "../components/PremiumCard";
 
 import ProfileAnalytics from "../components/ProfileAnalytics";
 
+import ProfileInsights from "../components/ProfileInsights";
+
 export default function Profile() {
 
   const productivity =
-    useProductivity();
+    useProductivityStore();
 
   const reward =
     getRewardData(
@@ -79,8 +81,6 @@ export default function Profile() {
 
     <div className="space-y-8">
 
-      {/* HERO */}
-
       <div className="rounded-[40px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-10 shadow-2xl">
 
         <h1 className="text-6xl font-black">
@@ -96,8 +96,6 @@ export default function Profile() {
         </p>
 
       </div>
-
-      {/* PERSONA */}
 
       <PremiumCard className="p-8">
 
@@ -121,8 +119,6 @@ export default function Profile() {
 
       </PremiumCard>
 
-      {/* AI MEMORY */}
-
       <PremiumCard className="p-8">
 
         <p className="text-orange-400 uppercase tracking-[5px] text-sm font-semibold">
@@ -144,8 +140,6 @@ export default function Profile() {
         </p>
 
       </PremiumCard>
-
-      {/* GRID */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
@@ -215,8 +209,6 @@ export default function Profile() {
 
       </div>
 
-      {/* PRODUCTIVITY STATS */}
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <PremiumCard className="p-8">
@@ -269,9 +261,9 @@ export default function Profile() {
 
       </div>
 
-      {/* ANALYTICS */}
-
       <ProfileAnalytics />
+
+      <ProfileInsights />
 
     </div>
   );

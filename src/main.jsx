@@ -20,6 +20,8 @@ import {
 
 import AppInitializer from "./AppInitializer";
 
+import ErrorBoundary from "./components/ErrorBoundary";
+
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
@@ -30,11 +32,15 @@ ReactDOM.createRoot(
 
       <ProductivityProvider>
 
-        <AppInitializer>
+        <ErrorBoundary>
 
-          <App />
+          <AppInitializer>
 
-        </AppInitializer>
+            <App />
+
+          </AppInitializer>
+
+        </ErrorBoundary>
 
       </ProductivityProvider>
 
@@ -60,6 +66,16 @@ ReactDOM.createRoot(
 
             padding:
               "16px",
+          },
+
+          success: {
+
+            duration: 3000,
+          },
+
+          error: {
+
+            duration: 4000,
           },
         }}
       />

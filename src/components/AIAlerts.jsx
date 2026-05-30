@@ -1,67 +1,78 @@
 import {
-  motion,
-} from "framer-motion";
+  useProductivityStore,
+} from "../store/useProductivityStore";
 
-export default function LiveActivityFeed({
+export default function AIAlerts() {
 
-  activities = [],
+  const productivity =
+    useProductivityStore();
 
-}) {
+  const alerts = [];
+
+  if (
+    productivity.streak < 3
+  ) {
+
+    alerts.push({
+
+      text:
+        "Your streak is at risk. Complete a focus session today.",
+    });
+  }
+
+  if (
+    productivity.score >= 80
+  ) {
+
+    alerts.push({
+
+      text:
+        "Elite productivity momentum detected.",
+    });
+  }
+
+  if (
+    productivity.sessions < 5
+  ) {
+
+    alerts.push({
+
+      text:
+        "Increase focus sessions to accelerate growth.",
+    });
+  }
+
+  if (!alerts.length) {
+
+    alerts.push({
+
+      text:
+        "Your productivity systems are stable and improving.",
+    });
+  }
 
   return (
 
-    <div className="space-y-5">
+    <div className="space-y-4">
 
-      {activities.map(
+      {alerts.map(
         (
-          item,
+          alert,
           index
         ) => (
 
-          <motion.div
-
+          <div
             key={index}
-
-            initial={{
-              opacity: 0,
-              x: -20,
-            }}
-
-            animate={{
-              opacity: 1,
-              x: 0,
-            }}
-
-            className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-2xl"
+            className="rounded-2xl border border-white/10 bg-white/5 p-5"
           >
 
-            <div className="flex items-start gap-5">
+            <p className="text-lg text-slate-300">
 
-              <div className="text-4xl">
+              {alert.text}
 
-                {item.icon}
+            </p>
 
-              </div>
-
-              <div>
-
-                <h3 className="text-2xl font-black">
-
-                  {item.title}
-
-                </h3>
-
-                <p className="text-slate-400 mt-2">
-
-                  {item.description}
-
-                </p>
-
-              </div>
-
-            </div>
-
-          </motion.div>
+          </div>
         )
       )}
 
