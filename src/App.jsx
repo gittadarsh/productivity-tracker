@@ -20,7 +20,6 @@ import {
 } from "react";
 
 import {
-  BrowserRouter,
   Routes,
   Route,
   Navigate,
@@ -283,7 +282,7 @@ export default function App() {
 
   return (
 
-    <BrowserRouter>
+  
 
       <div
         className={`
@@ -734,6 +733,5 @@ export default function App() {
 
       </div>
 
-    </BrowserRouter>
   );
 }
