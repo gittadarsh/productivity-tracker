@@ -1,23 +1,18 @@
-import { NavLink } from "react-router-dom";
+import {
+  NavLink,
+} from "react-router-dom";
 
 import {
   Home,
   Target,
-  BarChart3,
-  Trophy,
+  Bell,
   Brain,
-  User,
   Users,
+  BookOpen,
   LogOut,
-  X,
 } from "lucide-react";
 
-import {
-  useUIStore,
-} from "../store/uiStore";
-
 const navItems = [
-
   {
     name: "Dashboard",
     icon: Home,
@@ -25,257 +20,184 @@ const navItems = [
   },
 
   {
-    name: "Habits",
+    name: "Goals",
     icon: Target,
-    path: "/habits",
+    path: "/goals",
   },
 
   {
-    name: "Analytics",
-    icon: BarChart3,
-    path: "/analytics",
+    name: "Reminders",
+    icon: Bell,
+    path: "/notifications",
   },
 
   {
-    name: "Achievements",
-    icon: Trophy,
-    path: "/achievements",
-  },
-
-  {
-    name: "Focus",
+    name: "Mentor",
     icon: Brain,
-    path: "/focus",
+    path: "/mentor",
   },
 
   {
-    name: "Students",
+    name: "Groups",
     icon: Users,
-    path: "/students",
+    path: "/groups",
   },
 
   {
-    name: "Profile",
-    icon: User,
-    path: "/profile",
+    name: "Reflection",
+    icon: BookOpen,
+    path: "/reflection",
   },
 ];
 
 export default function Sidebar() {
 
-  const {
-    sidebarOpen,
-    closeSidebar,
-  } = useUIStore();
-
   return (
-    <>
-      {/* OVERLAY */}
 
-      {sidebarOpen && (
+    <aside className="w-[280px] h-screen sticky top-0 border-r border-white/10 bg-[#0B1120] flex flex-col">
 
-        <div
-          onClick={closeSidebar}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-        />
-      )}
+      {/* LOGO */}
 
-      {/* SIDEBAR */}
+      <div className="px-8 py-8 border-b border-white/10">
 
-      <aside
-        className={`
+        <h1 className="text-4xl font-black">
 
-        fixed top-0 left-0 z-50 h-screen w-[280px]
+          <span className="text-cyan-400">
+            Growth
+          </span>
 
-        bg-[#050816]
+          <span className="text-blue-500">
+            OS
+          </span>
 
-        border-r border-white/10
+        </h1>
 
-        overflow-hidden
+        <p className="text-slate-400 mt-2 text-sm">
 
-        transition-all duration-300
+          Accountability System
 
-        flex flex-col
+        </p>
 
-        ${
-          sidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
-        }
-        `}
-      >
+      </div>
 
-        {/* HEADER */}
+      {/* PROFILE */}
 
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+      <div className="px-6 py-6 border-b border-white/10">
+
+        <div className="flex items-center gap-4">
+
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center font-black text-xl">
+
+            AK
+
+          </div>
 
           <div>
 
-            <h1 className="text-3xl font-black leading-tight">
+            <h2 className="font-bold text-lg">
+              Adarsh Kumar
+            </h2>
 
-              <span className="text-cyan-400">
+            <p className="text-slate-400 text-sm">
 
-                Productivity
-
-              </span>
-
-              <span className="text-blue-500">
-
-                OS
-
-              </span>
-
-            </h1>
-
-            <p className="text-slate-400 text-sm mt-2">
-
-              Intelligence Platform
+              Building Consistency
 
             </p>
 
           </div>
 
-          <button
-            onClick={closeSidebar}
-            className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"
-          >
-
-            <X size={18} />
-
-          </button>
-
         </div>
 
-        {/* PROFILE */}
+      </div>
 
-        <div className="p-5 border-b border-white/10">
+      {/* NAVIGATION */}
 
-          <div className="flex items-center gap-4">
+      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
 
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-2xl font-black">
+        {navItems.map((item) => {
 
-              AK
+          const Icon = item.icon;
 
-            </div>
+          return (
 
-            <div>
+            <NavLink
+              key={item.path}
+              to={item.path}
+            >
 
-              <h2 className="text-xl font-bold">
+              {({ isActive }) => (
 
-                Adarsh Kumar
-
-              </h2>
-
-              <p className="text-slate-400 text-sm mt-1">
-
-                Productivity Student
-
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* NAVIGATION */}
-
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-
-          {navItems.map((item) => {
-
-            const Icon =
-              item.icon;
-
-            return (
-
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={closeSidebar}
-              >
-
-                {({
-                  isActive,
-                }) => (
-
-                  <div
-                    className={`
-
+                <div
+                  className={`
                     flex items-center gap-4
-
-                    rounded-2xl
-
                     px-5 py-4
-
+                    rounded-2xl
                     transition-all duration-200
 
                     ${
                       isActive
                         ? "bg-cyan-500/15 border border-cyan-500/20"
-                        : "hover:bg-white/5 border border-transparent"
+                        : "hover:bg-white/5"
                     }
-                    `}
-                  >
+                  `}
+                >
 
-                    <Icon
-                      size={22}
-                      className={
-                        isActive
-                          ? "text-cyan-400"
-                          : "text-slate-400"
-                      }
-                    />
+                  <Icon
+                    size={22}
+                    className={
+                      isActive
+                        ? "text-cyan-400"
+                        : "text-slate-400"
+                    }
+                  />
 
-                    <span
-                      className={`
-
-                      text-lg font-semibold
+                  <span
+                    className={`
+                      font-semibold text-lg
 
                       ${
                         isActive
                           ? "text-cyan-300"
                           : "text-white"
                       }
-                      `}
-                    >
+                    `}
+                  >
 
-                      {item.name}
+                    {item.name}
 
-                    </span>
+                  </span>
 
-                  </div>
+                </div>
 
-                )}
+              )}
 
-              </NavLink>
-            );
-          })}
+            </NavLink>
+          );
+        })}
 
-        </div>
+      </div>
 
-        {/* FOOTER */}
+      {/* FOOTER */}
 
-        <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-white/10">
 
-          <button className="w-full rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all py-4 flex items-center justify-center gap-3">
+        <button className="w-full rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all py-4 flex items-center justify-center gap-3">
 
-            <LogOut
-              size={20}
-              className="text-red-400"
-            />
+          <LogOut
+            size={20}
+            className="text-red-400"
+          />
 
-            <span className="text-red-400 font-semibold">
+          <span className="text-red-400 font-semibold">
 
-              Logout
+            Logout
 
-            </span>
+          </span>
 
-          </button>
+        </button>
 
-        </div>
+      </div>
 
-      </aside>
-    </>
+    </aside>
   );
 }

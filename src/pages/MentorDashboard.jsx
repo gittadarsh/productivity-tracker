@@ -3,13 +3,7 @@ import {
   useState,
 } from "react";
 
-import {
-  motion,
-} from "framer-motion";
-
-import {
-  Link,
-} from "react-router-dom";
+import { motion } from "framer-motion";
 
 import {
   auth,
@@ -53,10 +47,7 @@ export default function MentorDashboard() {
 
         const mentorQuery =
           query(
-            collection(
-              db,
-              "users"
-            ),
+            collection(db, "users"),
             where(
               "uid",
               "==",
@@ -81,10 +72,7 @@ export default function MentorDashboard() {
 
         const studentQuery =
           query(
-            collection(
-              db,
-              "users"
-            ),
+            collection(db, "users"),
             where(
               "mentorId",
               "==",
@@ -105,18 +93,6 @@ export default function MentorDashboard() {
             })
           );
 
-        studentData.sort(
-          (a, b) =>
-
-            (
-              b.xp || 0
-            ) -
-
-            (
-              a.xp || 0
-            )
-        );
-
         setStudents(
           studentData
         );
@@ -131,9 +107,6 @@ export default function MentorDashboard() {
 
       }
     };
-
-  const topPerformer =
-    students[0];
 
   return (
 
@@ -153,24 +126,22 @@ export default function MentorDashboard() {
         className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-500/5 backdrop-blur-xl p-8 md:p-10 shadow-2xl"
       >
 
-        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/20 blur-[120px]" />
-
         <div className="relative z-10">
 
           <p className="text-purple-400 uppercase tracking-[6px] text-sm font-semibold">
 
-            Mentor Intelligence System
+            Mentorship System
 
           </p>
 
           <h1 className="text-5xl md:text-6xl font-black mt-5 leading-tight">
 
-            Monitor
+            Guide students
             {" "}
 
             <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
 
-              student productivity
+              with accountability
 
             </span>
 
@@ -178,7 +149,7 @@ export default function MentorDashboard() {
 
           <p className="text-slate-400 text-lg mt-6 max-w-3xl leading-relaxed">
 
-            Track performance, productivity, consistency, and accountability intelligence.
+            Monitor consistency, review goals, and help students stay disciplined.
 
           </p>
 
@@ -190,16 +161,11 @@ export default function MentorDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <motion.div
-          whileHover={{
-            y: -5,
-          }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-        >
+        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7">
 
           <p className="text-slate-400">
 
-            Total Students
+            Connected Students
 
           </p>
 
@@ -209,14 +175,9 @@ export default function MentorDashboard() {
 
           </h2>
 
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{
-            y: -5,
-          }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-        >
+        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7">
 
           <p className="text-slate-400">
 
@@ -230,31 +191,28 @@ export default function MentorDashboard() {
 
           </h2>
 
-        </motion.div>
+        </div>
 
-        <motion.div
-          whileHover={{
-            y: -5,
-          }}
-          className="rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-        >
+        <div className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7">
 
           <p className="text-slate-400">
 
-            Top Performer
+            Active This Week
 
           </p>
 
-          <h2 className="text-3xl font-black mt-4">
+          <h2 className="text-5xl font-black mt-4 text-green-400">
 
             {
-              topPerformer?.name ||
-              "--"
+              students.filter(
+                (student) =>
+                  student.streak > 0
+              ).length
             }
 
           </h2>
 
-        </motion.div>
+        </div>
 
       </div>
 
@@ -262,84 +220,50 @@ export default function MentorDashboard() {
 
       <div className="rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
 
-        <div className="flex items-center justify-between mb-10">
+        <div className="mb-10">
 
-          <div>
+          <h2 className="text-4xl font-black">
 
-            <h2 className="text-4xl font-black">
+            🎯 Student Accountability
 
-              🏆 Student Rankings
+          </h2>
 
-            </h2>
+          <p className="text-slate-400 mt-2">
 
-            <p className="text-slate-400 mt-2">
+            Review streaks, consistency, and progress.
 
-              Ranked by XP and productivity
-
-            </p>
-
-          </div>
+          </p>
 
         </div>
 
         {
           loading ? (
 
-            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
+            <div className="text-center py-20">
 
-              <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
+              <h2 className="text-4xl font-black">
 
-              <div className="relative z-10">
+                Loading Students...
 
-                <div className="text-8xl mb-6">
-
-                  📊
-
-                </div>
-
-                <h2 className="text-4xl font-black">
-
-                  Loading Students...
-
-                </h2>
-
-                <p className="text-slate-400 text-lg mt-4">
-
-                  Fetching productivity intelligence.
-
-                </p>
-
-              </div>
+              </h2>
 
             </div>
 
           ) : students.length === 0 ? (
 
-            <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5 backdrop-blur-xl p-20 text-center shadow-2xl">
+            <div className="text-center py-20">
 
-              <div className="absolute top-0 right-0 w-60 h-60 bg-cyan-500/10 blur-[100px]" />
+              <h2 className="text-4xl font-black">
 
-              <div className="relative z-10">
+                No Students Connected
 
-                <div className="text-8xl mb-6">
+              </h2>
 
-                  🎓
+              <p className="text-slate-400 mt-4">
 
-                </div>
+                Share your mentor ID with students.
 
-                <h3 className="text-4xl font-black mb-4">
-
-                  No Students Yet
-
-                </h3>
-
-                <p className="text-slate-400 text-lg">
-
-                  Share your mentor ID to connect students.
-
-                </p>
-
-              </div>
+              </p>
 
             </div>
 
@@ -353,97 +277,72 @@ export default function MentorDashboard() {
                   index
                 ) => (
 
-                  <Link
-                    key={
-                      student.id
-                    }
-                    to={`/student/${student.uid}`}
+                  <motion.div
+                    key={student.id}
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      delay:
+                        index * 0.05,
+                    }}
+                    className="rounded-[32px] border border-white/10 bg-white/5 backdrop-blur-xl p-7"
                   >
 
-                    <motion.div
-                      initial={{
-                        opacity: 0,
-                        y: 20,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                      }}
-                      transition={{
-                        delay:
-                          index * 0.05,
-                      }}
-                      whileHover={{
-                        y: -5,
-                      }}
-                      className="relative overflow-hidden rounded-[32px] border border-white/10 hover:border-cyan-500/20 bg-white/5 backdrop-blur-xl p-7 shadow-2xl cursor-pointer transition-all duration-300 hover:scale-[1.015]"
-                    >
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-                      <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 blur-3xl" />
+                      <div>
 
-                      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <h2 className="text-3xl font-black">
 
-                        <div className="flex items-center gap-5">
+                          {student.name}
 
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-2xl font-black shadow-2xl">
+                        </h2>
 
-                            #
-                            {index + 1}
+                        <p className="text-slate-400 mt-2">
 
-                          </div>
+                          {student.email}
 
-                          <img
-                            src={
-                              student.photo ||
+                        </p>
 
-                              `https://ui-avatars.com/api/?name=${student.name}`
-                            }
-                            alt="student"
-                            className="w-16 h-16 rounded-2xl object-cover border border-white/10"
-                          />
+                      </div>
 
-                          <div>
+                      <div className="flex gap-4">
 
-                            <h2 className="text-3xl font-black">
+                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl px-6 py-4">
 
-                              {student.name}
+                          <p className="text-orange-300 text-sm">
 
-                            </h2>
-
-                            <p className="text-slate-400 mt-2">
-
-                              {student.email}
-
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 rounded-2xl px-8 py-5">
-
-                          <p className="text-cyan-300 text-sm">
-
-                            Total XP
+                            Streak
 
                           </p>
 
-                          <h3 className="text-5xl font-black text-cyan-400 mt-2">
+                          <h3 className="text-3xl font-black text-orange-400">
 
-                            {
-                              student.xp ||
-                              0
+                            🔥 {
+                              student.streak || 0
                             }
 
                           </h3>
 
                         </div>
 
+                        <button className="bg-cyan-500 hover:bg-cyan-600 transition px-6 py-4 rounded-2xl font-semibold">
+
+                          View Goals
+
+                        </button>
+
                       </div>
 
-                    </motion.div>
+                    </div>
 
-                  </Link>
+                  </motion.div>
                 )
               )}
 

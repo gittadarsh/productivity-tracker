@@ -4,21 +4,12 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import Layout from "./layouts/Layout";
+
 import Dashboard from "./pages/Dashboard";
-
-import Students from "./pages/Students";
-
-import Habits from "./pages/Habits";
-
-import Analytics from "./pages/Analytics";
-
-import Achievements from "./pages/Achievements";
-
-import FocusMode from "./pages/FocusMode";
-
-import Profile from "./pages/Profile";
-
-import AppLayout from "./layouts/AppLayout";
+import Goals from "./pages/Goals";
+import Notifications from "./pages/Notifications";
+import MentorDashboard from "./pages/MentorDashboard";
 
 export default function App() {
 
@@ -26,21 +17,14 @@ export default function App() {
 
     <Routes>
 
-      {/* DEFAULT ROUTE */}
+      <Route element={<Layout />}>
 
-      <Route
-        path="/"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
-
-      {/* MAIN APP LAYOUT */}
-
-      <Route element={<AppLayout />}>
+        <Route
+          path="/"
+          element={
+            <Navigate to="/dashboard" />
+          }
+        />
 
         <Route
           path="/dashboard"
@@ -48,48 +32,21 @@ export default function App() {
         />
 
         <Route
-          path="/habits"
-          element={<Habits />}
-        />
-  
-  <Route
-  path="/students"
-  element={<Students />}
-/>
-
-        <Route
-          path="/analytics"
-          element={<Analytics />}
+          path="/goals"
+          element={<Goals />}
         />
 
         <Route
-          path="/achievements"
-          element={<Achievements />}
+          path="/notifications"
+          element={<Notifications />}
         />
 
         <Route
-          path="/focus"
-          element={<FocusMode />}
-        />
-
-        <Route
-          path="/profile"
-          element={<Profile />}
+          path="/mentor"
+          element={<MentorDashboard />}
         />
 
       </Route>
-
-      {/* FALLBACK */}
-
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/dashboard"
-            replace
-          />
-        }
-      />
 
     </Routes>
   );

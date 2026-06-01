@@ -1,18 +1,23 @@
-export function calculateXP(
-  habits
-) {
+export function calculateConsistency(completedGoals, totalGoals) {
+  if (totalGoals === 0) return 0;
 
-  let xp = 0;
+  return Math.round((completedGoals / totalGoals) * 100);
+}
 
-  habits.forEach((habit) => {
+export function updateStreak(completedGoals, totalGoals, currentStreak) {
+  const consistency = calculateConsistency(completedGoals, totalGoals);
 
-    if (habit.completed) {
+  if (consistency >= 80) {
+    return currentStreak + 1;
+  }
 
-      xp += 25;
-    }
+  return 0;
+}
 
-    xp += habit.streak * 5;
-  });
-
-  return xp;
+export function getStreakStatus(streak) {
+  if (streak >= 100) return "Legendary";
+  if (streak >= 50) return "Elite";
+  if (streak >= 20) return "Consistent";
+  if (streak >= 7) return "Building";
+  return "Starting";
 }

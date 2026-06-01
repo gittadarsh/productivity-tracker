@@ -6,13 +6,13 @@ import {
   BrowserRouter,
 } from "react-router-dom";
 
-import {
-  onAuthStateChanged,
-} from "firebase/auth";
-
 import "./index.css";
 
 import App from "./App";
+
+import {
+  onAuthStateChanged,
+} from "firebase/auth";
 
 import {
   auth,
@@ -22,44 +22,32 @@ import {
   createUserProfile,
 } from "./services/userService";
 
-import {
-  useProductivityStore,
-} from "./store/useProductivityStore";
-
-import {
-  useUIStore,
-} from "./store/uiStore";
-
 /* INITIALIZE AUTH */
 
 onAuthStateChanged(
+
   auth,
 
   async (user) => {
 
     if (user) {
 
-      await createUserProfile(
-        user
-      );
+      try {
 
-      useProductivityStore
-        .getState()
-        .setUser(user);
-    }
+        await createUserProfile(
+          user
+        );
 
-    else {
+      } catch (error) {
 
-      useProductivityStore
-        .getState()
-        .setUser(null);
+        console.log(
+          "User profile error:",
+          error
+        );
+      }
     }
   }
 );
-
-/* INITIALIZE UI */
-
-useUIStore.getState();
 
 /* RENDER APP */
 
